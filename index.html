@@ -732,7 +732,7 @@
         <div class="command-icon" id="iconPain">
           <div class="emoji">😣</div>
           <strong>J’ai mal</strong>
-          <small>grimace</small>
+          <small>sourcils froncés</small>
         </div>
       </div>
 
@@ -745,7 +745,7 @@
         <div class="command-icon" id="iconComfort">
           <div class="emoji">😗</div>
           <strong>J’ai chaud</strong>
-          <small>bouche soufflée</small>
+          <small>cul-de-poule</small>
         </div>
       </div>
 
@@ -878,6 +878,8 @@
     let idleShakeCount = 0;
     let lastIdleShakeAt = 0;
     let expressionStart = null;
+      expressionType = null;
+    let expressionType = null;
 
     let baselineNoseY = null;
     let baselineNoseX = null;
@@ -895,8 +897,8 @@
     const NOD_THRESHOLD = 0.035;
     const SHAKE_THRESHOLD = 0.035;
     const BLINK_THRESHOLD = 0.55;
-    const PUCKER_THRESHOLD = 0.45;
-    const PAIN_THRESHOLD = 0.45;
+    const PUCKER_THRESHOLD = 0.58;
+    const PAIN_THRESHOLD = 0.38;
     const EXPRESSION_HOLD_MS = 900;
 
     function setState(text, type="loading"){
@@ -1163,15 +1165,11 @@
       const blinkScore = (eyeBlinkLeft + eyeBlinkRight) / 2;
 
       const puckerScore = getBlendScore(result, ["mouthPucker"]);
-      const eyeSquint = Math.max(
-        getBlendScore(result, ["eyeSquintLeft"]),
-        getBlendScore(result, ["eyeSquintRight"])
-      );
       const browDown = Math.max(
         getBlendScore(result, ["browDownLeft"]),
         getBlendScore(result, ["browDownRight"])
       );
-      const painScore = Math.max(eyeSquint, browDown);
+      const painScore = browDown;
 
       // 1. SOIF : bouche ouverte / langue simulée pendant 1,7 s
       if(mouthRatio > MOUTH_OPEN_THRESHOLD){
@@ -1212,31 +1210,52 @@
         blinkCount = 0;
       }
 
-      // 3. CONFORT : bouche en cul-de-poule / souffler
-      if(puckerScore > PUCKER_THRESHOLD){
-        if(expressionStart === null) expressionStart = now;
-        iconComfort.classList.add("active");
-        if(now - expressionStart > EXPRESSION_HOLD_MS){
-          expressionStart = null;
-          beginConfirmation("comfort");
-          return;
-        }
-      }else{
-        iconComfort.classList.remove("active");
-        if(expressionStart !== null && puckerScore < 0.25) expressionStart = null;
-      }
-
-      // 4. DOULEUR : grimace / visage crispé
+      // 3. DOULEUR : sourcils froncés uniquement
+      // On teste la douleur AVANT le confort pour éviter les confusions avec la bouche.
       if(painScore > PAIN_THRESHOLD){
-        if(expressionStart === null) expressionStart = now;
+        if(expressionType !== "pain"){
+          expressionType = "pain";
+          expressionStart = now;
+        }
         iconPain.classList.add("alert");
+        iconComfort.classList.remove("active");
+
         if(now - expressionStart > EXPRESSION_HOLD_MS){
           expressionStart = null;
+          expressionType = null;
           beginConfirmation("pain");
           return;
         }
       }else{
         iconPain.classList.remove("alert");
+      }
+
+      // 4. CONFORT : bouche en cul-de-poule / souffler
+      // Sécurité : si les sourcils sont froncés, on ne déclenche pas "j'ai chaud".
+      if(puckerScore > PUCKER_THRESHOLD && painScore < 0.25){
+        if(expressionType !== "comfort"){
+          expressionType = "comfort";
+          expressionStart = now;
+        }
+        iconComfort.classList.add("active");
+
+        if(now - expressionStart > EXPRESSION_HOLD_MS){
+          expressionStart = null;
+          expressionType = null;
+          beginConfirmation("comfort");
+          return;
+        }
+      }else{
+        iconComfort.classList.remove("active");
+        if(expressionType === "comfort" && puckerScore < 0.30){
+          expressionStart = null;
+          expressionType = null;
+        }
+      }
+
+      if(painScore < 0.25 && puckerScore < 0.30 && expressionType === "pain"){
+        expressionStart = null;
+        expressionType = null;
       }
 
       // 5. URGENCE : secouer rapidement gauche/droite
@@ -1391,7 +1410,7 @@
         lightOff.classList.add("show");
       }
 
-      const duration = type === "drink" ? 10 : 5;
+      const duration = type === "drink" ? 10 : 5; // démo courte ; en vrai, confort = arrêt automatique après 5 minutes
       let remaining = duration;
       countdownText.textContent = actionCountdownLabel(type, remaining);
 
@@ -1432,7 +1451,7 @@
         drink: 'Commande simulée : <strong>DRINK_REQUEST</strong><br>La paille est positionnée pendant 10 secondes.',
         pain: 'Commande simulée : <strong>PAIN_ALERT</strong><br>Message : “J’ai mal”.',
         sleep: 'Commande simulée : <strong>LIGHT_OFF</strong><br>La lumière de la chambre s’éteint.',
-        comfort: 'Commande simulée : <strong>FAN_ON</strong><br>Le ventilateur de confort se met en route.',
+        comfort: 'Commande simulée : <strong>FAN_ON</strong><br>Le ventilateur se met en route. Arrêt automatique prévu après 5 minutes.',
         emergency: 'Commande simulée : <strong>EMERGENCY_ALERT</strong><br>Besoin d’aide immédiate.'
       }[type] || "";
     }
@@ -1452,13 +1471,14 @@
         drink: "Distribution en cours : le servomoteur positionne la paille. Retour automatique après 10 secondes.",
         pain: "Alerte douleur : le message “J’ai mal” est envoyé à l’infirmier.",
         sleep: "Sommeil : la lumière est éteinte pour permettre le repos.",
-        comfort: "Confort : le ventilateur est activé pour rafraîchir la personne.",
+        comfort: "Confort : le ventilateur est activé puis s’éteindra automatiquement après 5 minutes.",
         emergency: "Urgence : une alerte prioritaire est envoyée aux aidants."
       }[type] || "";
     }
 
     function actionCountdownLabel(type, remaining){
       if(type === "drink") return "Distribution : " + remaining + " s";
+      if(type === "comfort") return "Ventilation lancée · retour détection : " + remaining + " s";
       return "Retour détection : " + remaining + " s";
     }
 
@@ -1472,9 +1492,11 @@
         countdownText.textContent = "Nouvelle tâche disponible...";
         setState("Retour position initiale", "ready");
       }else{
-        sentTitle.textContent = "Action terminée";
-        sentBig.textContent = "Retour à la détection.";
-        sentInfo.innerHTML = "Mobilife se remet en attente d’un nouveau geste.";
+        sentTitle.textContent = type === "comfort" ? "Ventilation programmée" : "Action terminée";
+        sentBig.textContent = type === "comfort" ? "Arrêt automatique prévu." : "Retour à la détection.";
+        sentInfo.innerHTML = type === "comfort"
+          ? "Le ventilateur reste actif puis s’éteindra seul après 5 minutes.<br>Mobilife peut déjà recevoir une nouvelle demande."
+          : "Mobilife se remet en attente d’un nouveau geste.";
         countdownText.textContent = "Nouvelle tâche disponible...";
         setState("Système prêt", "ready");
       }
