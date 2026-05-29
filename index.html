@@ -943,9 +943,9 @@
         <div class="music-frame-wrap">
           <div class="music-inner">
             <div class="music-note">🎵</div>
-            <h2 id="musicTrackTitle">Wonderful Life</h2>
+            <h2 id="musicTrackTitle">Murray Head</h2>
             <p id="musicTrackHint">Lecture audio intégrée — tête vers la droite = musique suivante · tête gauche/droite = annuler</p>
-            <audio id="musicAudio" src="Wonderful%20Life.mp3" preload="auto" playsinline controls></audio>
+            <audio id="musicAudio" src="wonderful life.mp3" preload="auto" playsinline controls></audio>
             <div id="audioWarning" class="audio-warning">Si le son ne démarre pas, touchez une fois le lecteur pour autoriser l’audio.</div>
           </div>
         </div>
@@ -1003,8 +1003,9 @@
     const musicTrackTitle = document.getElementById("musicTrackTitle");
     const musicTrackHint = document.getElementById("musicTrackHint");
     const MUSIC_PLAYLIST = [
-      { title: "Wonderful Life", file: "Wonderful%20Life.mp3" },
-      { title: "Take On Me", file: "Take%20On%20Me.mp3" }
+      { title: "Murray Head", file: "Murray Head.mp3" },
+      { title: "Take On Me", file: "TAKE ON ME.mp3" },
+      { title: "Wonderful Life", file: "wonderful life.mp3" }
     ];
     let currentMusicIndex = 0;
     let lastNextTrackAt = 0;
@@ -1656,8 +1657,7 @@
     async function unlockAudioOnce(){
       if(!musicAudio) return;
       try{
-        musicAudio.src = MUSIC_PLAYLIST[currentMusicIndex].file;
-        musicAudio.load();
+        updateMusicTrack(true);
         musicAudio.muted = true;
         await musicAudio.play();
         musicAudio.pause();
@@ -1681,9 +1681,8 @@
 
       if(musicAudio){
         try{
-          musicAudio.src = MUSIC_PLAYLIST[currentMusicIndex].file;
+          updateMusicTrack(true);
           musicAudio.muted = false;
-          musicAudio.currentTime = 0;
           await musicAudio.play();
         }catch(error){
           console.warn("Lecture automatique MP3 bloquée par le navigateur", error);
@@ -1700,6 +1699,50 @@
       universalShakePhase = "waitingRight";
       universalShakeCount = 0;
       lastUniversalShakeAt = 0;
+    }
+
+    function updateMusicTrack(resetTime = true){
+      if(!musicAudio) return;
+      const track = MUSIC_PLAYLIST[currentMusicIndex];
+
+      musicAudio.src = track.file;
+      musicAudio.load();
+
+      if(resetTime){
+        try{
+          musicAudio.currentTime = 0;
+        }catch(e){}
+      }
+
+      if(musicTrackTitle){
+        musicTrackTitle.textContent = track.title;
+      }
+
+      if(musicTrackHint){
+        musicTrackHint.textContent =
+          "Lecture : " + track.file + " — tête vers la droite = musique suivante · gauche/droite = annuler";
+      }
+    }
+
+    async function nextMusicTrack(){
+      currentMusicIndex = (currentMusicIndex + 1) % MUSIC_PLAYLIST.length;
+      lastNextTrackAt = performance.now();
+      nextTrackArmed = false;
+
+      updateMusicTrack(true);
+
+      if(mode === "music" && musicAudio){
+        try{
+          await musicAudio.play();
+          if(audioWarning) audioWarning.classList.remove("show");
+        }catch(error){
+          console.warn("Lecture automatique du morceau suivant bloquée", error);
+          if(audioWarning) audioWarning.classList.add("show");
+        }
+      }
+
+      setState("Musique suivante : " + MUSIC_PLAYLIST[currentMusicIndex].title, "ready");
+      commandState.textContent = "MUSIC_NEXT";
     }
 
     function stopMusicPlayer(){
