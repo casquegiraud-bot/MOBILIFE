@@ -247,6 +247,123 @@
       grid-template-columns:1fr auto;
       gap:14px;
       align-items:end;
+      display:none;
+    }
+
+    .command-zone{
+      position:absolute;
+      inset:88px 16px 18px;
+      z-index:11;
+      pointer-events:none;
+    }
+
+    .command-col{
+      position:absolute;
+      top:8%;
+      display:flex;
+      flex-direction:column;
+      gap:18px;
+    }
+
+    .command-col.left{left:0}
+    .command-col.right{right:0}
+
+    .command-bottom{
+      position:absolute;
+      left:50%;
+      bottom:10px;
+      transform:translateX(-50%);
+    }
+
+    .command-icon{
+      width:118px;
+      min-height:112px;
+      padding:12px 10px;
+      border-radius:24px;
+      background:rgba(0,0,0,.54);
+      border:1px solid rgba(255,255,255,.15);
+      backdrop-filter:blur(14px);
+      box-shadow:0 14px 40px rgba(0,0,0,.35);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:5px;
+      text-align:center;
+      transition:.22s ease;
+    }
+
+    .command-icon .emoji{
+      font-size:40px;
+      line-height:1;
+    }
+
+    .command-icon strong{
+      font-size:14px;
+      line-height:1.05;
+      color:white;
+    }
+
+    .command-icon small{
+      font-size:11px;
+      line-height:1.1;
+      color:var(--muted);
+    }
+
+    .command-icon.active{
+      border-color:rgba(38,255,154,.85);
+      box-shadow:0 0 28px rgba(38,255,154,.38), 0 14px 40px rgba(0,0,0,.35);
+      transform:scale(1.05);
+    }
+
+    .command-icon.alert{
+      border-color:rgba(255,59,95,.9);
+      box-shadow:0 0 32px rgba(255,59,95,.45), 0 14px 40px rgba(0,0,0,.35);
+      animation:iconPulse .55s infinite alternate;
+    }
+
+    @keyframes iconPulse{
+      from{transform:scale(1)}
+      to{transform:scale(1.08)}
+    }
+
+    .gesture-tip{
+      position:absolute;
+      top:10px;
+      left:50%;
+      transform:translateX(-50%);
+      z-index:12;
+      background:rgba(0,0,0,.46);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:999px;
+      padding:10px 16px;
+      color:var(--muted);
+      font-size:14px;
+      font-weight:800;
+      pointer-events:none;
+      backdrop-filter:blur(12px);
+    }
+
+    .light-off{
+      position:absolute;
+      inset:0;
+      background:rgba(0,0,0,.42);
+      z-index:4;
+      pointer-events:none;
+      opacity:0;
+      transition:opacity .5s ease;
+    }
+
+    .light-off.show{opacity:1}
+
+    .fan-animation{
+      font-size:58px;
+      margin:14px auto;
+      animation:fanSpin .75s linear infinite;
+    }
+
+    @keyframes fanSpin{
+      to{transform:rotate(360deg)}
     }
 
     .status-card{
@@ -414,6 +531,24 @@
       position:relative;
     }
 
+    .action-visual{
+      display:none;
+      margin:18px auto 8px;
+      font-size:68px;
+      line-height:1;
+      filter:drop-shadow(0 10px 20px rgba(0,0,0,.35));
+    }
+
+    .action-visual.show{
+      display:block;
+      animation:softPop .55s ease-out;
+    }
+
+    @keyframes softPop{
+      from{transform:scale(.72); opacity:0}
+      to{transform:scale(1); opacity:1}
+    }
+
     .glass{
       position:absolute;
       left:58px;
@@ -544,6 +679,12 @@
       .choice span.icon{font-size:72px}
       .hud{grid-template-columns:1fr}
       .debug{display:none}
+      .command-icon{width:92px;min-height:94px;border-radius:18px;padding:8px 6px}
+      .command-icon .emoji{font-size:30px}
+      .command-icon strong{font-size:12px}
+      .command-icon small{font-size:10px}
+      .command-zone{inset:82px 8px 12px}
+      .command-col{gap:12px}
     }
   </style>
 </head>
@@ -576,6 +717,45 @@
     <div class="camera-wrap">
       <video id="video" playsinline autoplay muted></video>
       <canvas id="overlay"></canvas>
+      <div id="lightOff" class="light-off"></div>
+    </div>
+
+    <div class="gesture-tip">Mobilife détecte les gestes du visage — confirmation obligatoire avant chaque action.</div>
+
+    <div class="command-zone">
+      <div class="command-col left">
+        <div class="command-icon" id="iconDrink">
+          <div class="emoji">👅</div>
+          <strong>J’ai soif</strong>
+          <small>langue / bouche</small>
+        </div>
+        <div class="command-icon" id="iconPain">
+          <div class="emoji">😣</div>
+          <strong>J’ai mal</strong>
+          <small>grimace</small>
+        </div>
+      </div>
+
+      <div class="command-col right">
+        <div class="command-icon" id="iconSleep">
+          <div class="emoji">😴×3</div>
+          <strong>Sommeil</strong>
+          <small>yeux fermés</small>
+        </div>
+        <div class="command-icon" id="iconComfort">
+          <div class="emoji">😗</div>
+          <strong>J’ai chaud</strong>
+          <small>bouche soufflée</small>
+        </div>
+      </div>
+
+      <div class="command-bottom">
+        <div class="command-icon" id="iconEmergency">
+          <div class="emoji">🚨</div>
+          <strong>Urgence</strong>
+          <small>tête gauche/droite</small>
+        </div>
+      </div>
     </div>
 
     <div class="topbar">
@@ -630,6 +810,8 @@
           </div>
         </div>
 
+        <div class="action-visual" id="actionVisual">💧</div>
+
         <p id="sentInfo">
           Commande simulée : <strong>DRINK_REQUEST</strong><br>
           La paille est positionnée pendant 10 secondes.
@@ -671,6 +853,14 @@
     const sentBig = document.getElementById("sentBig");
     const sentInfo = document.getElementById("sentInfo");
     const drinkAnimation = document.getElementById("drinkAnimation");
+    const actionVisual = document.getElementById("actionVisual");
+    const lightOff = document.getElementById("lightOff");
+
+    const iconDrink = document.getElementById("iconDrink");
+    const iconPain = document.getElementById("iconPain");
+    const iconSleep = document.getElementById("iconSleep");
+    const iconComfort = document.getElementById("iconComfort");
+    const iconEmergency = document.getElementById("iconEmergency");
 
     let faceLandmarker = null;
     let drawingUtils = null;
@@ -680,6 +870,14 @@
     let mode = "detectDrink";
     let mouthStart = null;
     let commandLocked = false;
+    let currentRequest = null;
+    let blinkClosed = false;
+    let blinkCount = 0;
+    let lastBlinkAt = 0;
+    let idleShakePhase = "waitingRight";
+    let idleShakeCount = 0;
+    let lastIdleShakeAt = 0;
+    let expressionStart = null;
 
     let baselineNoseY = null;
     let baselineNoseX = null;
@@ -696,6 +894,10 @@
     const MOUTH_OPEN_THRESHOLD = 0.055;
     const NOD_THRESHOLD = 0.035;
     const SHAKE_THRESHOLD = 0.035;
+    const BLINK_THRESHOLD = 0.55;
+    const PUCKER_THRESHOLD = 0.45;
+    const PAIN_THRESHOLD = 0.45;
+    const EXPRESSION_HOLD_MS = 900;
 
     function setState(text, type="loading"){
       stateText.textContent = text;
@@ -709,6 +911,78 @@
       app.classList.remove("active");
       target.classList.add("active");
     }
+
+    function getBlendScore(result, names){
+      const cats = result.faceBlendshapes?.[0]?.categories || [];
+      let best = 0;
+      for(const c of cats){
+        if(names.includes(c.categoryName)){
+          best = Math.max(best, c.score || 0);
+        }
+      }
+      return best;
+    }
+
+    function clearIconStates(){
+      for(const el of [iconDrink, iconPain, iconSleep, iconComfort, iconEmergency]){
+        el.classList.remove("active", "alert");
+      }
+    }
+
+    function setIconActive(type){
+      clearIconStates();
+      const map = {
+        drink: iconDrink,
+        pain: iconPain,
+        sleep: iconSleep,
+        comfort: iconComfort,
+        emergency: iconEmergency
+      };
+      if(map[type]){
+        map[type].classList.add(type === "emergency" || type === "pain" ? "alert" : "active");
+      }
+    }
+
+    function requestLabel(type){
+      return {
+        drink: "Vous avez soif ?",
+        pain: "Vous avez mal ?",
+        sleep: "Vous voulez dormir ?",
+        comfort: "Vous avez chaud ?",
+        emergency: "Alerte urgente ?"
+      }[type] || "Demande détectée";
+    }
+
+    function requestCommand(type){
+      return {
+        drink: "DRINK_REQUEST",
+        pain: "PAIN_ALERT",
+        sleep: "LIGHT_OFF",
+        comfort: "FAN_ON",
+        emergency: "EMERGENCY_ALERT"
+      }[type] || "UNKNOWN";
+    }
+
+    function beginConfirmation(type){
+      if(commandLocked || mode !== "detectDrink") return;
+
+      currentRequest = type;
+      commandLocked = true;
+      mode = "confirm";
+      setIconActive(type);
+      confirmModal.classList.add("show");
+
+      setState("Demande détectée", type === "emergency" ? "alert" : "ready");
+      commandState.textContent = "confirmation attendue";
+      scenarioText.textContent =
+        requestLabel(type) + " Oui = haut/bas deux fois. Non = gauche/droite deux fois.";
+
+      const title = confirmModal.querySelector("h2");
+      if(title) title.textContent = "Demande détectée : " + requestLabel(type);
+
+      progressBar.style.width = "70%";
+    }
+
 
     function resizeCanvas(){
       const dpr = window.devicePixelRatio || 1;
@@ -780,8 +1054,11 @@
       autoRestartTimeout = null;
       mouthStart = null;
       commandLocked = false;
+      currentRequest = null;
       mode = "detectDrink";
       lastVideoTime = -1;
+      clearIconStates();
+      lightOff.classList.remove("show");
       baselineNoseY = null;
       baselineNoseX = null;
       nodPhase = "waitingDown";
@@ -790,12 +1067,21 @@
       shakeCount = 0;
       lastNodAt = 0;
       lastShakeAt = 0;
+      blinkClosed = false;
+      blinkCount = 0;
+      lastBlinkAt = 0;
+      idleShakePhase = "waitingRight";
+      idleShakeCount = 0;
+      lastIdleShakeAt = 0;
+      expressionStart = null;
       confirmModal.classList.remove("show");
       sentModal.classList.remove("show");
       sentTitle.textContent = "Ordre envoyé";
       sentBig.textContent = "Attention, distribution en cours.";
       sentInfo.innerHTML = 'Commande simulée : <strong>DRINK_REQUEST</strong><br>La paille est positionnée pendant 10 secondes.';
       drinkAnimation.style.display = "block";
+      actionVisual.classList.remove("show");
+      actionVisual.textContent = "";
       countdownText.textContent = "Distribution : 10 s";
       progressBar.style.width = "0%";
       commandState.textContent = "en attente";
@@ -868,28 +1154,126 @@
       ctx.restore();
     }
 
-    function detectDrink(landmarks, now){
+    function detectRequests(landmarks, result, now){
       const mouthRatio = getMouthOpenRatio(landmarks);
       mouthValue.textContent = mouthRatio.toFixed(3);
 
+      const eyeBlinkLeft = getBlendScore(result, ["eyeBlinkLeft"]);
+      const eyeBlinkRight = getBlendScore(result, ["eyeBlinkRight"]);
+      const blinkScore = (eyeBlinkLeft + eyeBlinkRight) / 2;
+
+      const puckerScore = getBlendScore(result, ["mouthPucker"]);
+      const eyeSquint = Math.max(
+        getBlendScore(result, ["eyeSquintLeft"]),
+        getBlendScore(result, ["eyeSquintRight"])
+      );
+      const browDown = Math.max(
+        getBlendScore(result, ["browDownLeft"]),
+        getBlendScore(result, ["browDownRight"])
+      );
+      const painScore = Math.max(eyeSquint, browDown);
+
+      // 1. SOIF : bouche ouverte / langue simulée pendant 1,7 s
       if(mouthRatio > MOUTH_OPEN_THRESHOLD){
         if(!mouthStart) mouthStart = now;
         const elapsed = now - mouthStart;
-        const pct = Math.min(100, (elapsed / DRINK_HOLD_MS) * 100);
+        const pct = Math.min(65, (elapsed / DRINK_HOLD_MS) * 65);
         progressBar.style.width = pct + "%";
 
-        if(elapsed >= DRINK_HOLD_MS && !commandLocked){
-          commandLocked = true;
-          mode = "confirm";
-          confirmModal.classList.add("show");
-          setState("Demande détectée", "alert");
-          commandState.textContent = "confirmation attendue";
-          scenarioText.textContent =
-            "Demande d'eau détectée. Oui = haut/bas deux fois. Non = gauche/droite deux fois.";
+        if(elapsed >= DRINK_HOLD_MS){
+          beginConfirmation("drink");
+          return;
         }
       }else{
         mouthStart = null;
-        if(!commandLocked) progressBar.style.width = "0%";
+        progressBar.style.width = "0%";
+      }
+
+      // 2. SOMMEIL : trois fermetures franches des yeux
+      if(blinkScore > BLINK_THRESHOLD && !blinkClosed && now - lastBlinkAt > 450){
+        blinkClosed = true;
+        blinkCount++;
+        lastBlinkAt = now;
+        iconSleep.classList.add("active");
+        setTimeout(() => iconSleep.classList.remove("active"), 250);
+
+        if(blinkCount >= 3){
+          blinkCount = 0;
+          beginConfirmation("sleep");
+          return;
+        }
+      }
+
+      if(blinkScore < 0.25){
+        blinkClosed = false;
+      }
+
+      if(now - lastBlinkAt > 3600){
+        blinkCount = 0;
+      }
+
+      // 3. CONFORT : bouche en cul-de-poule / souffler
+      if(puckerScore > PUCKER_THRESHOLD){
+        if(expressionStart === null) expressionStart = now;
+        iconComfort.classList.add("active");
+        if(now - expressionStart > EXPRESSION_HOLD_MS){
+          expressionStart = null;
+          beginConfirmation("comfort");
+          return;
+        }
+      }else{
+        iconComfort.classList.remove("active");
+        if(expressionStart !== null && puckerScore < 0.25) expressionStart = null;
+      }
+
+      // 4. DOULEUR : grimace / visage crispé
+      if(painScore > PAIN_THRESHOLD){
+        if(expressionStart === null) expressionStart = now;
+        iconPain.classList.add("alert");
+        if(now - expressionStart > EXPRESSION_HOLD_MS){
+          expressionStart = null;
+          beginConfirmation("pain");
+          return;
+        }
+      }else{
+        iconPain.classList.remove("alert");
+      }
+
+      // 5. URGENCE : secouer rapidement gauche/droite
+      detectIdleEmergencyShake(landmarks, now);
+    }
+
+    function detectIdleEmergencyShake(landmarks, now){
+      const noseX = landmarks[1].x;
+
+      if(baselineNoseX === null){
+        baselineNoseX = noseX;
+        return;
+      }
+
+      baselineNoseX = baselineNoseX * 0.90 + noseX * 0.10;
+      const deltaX = noseX - baselineNoseX;
+
+      if(now - lastIdleShakeAt > 1200){
+        idleShakeCount = 0;
+        idleShakePhase = "waitingRight";
+      }
+
+      if(now - lastIdleShakeAt < 180) return;
+
+      if(idleShakePhase === "waitingRight" && deltaX > SHAKE_THRESHOLD){
+        idleShakePhase = "waitingLeft";
+        lastIdleShakeAt = now;
+      }else if(idleShakePhase === "waitingLeft" && deltaX < -SHAKE_THRESHOLD){
+        idleShakePhase = "waitingRight";
+        idleShakeCount++;
+        lastIdleShakeAt = now;
+        iconEmergency.classList.add("alert");
+
+        if(idleShakeCount >= 2){
+          idleShakeCount = 0;
+          beginConfirmation("emergency");
+        }
       }
     }
 
@@ -922,7 +1306,7 @@
           nodCountEl.textContent = "OUI " + nodCount + " / 2 · NON " + shakeCount + " / 2";
 
           if(nodCount >= 2){
-            sendDrinkOrder();
+            executeConfirmedAction();
             return;
           }
         }
@@ -957,7 +1341,9 @@
 
       mouthStart = null;
       commandLocked = false;
+      currentRequest = null;
       mode = "detectDrink";
+      clearIconStates();
       baselineNoseY = null;
       baselineNoseX = null;
       nodPhase = "waitingDown";
@@ -966,58 +1352,137 @@
       shakeCount = 0;
       lastNodAt = 0;
       lastShakeAt = 0;
+      blinkClosed = false;
+      blinkCount = 0;
+      lastBlinkAt = 0;
+      idleShakePhase = "waitingRight";
+      idleShakeCount = 0;
+      lastIdleShakeAt = 0;
+      expressionStart = null;
       nodCountEl.textContent = "OUI 0 / 2 · NON 0 / 2";
     }
 
-    function sendDrinkOrder(){
+    function executeConfirmedAction(){
+      const type = currentRequest || "drink";
+      const command = requestCommand(type);
+
       mode = "sent";
       commandLocked = true;
       confirmModal.classList.remove("show");
       sentModal.classList.add("show");
+      setIconActive(type);
 
       sentTitle.textContent = "Ordre envoyé";
-      sentBig.textContent = "Attention, distribution en cours.";
-      sentInfo.innerHTML = 'Commande simulée : <strong>DRINK_REQUEST</strong><br>La paille est positionnée pendant 10 secondes.';
-      drinkAnimation.style.display = "block";
+      sentBig.textContent = actionMainText(type);
+      sentInfo.innerHTML = actionInfoText(type);
 
-      setState("Distribution en cours", "ready");
-      commandState.textContent = "DRINK_REQUEST envoyé";
-      scenarioText.textContent =
-        "Distribution en cours : le servomoteur positionne la paille. Retour automatique après 10 secondes.";
+      drinkAnimation.style.display = type === "drink" ? "block" : "none";
+      actionVisual.textContent = actionEmoji(type);
+      actionVisual.classList.toggle("show", type !== "drink");
+
+      setState(actionStateText(type), type === "emergency" || type === "pain" ? "alert" : "ready");
+      commandState.textContent = command + " envoyé";
+      scenarioText.textContent = actionScenarioText(type);
       progressBar.style.width = "100%";
 
-      console.log("Mobilife Bluetooth futur : DRINK_REQUEST");
+      console.log("Mobilife Bluetooth futur : " + command);
 
-      let remaining = 10;
-      countdownText.textContent = "Distribution : " + remaining + " s";
+      if(type === "sleep"){
+        lightOff.classList.add("show");
+      }
+
+      const duration = type === "drink" ? 10 : 5;
+      let remaining = duration;
+      countdownText.textContent = actionCountdownLabel(type, remaining);
 
       if(countdownInterval) clearInterval(countdownInterval);
       countdownInterval = setInterval(() => {
         remaining--;
-        countdownText.textContent = "Distribution : " + remaining + " s";
+        countdownText.textContent = actionCountdownLabel(type, remaining);
 
         if(remaining <= 0){
           clearInterval(countdownInterval);
           countdownInterval = null;
-          endDistribution();
+          endAction(type);
         }
       }, 1000);
     }
 
-    function endDistribution(){
-      sentTitle.textContent = "Fin de distribution";
-      sentBig.textContent = "La paille se retire.";
-      sentInfo.innerHTML = "Retour du servomoteur en position initiale.<br>Le système va se remettre en attente.";
-      drinkAnimation.style.display = "none";
-      countdownText.textContent = "Nouvelle tâche disponible...";
-      setState("Retour position initiale", "ready");
-      scenarioText.textContent =
-        "Fin de distribution : la paille se retire, puis Mobilife revient en attente d'une nouvelle demande.";
+    function actionEmoji(type){
+      return {
+        pain: "🚑",
+        sleep: "💡",
+        comfort: "🌬️",
+        emergency: "🚨"
+      }[type] || "💧";
+    }
+
+    function actionMainText(type){
+      return {
+        drink: "Attention, distribution en cours.",
+        pain: "Message envoyé à l’infirmier.",
+        sleep: "Extinction de la lumière en cours.",
+        comfort: "Ventilation activée.",
+        emergency: "Alerte urgence envoyée."
+      }[type] || "Action en cours.";
+    }
+
+    function actionInfoText(type){
+      return {
+        drink: 'Commande simulée : <strong>DRINK_REQUEST</strong><br>La paille est positionnée pendant 10 secondes.',
+        pain: 'Commande simulée : <strong>PAIN_ALERT</strong><br>Message : “J’ai mal”.',
+        sleep: 'Commande simulée : <strong>LIGHT_OFF</strong><br>La lumière de la chambre s’éteint.',
+        comfort: 'Commande simulée : <strong>FAN_ON</strong><br>Le ventilateur de confort se met en route.',
+        emergency: 'Commande simulée : <strong>EMERGENCY_ALERT</strong><br>Besoin d’aide immédiate.'
+      }[type] || "";
+    }
+
+    function actionStateText(type){
+      return {
+        drink: "Distribution en cours",
+        pain: "Alerte douleur",
+        sleep: "Lumière éteinte",
+        comfort: "Confort activé",
+        emergency: "Urgence envoyée"
+      }[type] || "Action envoyée";
+    }
+
+    function actionScenarioText(type){
+      return {
+        drink: "Distribution en cours : le servomoteur positionne la paille. Retour automatique après 10 secondes.",
+        pain: "Alerte douleur : le message “J’ai mal” est envoyé à l’infirmier.",
+        sleep: "Sommeil : la lumière est éteinte pour permettre le repos.",
+        comfort: "Confort : le ventilateur est activé pour rafraîchir la personne.",
+        emergency: "Urgence : une alerte prioritaire est envoyée aux aidants."
+      }[type] || "";
+    }
+
+    function actionCountdownLabel(type, remaining){
+      if(type === "drink") return "Distribution : " + remaining + " s";
+      return "Retour détection : " + remaining + " s";
+    }
+
+    function endAction(type){
+      if(type === "drink"){
+        sentTitle.textContent = "Fin de distribution";
+        sentBig.textContent = "La paille se retire.";
+        sentInfo.innerHTML = "Retour du servomoteur en position initiale.<br>Le système va se remettre en attente.";
+        drinkAnimation.style.display = "none";
+        actionVisual.classList.remove("show");
+        countdownText.textContent = "Nouvelle tâche disponible...";
+        setState("Retour position initiale", "ready");
+      }else{
+        sentTitle.textContent = "Action terminée";
+        sentBig.textContent = "Retour à la détection.";
+        sentInfo.innerHTML = "Mobilife se remet en attente d’un nouveau geste.";
+        countdownText.textContent = "Nouvelle tâche disponible...";
+        setState("Système prêt", "ready");
+      }
 
       if(autoRestartTimeout) clearTimeout(autoRestartTimeout);
       autoRestartTimeout = setTimeout(() => {
         resetDetection();
-      }, 2200);
+      }, 1600);
     }
 
     async function loop(){
@@ -1036,7 +1501,7 @@
           const now = performance.now();
 
           if(mode === "detectDrink"){
-            detectDrink(landmarks, now);
+            detectRequests(landmarks, result, now);
           }
 
           if(mode === "confirm"){
