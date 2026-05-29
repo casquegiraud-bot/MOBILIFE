@@ -730,9 +730,9 @@
           <small>langue / bouche</small>
         </div>
         <div class="command-icon" id="iconPain">
-          <div class="emoji">😣</div>
+          <div class="emoji">😠</div>
           <strong>J’ai mal</strong>
-          <small>grimace</small>
+          <small>sourcils froncés 3 s</small>
         </div>
       </div>
 
@@ -885,6 +885,7 @@
     let idleShakeCount = 0;
     let lastIdleShakeAt = 0;
     let expressionStart = null;
+    let painBrowStart = null;
 
     let baselineNoseY = null;
     let baselineNoseX = null;
@@ -905,7 +906,8 @@
     const EYES_OPEN_THRESHOLD = 0.12;
     const EYE_HOLD_MS = 3000;
     const PUCKER_THRESHOLD = 0.45;
-    const PAIN_THRESHOLD = 0.45;
+    const PAIN_THRESHOLD = 0.38;
+    const PAIN_HOLD_MS = 3000;
     const EXPRESSION_HOLD_MS = 900;
 
     function setState(text, type="loading"){
@@ -1087,6 +1089,7 @@
       idleShakeCount = 0;
       lastIdleShakeAt = 0;
       expressionStart = null;
+      painBrowStart = null;
       confirmModal.classList.remove("show");
       sentModal.classList.remove("show");
       sentTitle.textContent = "Ordre envoyé";
@@ -1184,7 +1187,7 @@
         getBlendScore(result, ["browDownLeft"]),
         getBlendScore(result, ["browDownRight"])
       );
-      const painScore = Math.max(eyeSquint, browDown);
+      const painScore = browDown;
 
       // 1. SOIF : bouche ouverte / langue simulée pendant 1,7 s
       if(mouthRatio > MOUTH_OPEN_THRESHOLD){
@@ -1250,7 +1253,7 @@
       }
 
       // 3. CONFORT : bouche en cul-de-poule / souffler
-      if(puckerScore > PUCKER_THRESHOLD){
+      if(puckerScore > PUCKER_THRESHOLD && browDown < 0.25){
         if(expressionStart === null) expressionStart = now;
         iconComfort.classList.add("active");
         if(now - expressionStart > EXPRESSION_HOLD_MS){
@@ -1263,17 +1266,24 @@
         if(expressionStart !== null && puckerScore < 0.25) expressionStart = null;
       }
 
-      // 4. DOULEUR : grimace / visage crispé
-      if(painScore > PAIN_THRESHOLD){
-        if(expressionStart === null) expressionStart = now;
+      // 4. DOULEUR : sourcils froncés pendant 3 secondes
+      // On n'utilise plus la grimace ni la bouche pour éviter le conflit avec "j'ai chaud".
+      if(browDown > PAIN_THRESHOLD){
+        if(painBrowStart === null) painBrowStart = now;
+
+        const painElapsed = now - painBrowStart;
         iconPain.classList.add("alert");
-        if(now - expressionStart > EXPRESSION_HOLD_MS){
-          expressionStart = null;
+
+        if(painElapsed >= PAIN_HOLD_MS){
+          painBrowStart = null;
           beginConfirmation("pain");
           return;
         }
       }else{
         iconPain.classList.remove("alert");
+        if(browDown < 0.22){
+          painBrowStart = null;
+        }
       }
 
       // 5. URGENCE : secouer rapidement gauche/droite
@@ -1397,6 +1407,7 @@
       idleShakeCount = 0;
       lastIdleShakeAt = 0;
       expressionStart = null;
+      painBrowStart = null;
       nodCountEl.textContent = "OUI 0 / 2 · NON 0 / 2";
     }
 
@@ -1473,7 +1484,7 @@
     function actionInfoText(type){
       return {
         drink: 'Commande simulée : <strong>DRINK_REQUEST</strong><br>La paille est positionnée pendant 10 secondes.',
-        pain: 'Commande simulée : <strong>PAIN_ALERT</strong><br>Message : “J’ai mal”.',
+        pain: 'Commande simulée : <strong>PAIN_ALERT</strong><br>Message : “J’ai mal” envoyé à l’infirmier.', 
         sleep: 'Commande simulée : <strong>LIGHT_OFF</strong><br>La lumière de la chambre s’éteint.',
         comfort: 'Commande simulée : <strong>FAN_ON</strong><br>Le ventilateur de confort se met en route.',
         emergency: 'Commande simulée : <strong>EMERGENCY_ALERT</strong><br>Besoin d’aide immédiate.'
