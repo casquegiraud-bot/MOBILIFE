@@ -672,6 +672,57 @@
       border-color:rgba(255,255,255,.18);
     }
 
+
+    .command-bottom{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap:18px;
+    }
+
+    .music-player-card{
+      width:min(980px, 96vw);
+      border-radius:30px;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.18);
+      background:linear-gradient(180deg, rgba(8,15,32,.98), rgba(7,9,19,.98));
+      box-shadow:0 30px 100px rgba(0,0,0,.65);
+    }
+
+    .music-player-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:16px 18px;
+      border-bottom:1px solid rgba(255,255,255,.12);
+    }
+
+    .music-player-head strong{
+      font-size:20px;
+    }
+
+    .music-player-head span{
+      color:var(--muted);
+      font-size:14px;
+      font-weight:800;
+    }
+
+    .music-frame-wrap{
+      position:relative;
+      width:100%;
+      aspect-ratio:16/9;
+      background:#000;
+    }
+
+    .music-frame-wrap iframe{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      border:0;
+    }
+
     @media (max-width:720px){
       .home-card{padding:22px;border-radius:24px}
       .choice-grid{grid-template-columns:1fr}
@@ -755,9 +806,15 @@
       </div>
 
       <div class="command-bottom">
-        <div class="command-icon" id="iconEmergency">
-          <div class="emoji">🚨</div>
-          <strong>Urgence</strong>
+        <div class="command-icon" id="iconMusic">
+          <div class="emoji">🎵</div>
+          <strong>Musique</strong>
+          <small>sourire 2 s</small>
+        </div>
+
+        <div class="command-icon" id="iconCancel">
+          <div class="emoji">⛔</div>
+          <strong>Annuler</strong>
           <small>tête gauche/droite</small>
         </div>
       </div>
@@ -785,7 +842,7 @@
       <div class="debug">
         <div><strong>Bouche :</strong> <span id="mouthValue">0</span></div>
         <div><strong>Commande :</strong> <span id="commandState">en attente</span></div>
-        <div><strong>Hochements :</strong> <span id="nodCount">0 / 2</span></div>
+        <div><strong>Confirmation :</strong> <span id="nodCount">0 / 2</span></div>
       </div>
     </div>
 
@@ -822,6 +879,26 @@
           La paille est positionnée pendant 10 secondes.
         </p>
         <div class="countdown" id="countdownText">Distribution : 10 s</div>
+      </div>
+    </div>
+
+    <div id="musicModal" class="modal">
+      <div class="music-player-card">
+        <div class="music-player-head">
+          <div>
+            <strong>🎵 Musique Mobilife</strong><br>
+            <span>Lecteur intégré — tête gauche/droite pour annuler</span>
+          </div>
+          <button class="back" id="musicCloseButton">Annuler</button>
+        </div>
+        <div class="music-frame-wrap">
+          <iframe
+            id="musicFrame"
+            title="Musique Mobilife"
+            allow="autoplay; encrypted-media; picture-in-picture"
+            allowfullscreen
+          ></iframe>
+        </div>
       </div>
     </div>
   </section>
@@ -866,7 +943,13 @@
     const iconSleep = document.getElementById("iconSleep");
     const iconLight = document.getElementById("iconLight");
     const iconComfort = document.getElementById("iconComfort");
-    const iconEmergency = document.getElementById("iconEmergency");
+    const iconMusic = document.getElementById("iconMusic");
+    const iconCancel = document.getElementById("iconCancel");
+
+    const musicModal = document.getElementById("musicModal");
+    const musicFrame = document.getElementById("musicFrame");
+    const musicCloseButton = document.getElementById("musicCloseButton");
+    const YOUTUBE_EMBED_URL = "https://www.youtube.com/embed/abGe6uM9Ias?autoplay=1&playsinline=1&rel=0&modestbranding=1";
 
     let faceLandmarker = null;
     let drawingUtils = null;
@@ -886,6 +969,10 @@
     let lastIdleShakeAt = 0;
     let expressionStart = null;
     let painBrowStart = null;
+    let musicSmileStart = null;
+    let universalShakePhase = "waitingRight";
+    let universalShakeCount = 0;
+    let lastUniversalShakeAt = 0;
 
     let baselineNoseY = null;
     let baselineNoseX = null;
@@ -909,6 +996,8 @@
     const PAIN_THRESHOLD = 0.38;
     const PAIN_HOLD_MS = 3000;
     const EXPRESSION_HOLD_MS = 900;
+    const MUSIC_SMILE_THRESHOLD = 0.45;
+    const MUSIC_HOLD_MS = 1200;
 
     function setState(text, type="loading"){
       stateText.textContent = text;
@@ -935,7 +1024,7 @@
     }
 
     function clearIconStates(){
-      for(const el of [iconDrink, iconPain, iconSleep, iconLight, iconComfort, iconEmergency]){
+      for(const el of [iconDrink, iconPain, iconSleep, iconLight, iconComfort, iconMusic, iconCancel]){
         el.classList.remove("active", "alert");
       }
     }
@@ -948,10 +1037,11 @@
         sleep: iconSleep,
         light: iconLight,
         comfort: iconComfort,
-        emergency: iconEmergency
+        music: iconMusic,
+        cancel: iconCancel
       };
       if(map[type]){
-        map[type].classList.add(type === "emergency" || type === "pain" ? "alert" : "active");
+        map[type].classList.add(type === "pain" || type === "cancel" ? "alert" : "active");
       }
     }
 
@@ -962,7 +1052,7 @@
         sleep: "Vous voulez dormir ?",
         light: "Vous voulez allumer la lumière ?",
         comfort: "Vous avez chaud ?",
-        emergency: "Alerte urgente ?"
+        music: "Vous voulez écouter de la musique ?"
       }[type] || "Demande détectée";
     }
 
@@ -973,7 +1063,7 @@
         sleep: "LIGHT_OFF",
         light: "LIGHT_ON",
         comfort: "FAN_ON",
-        emergency: "EMERGENCY_ALERT"
+        music: "MUSIC_PLAY"
       }[type] || "UNKNOWN";
     }
 
@@ -986,7 +1076,7 @@
       setIconActive(type);
       confirmModal.classList.add("show");
 
-      setState("Demande détectée", type === "emergency" ? "alert" : "ready");
+      setState("Demande détectée", type === "pain" ? "alert" : "ready");
       commandState.textContent = "confirmation attendue";
       scenarioText.textContent =
         requestLabel(type) + " Oui = haut/bas deux fois. Non = gauche/droite deux fois.";
@@ -1064,6 +1154,7 @@
     function resetDetection(){
       if(countdownInterval) clearInterval(countdownInterval);
       if(autoRestartTimeout) clearTimeout(autoRestartTimeout);
+      stopMusicPlayer();
       countdownInterval = null;
       autoRestartTimeout = null;
       mouthStart = null;
@@ -1090,6 +1181,10 @@
       lastIdleShakeAt = 0;
       expressionStart = null;
       painBrowStart = null;
+      musicSmileStart = null;
+      universalShakePhase = "waitingRight";
+      universalShakeCount = 0;
+      lastUniversalShakeAt = 0;
       confirmModal.classList.remove("show");
       sentModal.classList.remove("show");
       sentTitle.textContent = "Ordre envoyé";
@@ -1286,11 +1381,28 @@
         }
       }
 
-      // 5. URGENCE : secouer rapidement gauche/droite
-      detectIdleEmergencyShake(landmarks, now);
+      // 5. MUSIQUE : sourire pendant environ 2 secondes
+      const smileScore = Math.max(
+        getBlendScore(result, ["mouthSmileLeft"]),
+        getBlendScore(result, ["mouthSmileRight"])
+      );
+
+      if(smileScore > MUSIC_SMILE_THRESHOLD && mouthRatio < 0.08){
+        if(musicSmileStart === null) musicSmileStart = now;
+        iconMusic.classList.add("active");
+
+        if(now - musicSmileStart > MUSIC_HOLD_MS){
+          musicSmileStart = null;
+          beginConfirmation("music");
+          return;
+        }
+      }else{
+        iconMusic.classList.remove("active");
+        if(smileScore < 0.25) musicSmileStart = null;
+      }
     }
 
-    function detectIdleEmergencyShake(landmarks, now){
+    function detectUniversalCancelShake(landmarks, now){
       const noseX = landmarks[1].x;
 
       if(baselineNoseX === null){
@@ -1301,25 +1413,25 @@
       baselineNoseX = baselineNoseX * 0.90 + noseX * 0.10;
       const deltaX = noseX - baselineNoseX;
 
-      if(now - lastIdleShakeAt > 1200){
-        idleShakeCount = 0;
-        idleShakePhase = "waitingRight";
+      if(now - lastUniversalShakeAt > 1200){
+        universalShakeCount = 0;
+        universalShakePhase = "waitingRight";
       }
 
-      if(now - lastIdleShakeAt < 180) return;
+      if(now - lastUniversalShakeAt < 180) return;
 
-      if(idleShakePhase === "waitingRight" && deltaX > SHAKE_THRESHOLD){
-        idleShakePhase = "waitingLeft";
-        lastIdleShakeAt = now;
-      }else if(idleShakePhase === "waitingLeft" && deltaX < -SHAKE_THRESHOLD){
-        idleShakePhase = "waitingRight";
-        idleShakeCount++;
-        lastIdleShakeAt = now;
-        iconEmergency.classList.add("alert");
+      if(universalShakePhase === "waitingRight" && deltaX > SHAKE_THRESHOLD){
+        universalShakePhase = "waitingLeft";
+        lastUniversalShakeAt = now;
+      }else if(universalShakePhase === "waitingLeft" && deltaX < -SHAKE_THRESHOLD){
+        universalShakePhase = "waitingRight";
+        universalShakeCount++;
+        lastUniversalShakeAt = now;
+        iconCancel.classList.add("alert");
 
-        if(idleShakeCount >= 2){
-          idleShakeCount = 0;
-          beginConfirmation("emergency");
+        if(universalShakeCount >= 2){
+          universalShakeCount = 0;
+          universalCancel();
         }
       }
     }
@@ -1415,6 +1527,11 @@
       const type = currentRequest || "drink";
       const command = requestCommand(type);
 
+      if(type === "music"){
+        startMusicPlayer();
+        return;
+      }
+
       mode = "sent";
       commandLocked = true;
       confirmModal.classList.remove("show");
@@ -1429,7 +1546,7 @@
       actionVisual.textContent = actionEmoji(type);
       actionVisual.classList.toggle("show", type !== "drink");
 
-      setState(actionStateText(type), type === "emergency" || type === "pain" ? "alert" : "ready");
+      setState(actionStateText(type), type === "pain" ? "alert" : "ready");
       commandState.textContent = command + " envoyé";
       scenarioText.textContent = actionScenarioText(type);
       progressBar.style.width = "100%";
@@ -1460,13 +1577,60 @@
       }, 1000);
     }
 
+    function startMusicPlayer(){
+      mode = "music";
+      commandLocked = true;
+      confirmModal.classList.remove("show");
+      sentModal.classList.remove("show");
+      setIconActive("music");
+
+      musicModal.classList.add("show");
+      musicFrame.src = YOUTUBE_EMBED_URL;
+
+      setState("Musique en cours", "ready");
+      commandState.textContent = "MUSIC_PLAY envoyé";
+      scenarioText.textContent = "Musique : le lecteur intégré Mobilife est ouvert. Tête gauche/droite = annuler et revenir aux icônes.";
+      progressBar.style.width = "100%";
+
+      baselineNoseX = null;
+      universalShakePhase = "waitingRight";
+      universalShakeCount = 0;
+      lastUniversalShakeAt = 0;
+    }
+
+    function stopMusicPlayer(){
+      if(musicFrame) musicFrame.src = "";
+      if(musicModal) musicModal.classList.remove("show");
+    }
+
+    function universalCancel(){
+      stopMusicPlayer();
+      if(countdownInterval) clearInterval(countdownInterval);
+      if(autoRestartTimeout) clearTimeout(autoRestartTimeout);
+      countdownInterval = null;
+      autoRestartTimeout = null;
+
+      sentModal.classList.remove("show");
+      confirmModal.classList.remove("show");
+      resetDetection();
+
+      setIconActive("cancel");
+      setState("Action annulée", "ready");
+      commandState.textContent = "ANNULER";
+      scenarioText.textContent = "Action annulée. Retour au menu Mobilife avec toutes les icônes.";
+      setTimeout(() => {
+        clearIconStates();
+        setState("Système prêt", "ready");
+      }, 900);
+    }
+
     function actionEmoji(type){
       return {
         pain: "🚑",
         sleep: "🌙",
         light: "💡",
         comfort: "🌬️",
-        emergency: "🚨"
+        music: "🎵"
       }[type] || "💧";
     }
 
@@ -1477,7 +1641,7 @@
         sleep: "Extinction de la lumière en cours.",
         light: "Allumage de la lumière en cours.",
         comfort: "Ventilation activée.",
-        emergency: "Alerte urgence envoyée."
+        music: "Musique lancée."
       }[type] || "Action en cours.";
     }
 
@@ -1487,7 +1651,7 @@
         pain: 'Commande simulée : <strong>PAIN_ALERT</strong><br>Message : “J’ai mal” envoyé à l’infirmier.', 
         sleep: 'Commande simulée : <strong>LIGHT_OFF</strong><br>La lumière de la chambre s’éteint.',
         comfort: 'Commande simulée : <strong>FAN_ON</strong><br>Le ventilateur de confort se met en route.',
-        emergency: 'Commande simulée : <strong>EMERGENCY_ALERT</strong><br>Besoin d’aide immédiate.'
+        music: 'Commande simulée : <strong>MUSIC_PLAY</strong><br>La musique se lance dans le lecteur intégré Mobilife.'
       }[type] || "";
     }
 
@@ -1498,7 +1662,7 @@
         sleep: "Lumière éteinte",
         light: "Lumière allumée",
         comfort: "Confort activé",
-        emergency: "Urgence envoyée"
+        music: "Musique"
       }[type] || "Action envoyée";
     }
 
@@ -1509,7 +1673,7 @@
         sleep: "Sommeil : la lumière est éteinte pour permettre le repos.",
         light: "Lumière : la lampe est allumée.",
         comfort: "Confort : le ventilateur est activé pour rafraîchir la personne.",
-        emergency: "Urgence : une alerte prioritaire est envoyée aux aidants."
+        music: "Musique : le lecteur intégré est ouvert sans quitter Mobilife."
       }[type] || "";
     }
 
@@ -1564,6 +1728,10 @@
             detectHeadConfirmation(landmarks, now);
           }
 
+          if(mode === "sent" || mode === "music"){
+            detectUniversalCancelShake(landmarks, now);
+          }
+
         }else{
           ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
           setState("Visage non détecté");
@@ -1585,6 +1753,10 @@
         scenarioText.textContent =
           "Impossible d'activer la caméra. Vérifiez l'autorisation caméra du navigateur.";
       }
+    });
+
+    musicCloseButton.addEventListener("click", () => {
+      universalCancel();
     });
 
     backButton.addEventListener("click", () => {
