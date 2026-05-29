@@ -732,20 +732,25 @@
         <div class="command-icon" id="iconPain">
           <div class="emoji">😣</div>
           <strong>J’ai mal</strong>
-          <small>sourcils froncés</small>
+          <small>grimace</small>
         </div>
       </div>
 
       <div class="command-col right">
         <div class="command-icon" id="iconSleep">
-          <div class="emoji">😴×3</div>
+          <div class="emoji">😴</div>
           <strong>Sommeil</strong>
-          <small>yeux fermés</small>
+          <small>yeux fermés 3 s</small>
+        </div>
+        <div class="command-icon" id="iconLight">
+          <div class="emoji">👀💡</div>
+          <strong>Lumière</strong>
+          <small>yeux ouverts 3 s</small>
         </div>
         <div class="command-icon" id="iconComfort">
           <div class="emoji">😗</div>
           <strong>J’ai chaud</strong>
-          <small>cul-de-poule</small>
+          <small>bouche soufflée</small>
         </div>
       </div>
 
@@ -859,6 +864,7 @@
     const iconDrink = document.getElementById("iconDrink");
     const iconPain = document.getElementById("iconPain");
     const iconSleep = document.getElementById("iconSleep");
+    const iconLight = document.getElementById("iconLight");
     const iconComfort = document.getElementById("iconComfort");
     const iconEmergency = document.getElementById("iconEmergency");
 
@@ -871,14 +877,14 @@
     let mouthStart = null;
     let commandLocked = false;
     let currentRequest = null;
-    let blinkClosed = false;
-    let blinkCount = 0;
-    let lastBlinkAt = 0;
+    let eyesClosedStart = null;
+    let eyesOpenStart = null;
+    let sleepReady = false;
+    let lightReady = false;
     let idleShakePhase = "waitingRight";
     let idleShakeCount = 0;
     let lastIdleShakeAt = 0;
     let expressionStart = null;
-    let expressionType = null;
 
     let baselineNoseY = null;
     let baselineNoseX = null;
@@ -895,9 +901,11 @@
     const MOUTH_OPEN_THRESHOLD = 0.055;
     const NOD_THRESHOLD = 0.035;
     const SHAKE_THRESHOLD = 0.035;
-    const BLINK_THRESHOLD = 0.55;
-    const PUCKER_THRESHOLD = 0.58;
-    const PAIN_THRESHOLD = 0.38;
+    const EYES_CLOSED_THRESHOLD = 0.68;
+    const EYES_OPEN_THRESHOLD = 0.12;
+    const EYE_HOLD_MS = 3000;
+    const PUCKER_THRESHOLD = 0.45;
+    const PAIN_THRESHOLD = 0.45;
     const EXPRESSION_HOLD_MS = 900;
 
     function setState(text, type="loading"){
@@ -925,7 +933,7 @@
     }
 
     function clearIconStates(){
-      for(const el of [iconDrink, iconPain, iconSleep, iconComfort, iconEmergency]){
+      for(const el of [iconDrink, iconPain, iconSleep, iconLight, iconComfort, iconEmergency]){
         el.classList.remove("active", "alert");
       }
     }
@@ -936,6 +944,7 @@
         drink: iconDrink,
         pain: iconPain,
         sleep: iconSleep,
+        light: iconLight,
         comfort: iconComfort,
         emergency: iconEmergency
       };
@@ -949,6 +958,7 @@
         drink: "Vous avez soif ?",
         pain: "Vous avez mal ?",
         sleep: "Vous voulez dormir ?",
+        light: "Vous voulez allumer la lumière ?",
         comfort: "Vous avez chaud ?",
         emergency: "Alerte urgente ?"
       }[type] || "Demande détectée";
@@ -959,6 +969,7 @@
         drink: "DRINK_REQUEST",
         pain: "PAIN_ALERT",
         sleep: "LIGHT_OFF",
+        light: "LIGHT_ON",
         comfort: "FAN_ON",
         emergency: "EMERGENCY_ALERT"
       }[type] || "UNKNOWN";
@@ -1068,14 +1079,14 @@
       shakeCount = 0;
       lastNodAt = 0;
       lastShakeAt = 0;
-      blinkClosed = false;
-      blinkCount = 0;
-      lastBlinkAt = 0;
+      eyesClosedStart = null;
+      eyesOpenStart = null;
+      sleepReady = false;
+      lightReady = false;
       idleShakePhase = "waitingRight";
       idleShakeCount = 0;
       lastIdleShakeAt = 0;
       expressionStart = null;
-      expressionType = null;
       confirmModal.classList.remove("show");
       sentModal.classList.remove("show");
       sentTitle.textContent = "Ordre envoyé";
@@ -1165,11 +1176,15 @@
       const blinkScore = (eyeBlinkLeft + eyeBlinkRight) / 2;
 
       const puckerScore = getBlendScore(result, ["mouthPucker"]);
+      const eyeSquint = Math.max(
+        getBlendScore(result, ["eyeSquintLeft"]),
+        getBlendScore(result, ["eyeSquintRight"])
+      );
       const browDown = Math.max(
         getBlendScore(result, ["browDownLeft"]),
         getBlendScore(result, ["browDownRight"])
       );
-      const painScore = browDown;
+      const painScore = Math.max(eyeSquint, browDown);
 
       // 1. SOIF : bouche ouverte / langue simulée pendant 1,7 s
       if(mouthRatio > MOUTH_OPEN_THRESHOLD){
@@ -1187,76 +1202,78 @@
         progressBar.style.width = "0%";
       }
 
-      // 2. SOMMEIL : trois fermetures franches des yeux
-      if(blinkScore > BLINK_THRESHOLD && !blinkClosed && now - lastBlinkAt > 450){
-        blinkClosed = true;
-        blinkCount++;
-        lastBlinkAt = now;
-        iconSleep.classList.add("active");
-        setTimeout(() => iconSleep.classList.remove("active"), 250);
+      // 2. SOMMEIL : yeux fermés pendant 3 secondes
+      if(blinkScore > EYES_CLOSED_THRESHOLD){
+        if(eyesClosedStart === null) eyesClosedStart = now;
+        eyesOpenStart = null;
+        lightReady = false;
 
-        if(blinkCount >= 3){
-          blinkCount = 0;
+        const closedElapsed = now - eyesClosedStart;
+        iconSleep.classList.add("active");
+
+        if(closedElapsed >= EYE_HOLD_MS && !sleepReady){
+          sleepReady = true;
+          eyesClosedStart = null;
           beginConfirmation("sleep");
           return;
         }
-      }
-
-      if(blinkScore < 0.25){
-        blinkClosed = false;
-      }
-
-      if(now - lastBlinkAt > 3600){
-        blinkCount = 0;
-      }
-
-      // 3. DOULEUR : sourcils froncés uniquement
-      // Prioritaire sur le confort pour éviter les confusions avec la bouche.
-      if(painScore > PAIN_THRESHOLD){
-        if(expressionType !== "pain"){
-          expressionType = "pain";
-          expressionStart = now;
+      }else{
+        iconSleep.classList.remove("active");
+        if(blinkScore < 0.35){
+          eyesClosedStart = null;
+          sleepReady = false;
         }
+      }
 
-        iconPain.classList.add("alert");
-        iconComfort.classList.remove("active");
+      // 3. LUMIÈRE : yeux bien ouverts pendant 3 secondes
+      // Sécurité : après un déclenchement, on demande toujours confirmation OUI/NON.
+      if(blinkScore < EYES_OPEN_THRESHOLD){
+        if(eyesOpenStart === null) eyesOpenStart = now;
+        eyesClosedStart = null;
+        sleepReady = false;
 
-        if(now - expressionStart > EXPRESSION_HOLD_MS){
-          expressionStart = null;
-          expressionType = null;
-          beginConfirmation("pain");
+        const openElapsed = now - eyesOpenStart;
+        iconLight.classList.add("active");
+
+        if(openElapsed >= EYE_HOLD_MS && !lightReady){
+          lightReady = true;
+          eyesOpenStart = null;
+          beginConfirmation("light");
           return;
         }
       }else{
-        iconPain.classList.remove("alert");
-        if(expressionType === "pain"){
-          expressionStart = null;
-          expressionType = null;
+        iconLight.classList.remove("active");
+        if(blinkScore > 0.22){
+          eyesOpenStart = null;
+          lightReady = false;
         }
       }
 
-      // 4. CONFORT : bouche en cul-de-poule / souffler
-      // Sécurité : si les sourcils sont froncés, on ne déclenche pas “j’ai chaud”.
-      if(puckerScore > PUCKER_THRESHOLD && painScore < 0.25){
-        if(expressionType !== "comfort"){
-          expressionType = "comfort";
-          expressionStart = now;
-        }
-
+      // 3. CONFORT : bouche en cul-de-poule / souffler
+      if(puckerScore > PUCKER_THRESHOLD){
+        if(expressionStart === null) expressionStart = now;
         iconComfort.classList.add("active");
-
         if(now - expressionStart > EXPRESSION_HOLD_MS){
           expressionStart = null;
-          expressionType = null;
           beginConfirmation("comfort");
           return;
         }
       }else{
         iconComfort.classList.remove("active");
-        if(expressionType === "comfort"){
+        if(expressionStart !== null && puckerScore < 0.25) expressionStart = null;
+      }
+
+      // 4. DOULEUR : grimace / visage crispé
+      if(painScore > PAIN_THRESHOLD){
+        if(expressionStart === null) expressionStart = now;
+        iconPain.classList.add("alert");
+        if(now - expressionStart > EXPRESSION_HOLD_MS){
           expressionStart = null;
-          expressionType = null;
+          beginConfirmation("pain");
+          return;
         }
+      }else{
+        iconPain.classList.remove("alert");
       }
 
       // 5. URGENCE : secouer rapidement gauche/droite
@@ -1372,9 +1389,10 @@
       shakeCount = 0;
       lastNodAt = 0;
       lastShakeAt = 0;
-      blinkClosed = false;
-      blinkCount = 0;
-      lastBlinkAt = 0;
+      eyesClosedStart = null;
+      eyesOpenStart = null;
+      sleepReady = false;
+      lightReady = false;
       idleShakePhase = "waitingRight";
       idleShakeCount = 0;
       lastIdleShakeAt = 0;
@@ -1410,6 +1428,9 @@
       if(type === "sleep"){
         lightOff.classList.add("show");
       }
+      if(type === "light"){
+        lightOff.classList.remove("show");
+      }
 
       const duration = type === "drink" ? 10 : 5;
       let remaining = duration;
@@ -1431,7 +1452,8 @@
     function actionEmoji(type){
       return {
         pain: "🚑",
-        sleep: "💡",
+        sleep: "🌙",
+        light: "💡",
         comfort: "🌬️",
         emergency: "🚨"
       }[type] || "💧";
@@ -1442,6 +1464,7 @@
         drink: "Attention, distribution en cours.",
         pain: "Message envoyé à l’infirmier.",
         sleep: "Extinction de la lumière en cours.",
+        light: "Allumage de la lumière en cours.",
         comfort: "Ventilation activée.",
         emergency: "Alerte urgence envoyée."
       }[type] || "Action en cours.";
@@ -1452,7 +1475,7 @@
         drink: 'Commande simulée : <strong>DRINK_REQUEST</strong><br>La paille est positionnée pendant 10 secondes.',
         pain: 'Commande simulée : <strong>PAIN_ALERT</strong><br>Message : “J’ai mal”.',
         sleep: 'Commande simulée : <strong>LIGHT_OFF</strong><br>La lumière de la chambre s’éteint.',
-        comfort: 'Commande simulée : <strong>FAN_ON</strong><br>Le ventilateur se met en route. Arrêt automatique prévu après 5 minutes.',
+        comfort: 'Commande simulée : <strong>FAN_ON</strong><br>Le ventilateur de confort se met en route.',
         emergency: 'Commande simulée : <strong>EMERGENCY_ALERT</strong><br>Besoin d’aide immédiate.'
       }[type] || "";
     }
@@ -1462,6 +1485,7 @@
         drink: "Distribution en cours",
         pain: "Alerte douleur",
         sleep: "Lumière éteinte",
+        light: "Lumière allumée",
         comfort: "Confort activé",
         emergency: "Urgence envoyée"
       }[type] || "Action envoyée";
@@ -1472,14 +1496,14 @@
         drink: "Distribution en cours : le servomoteur positionne la paille. Retour automatique après 10 secondes.",
         pain: "Alerte douleur : le message “J’ai mal” est envoyé à l’infirmier.",
         sleep: "Sommeil : la lumière est éteinte pour permettre le repos.",
-        comfort: "Confort : le ventilateur est activé puis s’éteindra automatiquement après 5 minutes.",
+        light: "Lumière : la lampe est allumée.",
+        comfort: "Confort : le ventilateur est activé pour rafraîchir la personne.",
         emergency: "Urgence : une alerte prioritaire est envoyée aux aidants."
       }[type] || "";
     }
 
     function actionCountdownLabel(type, remaining){
       if(type === "drink") return "Distribution : " + remaining + " s";
-      if(type === "comfort") return "Ventilation lancée · retour détection : " + remaining + " s";
       return "Retour détection : " + remaining + " s";
     }
 
