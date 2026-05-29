@@ -772,6 +772,43 @@
       display:block;
     }
 
+
+
+    .tv-frame{
+      width:100%;
+      height:min(62vh, 520px);
+      border:0;
+      border-radius:20px;
+      background:#000;
+      box-shadow:0 18px 60px rgba(0,0,0,.45);
+    }
+
+    .tv-actions{
+      margin-top:14px;
+      display:flex;
+      justify-content:center;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .tv-actions a, .tv-actions button{
+      text-decoration:none;
+      color:white;
+      background:rgba(38,255,154,.15);
+      border:1px solid rgba(38,255,154,.45);
+      border-radius:14px;
+      padding:12px 16px;
+      font-weight:900;
+    }
+
+    .tv-warning{
+      margin-top:12px;
+      color:var(--orange);
+      font-weight:900;
+      font-size:14px;
+      line-height:1.35;
+    }
+
     @media (max-width:720px){
       .home-card{padding:22px;border-radius:24px}
       .choice-grid{grid-template-columns:1fr}
@@ -859,6 +896,12 @@
           <div class="emoji">🎵</div>
           <strong>Musique</strong>
           <small>sourire 2 s</small>
+        </div>
+
+        <div class="command-icon" id="iconTV">
+          <div class="emoji">📺</div>
+          <strong>Télé</strong>
+          <small>clin d’œil droit 2 s</small>
         </div>
 
         <div class="command-icon" id="iconCancel">
@@ -951,6 +994,31 @@
         </div>
       </div>
     </div>
+
+    <div id="tvModal" class="modal">
+      <div class="music-player-card">
+        <div class="music-player-head">
+          <div>
+            <strong>📺 Télévision Mobilife</strong><br>
+            <span>Lecteur intégré — tête vers la droite = chaîne suivante · gauche/droite = annuler</span>
+          </div>
+          <button class="back" id="tvCloseButton">Annuler</button>
+        </div>
+        <div class="music-frame-wrap">
+          <div class="music-inner" style="width:min(900px, 94vw);">
+            <div class="music-note">📺</div>
+            <h2 id="tvChannelTitle">ARTE Direct</h2>
+            <p id="tvChannelHint">Chaîne : ARTE — tête vers la droite = chaîne suivante.</p>
+            <iframe id="tvFrame" class="tv-frame" src="" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+            <div class="tv-actions">
+              <a id="tvOpenLink" href="https://www.arte.tv/fr/direct/" target="_blank" rel="noopener">Ouvrir la chaîne</a>
+              <button id="tvNextButton" type="button">Chaîne suivante</button>
+            </div>
+            <div class="tv-warning">Si la chaîne refuse l’affichage intégré, utilisez “Ouvrir la chaîne”. Certains sites bloquent volontairement les iframes.</div>
+          </div>
+        </div>
+      </div>
+    </div>
   </section>
 
   <script type="module">
@@ -994,6 +1062,7 @@
     const iconLight = document.getElementById("iconLight");
     const iconComfort = document.getElementById("iconComfort");
     const iconMusic = document.getElementById("iconMusic");
+    const iconTV = document.getElementById("iconTV");
     const iconCancel = document.getElementById("iconCancel");
 
     const musicModal = document.getElementById("musicModal");
@@ -1002,6 +1071,20 @@
     const musicCloseButton = document.getElementById("musicCloseButton");
     const musicTrackTitle = document.getElementById("musicTrackTitle");
     const musicTrackHint = document.getElementById("musicTrackHint");
+
+    const tvModal = document.getElementById("tvModal");
+    const tvFrame = document.getElementById("tvFrame");
+    const tvCloseButton = document.getElementById("tvCloseButton");
+    const tvNextButton = document.getElementById("tvNextButton");
+    const tvChannelTitle = document.getElementById("tvChannelTitle");
+    const tvChannelHint = document.getElementById("tvChannelHint");
+    const tvOpenLink = document.getElementById("tvOpenLink");
+
+    const TV_CHANNELS = [
+      { title: "ARTE Direct", url: "https://www.arte.tv/fr/direct/" }
+    ];
+    let currentTVIndex = 0;
+
     const MUSIC_PLAYLIST = [
       { title: "Murray Head", file: "Murray Head.mp3" },
       { title: "Take On Me", file: "TAKE ON ME.mp3" },
@@ -1030,6 +1113,7 @@
     let expressionStart = null;
     let painBrowStart = null;
     let musicSmileStart = null;
+    let tvGestureStart = null;
     let universalShakePhase = "waitingRight";
     let universalShakeCount = 0;
     let lastUniversalShakeAt = 0;
@@ -1058,6 +1142,8 @@
     const EXPRESSION_HOLD_MS = 900;
     const MUSIC_SMILE_THRESHOLD = 0.45;
     const MUSIC_HOLD_MS = 1200;
+    const TV_WINK_THRESHOLD = 0.72;
+    const TV_WINK_HOLD_MS = 2000;
 
     function setState(text, type="loading"){
       stateText.textContent = text;
@@ -1084,7 +1170,7 @@
     }
 
     function clearIconStates(){
-      for(const el of [iconDrink, iconPain, iconSleep, iconLight, iconComfort, iconMusic, iconCancel]){
+      for(const el of [iconDrink, iconPain, iconSleep, iconLight, iconComfort, iconMusic, iconTV, iconCancel]){
         el.classList.remove("active", "alert");
       }
     }
@@ -1098,6 +1184,7 @@
         light: iconLight,
         comfort: iconComfort,
         music: iconMusic,
+        tv: iconTV,
         cancel: iconCancel
       };
       if(map[type]){
@@ -1112,7 +1199,8 @@
         sleep: "Vous voulez dormir ?",
         light: "Vous voulez allumer la lumière ?",
         comfort: "Vous avez chaud ?",
-        music: "Vous voulez écouter de la musique ?"
+        music: "Vous voulez écouter de la musique ?",
+        tv: "Vous voulez regarder la télé ?"
       }[type] || "Demande détectée";
     }
 
@@ -1123,7 +1211,8 @@
         sleep: "LIGHT_OFF",
         light: "LIGHT_ON",
         comfort: "FAN_ON",
-        music: "MUSIC_PLAY"
+        music: "MUSIC_PLAY",
+        tv: "TV_PLAY"
       }[type] || "UNKNOWN";
     }
 
@@ -1215,6 +1304,7 @@
       if(countdownInterval) clearInterval(countdownInterval);
       if(autoRestartTimeout) clearTimeout(autoRestartTimeout);
       stopMusicPlayer();
+      stopTVPlayer();
       countdownInterval = null;
       autoRestartTimeout = null;
       mouthStart = null;
@@ -1242,6 +1332,7 @@
       expressionStart = null;
       painBrowStart = null;
       musicSmileStart = null;
+      tvGestureStart = null;
       lastNextTrackAt = 0;
       nextTrackArmed = true;
       universalShakePhase = "waitingRight";
@@ -1462,6 +1553,22 @@
         iconMusic.classList.remove("active");
         if(smileScore < 0.25) musicSmileStart = null;
       }
+
+      // 6. TÉLÉ : clin d’œil droit maintenu environ 2 secondes
+      // Œil droit fermé + œil gauche ouvert : évite le conflit avec Sommeil.
+      if(eyeBlinkRight > TV_WINK_THRESHOLD && eyeBlinkLeft < 0.35){
+        if(tvGestureStart === null) tvGestureStart = now;
+        iconTV.classList.add("active");
+
+        if(now - tvGestureStart > TV_WINK_HOLD_MS){
+          tvGestureStart = null;
+          beginConfirmation("tv");
+          return;
+        }
+      }else{
+        iconTV.classList.remove("active");
+        if(eyeBlinkRight < 0.35 || eyeBlinkLeft > 0.50) tvGestureStart = null;
+      }
     }
 
     function detectUniversalCancelShake(landmarks, now){
@@ -1477,12 +1584,13 @@
 
       // Pendant la musique : une bascule simple vers la droite passe au morceau suivant.
       // Le geste gauche/droite complet reste réservé à ANNULER.
-      if(mode === "music"){
+      if(mode === "music" || mode === "tv"){
         if(Math.abs(deltaX) < SHAKE_THRESHOLD * 0.45){
           nextTrackArmed = true;
         }
         if(nextTrackArmed && deltaX > SHAKE_THRESHOLD * 1.45 && now - lastNextTrackAt > 1200){
-          nextMusicTrack();
+          if(mode === "music") nextMusicTrack();
+          if(mode === "tv") nextTVChannel();
           universalShakePhase = "waitingRight";
           universalShakeCount = 0;
           lastUniversalShakeAt = now;
@@ -1606,6 +1714,11 @@
 
       if(type === "music"){
         startMusicPlayer();
+        return;
+      }
+
+      if(type === "tv"){
+        startTVPlayer();
         return;
       }
 
@@ -1745,6 +1858,51 @@
       commandState.textContent = "MUSIC_NEXT";
     }
 
+    function updateTVChannel(){
+      if(!tvFrame) return;
+      const channel = TV_CHANNELS[currentTVIndex];
+      tvFrame.src = channel.url;
+      if(tvChannelTitle) tvChannelTitle.textContent = channel.title;
+      if(tvChannelHint) tvChannelHint.textContent = "Chaîne : " + channel.title + " — tête vers la droite = chaîne suivante · gauche/droite = annuler";
+      if(tvOpenLink) tvOpenLink.href = channel.url;
+    }
+
+    function startTVPlayer(){
+      mode = "tv";
+      commandLocked = true;
+      confirmModal.classList.remove("show");
+      sentModal.classList.remove("show");
+      setIconActive("tv");
+
+      updateTVChannel();
+      tvModal.classList.add("show");
+
+      setState("Télévision en cours", "ready");
+      commandState.textContent = "TV_PLAY envoyé";
+      scenarioText.textContent = "Télévision : lecteur intégré Mobilife. Tête vers la droite = chaîne suivante. Tête gauche/droite = annuler.";
+      progressBar.style.width = "100%";
+
+      baselineNoseX = null;
+      universalShakePhase = "waitingRight";
+      universalShakeCount = 0;
+      lastUniversalShakeAt = 0;
+      nextTrackArmed = true;
+    }
+
+    function nextTVChannel(){
+      currentTVIndex = (currentTVIndex + 1) % TV_CHANNELS.length;
+      lastNextTrackAt = performance.now();
+      nextTrackArmed = false;
+      updateTVChannel();
+      setState("Chaîne suivante : " + TV_CHANNELS[currentTVIndex].title, "ready");
+      commandState.textContent = "TV_NEXT";
+    }
+
+    function stopTVPlayer(){
+      if(tvFrame) tvFrame.src = "";
+      if(tvModal) tvModal.classList.remove("show");
+    }
+
     function stopMusicPlayer(){
       if(musicAudio){
         musicAudio.pause();
@@ -1756,6 +1914,7 @@
 
     function universalCancel(){
       stopMusicPlayer();
+      stopTVPlayer();
       if(countdownInterval) clearInterval(countdownInterval);
       if(autoRestartTimeout) clearTimeout(autoRestartTimeout);
       countdownInterval = null;
@@ -1781,7 +1940,8 @@
         sleep: "🌙",
         light: "💡",
         comfort: "🌬️",
-        music: "🎵"
+        music: "🎵",
+        tv: "📺"
       }[type] || "💧";
     }
 
@@ -1792,7 +1952,8 @@
         sleep: "Extinction de la lumière en cours.",
         light: "Allumage de la lumière en cours.",
         comfort: "Ventilation activée.",
-        music: "Musique lancée."
+        music: "Musique lancée.",
+        tv: "Télévision lancée."
       }[type] || "Action en cours.";
     }
 
@@ -1802,7 +1963,8 @@
         pain: 'Commande simulée : <strong>PAIN_ALERT</strong><br>Message : “J’ai mal” envoyé à l’infirmier.', 
         sleep: 'Commande simulée : <strong>LIGHT_OFF</strong><br>La lumière de la chambre s’éteint.',
         comfort: 'Commande simulée : <strong>FAN_ON</strong><br>Le ventilateur de confort se met en route.',
-        music: 'Commande simulée : <strong>MUSIC_PLAY</strong><br>La musique se lance dans le lecteur intégré Mobilife.'
+        music: 'Commande simulée : <strong>MUSIC_PLAY</strong><br>La musique se lance dans le lecteur intégré Mobilife.',
+        tv: 'Commande simulée : <strong>TV_PLAY</strong><br>La télévision se lance dans le lecteur intégré Mobilife.'
       }[type] || "";
     }
 
@@ -1813,7 +1975,8 @@
         sleep: "Lumière éteinte",
         light: "Lumière allumée",
         comfort: "Confort activé",
-        music: "Musique"
+        music: "Musique",
+        tv: "Télévision"
       }[type] || "Action envoyée";
     }
 
@@ -1824,7 +1987,8 @@
         sleep: "Sommeil : la lumière est éteinte pour permettre le repos.",
         light: "Lumière : la lampe est allumée.",
         comfort: "Confort : le ventilateur est activé pour rafraîchir la personne.",
-        music: "Musique : le lecteur intégré est ouvert sans quitter Mobilife."
+        music: "Musique : le lecteur intégré est ouvert sans quitter Mobilife.",
+        tv: "Télévision : le direct est ouvert dans Mobilife."
       }[type] || "";
     }
 
@@ -1911,6 +2075,14 @@
       universalCancel();
     });
 
+    tvCloseButton.addEventListener("click", () => {
+      universalCancel();
+    });
+
+    tvNextButton.addEventListener("click", () => {
+      nextTVChannel();
+    });
+
     if(musicAudio){
       musicAudio.addEventListener("ended", () => {
         if(mode === "music") nextMusicTrack();
@@ -1919,6 +2091,7 @@
 
     backButton.addEventListener("click", () => {
       stopCamera();
+      stopTVPlayer();
       showScreen(home);
     });
 
