@@ -943,9 +943,9 @@
         <div class="music-frame-wrap">
           <div class="music-inner">
             <div class="music-note">🎵</div>
-            <h2>Musique préférée</h2>
-            <p>Lecture audio intégrée — tête gauche/droite pour arrêter</p>
-            <audio id="musicAudio" src="musique1.mp3" preload="auto" playsinline controls></audio>
+            <h2 id="musicTrackTitle">Wonderful Life</h2>
+            <p id="musicTrackHint">Lecture audio intégrée — tête vers la droite = musique suivante · tête gauche/droite = annuler</p>
+            <audio id="musicAudio" src="Wonderful%20Life.mp3" preload="auto" playsinline controls></audio>
             <div id="audioWarning" class="audio-warning">Si le son ne démarre pas, touchez une fois le lecteur pour autoriser l’audio.</div>
           </div>
         </div>
@@ -1000,7 +1000,15 @@
     const musicAudio = document.getElementById("musicAudio");
     const audioWarning = document.getElementById("audioWarning");
     const musicCloseButton = document.getElementById("musicCloseButton");
-    const MUSIC_FILE = "musique1.mp3";
+    const musicTrackTitle = document.getElementById("musicTrackTitle");
+    const musicTrackHint = document.getElementById("musicTrackHint");
+    const MUSIC_PLAYLIST = [
+      { title: "Wonderful Life", file: "Wonderful%20Life.mp3" },
+      { title: "Take On Me", file: "Take%20On%20Me.mp3" }
+    ];
+    let currentMusicIndex = 0;
+    let lastNextTrackAt = 0;
+    let nextTrackArmed = true;
 
     let faceLandmarker = null;
     let drawingUtils = null;
@@ -1233,6 +1241,8 @@
       expressionStart = null;
       painBrowStart = null;
       musicSmileStart = null;
+      lastNextTrackAt = 0;
+      nextTrackArmed = true;
       universalShakePhase = "waitingRight";
       universalShakeCount = 0;
       lastUniversalShakeAt = 0;
@@ -1464,6 +1474,21 @@
       baselineNoseX = baselineNoseX * 0.90 + noseX * 0.10;
       const deltaX = noseX - baselineNoseX;
 
+      // Pendant la musique : une bascule simple vers la droite passe au morceau suivant.
+      // Le geste gauche/droite complet reste réservé à ANNULER.
+      if(mode === "music"){
+        if(Math.abs(deltaX) < SHAKE_THRESHOLD * 0.45){
+          nextTrackArmed = true;
+        }
+        if(nextTrackArmed && deltaX > SHAKE_THRESHOLD * 1.45 && now - lastNextTrackAt > 1200){
+          nextMusicTrack();
+          universalShakePhase = "waitingRight";
+          universalShakeCount = 0;
+          lastUniversalShakeAt = now;
+          return;
+        }
+      }
+
       if(now - lastUniversalShakeAt > 1200){
         universalShakeCount = 0;
         universalShakePhase = "waitingRight";
@@ -1631,7 +1656,7 @@
     async function unlockAudioOnce(){
       if(!musicAudio) return;
       try{
-        musicAudio.src = MUSIC_FILE;
+        musicAudio.src = MUSIC_PLAYLIST[currentMusicIndex].file;
         musicAudio.load();
         musicAudio.muted = true;
         await musicAudio.play();
@@ -1656,7 +1681,7 @@
 
       if(musicAudio){
         try{
-          musicAudio.src = MUSIC_FILE;
+          musicAudio.src = MUSIC_PLAYLIST[currentMusicIndex].file;
           musicAudio.muted = false;
           musicAudio.currentTime = 0;
           await musicAudio.play();
@@ -1842,6 +1867,12 @@
     musicCloseButton.addEventListener("click", () => {
       universalCancel();
     });
+
+    if(musicAudio){
+      musicAudio.addEventListener("ended", () => {
+        if(mode === "music") nextMusicTrack();
+      });
+    }
 
     backButton.addEventListener("click", () => {
       stopCamera();
