@@ -949,7 +949,12 @@
     const musicModal = document.getElementById("musicModal");
     const musicFrame = document.getElementById("musicFrame");
     const musicCloseButton = document.getElementById("musicCloseButton");
-    const YOUTUBE_EMBED_URL = "https://www.youtube.com/embed/abGe6uM9Ias?autoplay=1&playsinline=1&rel=0&modestbranding=1";
+    const YOUTUBE_VIDEO_ID = "abGe6uM9Ias";
+    function getYoutubeEmbedUrl(){
+      const origin = encodeURIComponent(window.location.origin || "https://mobilife.local");
+      return "https://www.youtube.com/embed/" + YOUTUBE_VIDEO_ID +
+        "?autoplay=1&playsinline=1&enablejsapi=1&rel=0&modestbranding=1&controls=1&origin=" + origin;
+    }
 
     let faceLandmarker = null;
     let drawingUtils = null;
@@ -1577,6 +1582,32 @@
       }, 1000);
     }
 
+
+    function forceYoutubePlay(){
+      if(!musicFrame || !musicFrame.contentWindow) return;
+
+      // Commande officielle de l’API YouTube IFrame.
+      // Elle relance playVideo plusieurs fois car sur mobile le lecteur peut mettre 1 à 2 s à être prêt.
+      const message = JSON.stringify({
+        event: "command",
+        func: "playVideo",
+        args: []
+      });
+
+      try{
+        musicFrame.contentWindow.postMessage(message, "https://www.youtube.com");
+      }catch(e){
+        console.warn("Lecture automatique YouTube bloquée par le navigateur", e);
+      }
+    }
+
+    function scheduleYoutubeAutoplayAttempts(){
+      const delays = [250, 700, 1200, 1800, 2600];
+      for(const delay of delays){
+        setTimeout(forceYoutubePlay, delay);
+      }
+    }
+
     function startMusicPlayer(){
       mode = "music";
       commandLocked = true;
@@ -1585,7 +1616,12 @@
       setIconActive("music");
 
       musicModal.classList.add("show");
-      musicFrame.src = YOUTUBE_EMBED_URL;
+      musicFrame.src = getYoutubeEmbedUrl();
+      musicFrame.onload = () => {
+        forceYoutubePlay();
+        scheduleYoutubeAutoplayAttempts();
+      };
+      scheduleYoutubeAutoplayAttempts();
 
       setState("Musique en cours", "ready");
       commandState.textContent = "MUSIC_PLAY envoyé";
@@ -1599,6 +1635,7 @@
     }
 
     function stopMusicPlayer(){
+      if(musicFrame) musicFrame.onload = null;
       if(musicFrame) musicFrame.src = "";
       if(musicModal) musicModal.classList.remove("show");
     }
