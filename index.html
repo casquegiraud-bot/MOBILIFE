@@ -311,6 +311,61 @@
       padding:22px;
     }
 
+    .confirm-bar{
+      align-items:flex-end;
+      justify-content:center;
+      background:transparent;
+      pointer-events:none;
+      padding:18px;
+    }
+
+    .confirm-bar .modal-card{
+      width:min(780px, calc(100vw - 28px));
+      padding:14px 18px;
+      border-radius:20px;
+      background:rgba(0,0,0,.72);
+      border:1px solid rgba(38,255,154,.35);
+      backdrop-filter:blur(14px);
+      pointer-events:auto;
+    }
+
+    .confirm-bar h2{
+      font-size:20px;
+      margin:0 0 6px;
+      color:var(--green);
+    }
+
+    .confirm-bar p{
+      font-size:15px;
+      line-height:1.25;
+    }
+
+    .confirm-actions{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-top:10px;
+      font-size:14px;
+      font-weight:900;
+    }
+
+    .confirm-action{
+      border-radius:14px;
+      padding:10px;
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.14);
+    }
+
+    .confirm-action.yes{
+      color:var(--green);
+      border-color:rgba(38,255,154,.35);
+    }
+
+    .confirm-action.no{
+      color:var(--red);
+      border-color:rgba(255,59,95,.35);
+    }
+
     .modal.show{
       display:flex;
     }
@@ -549,17 +604,13 @@
       </div>
     </div>
 
-    <div id="confirmModal" class="modal">
+    <div id="confirmModal" class="modal confirm-bar">
       <div class="modal-card">
-        <h2>Demande détectée</h2>
-        <p>
-          Vous avez peut-être soif.<br>
-          Voulez-vous demander la paille ?
-        </p>
-        <p class="big">Pour confirmer : faites OUI de la tête deux fois.</p>
-        <div class="manual">
-          <button id="manualConfirm">Valider manuellement</button>
-          <button id="manualCancel" class="secondary">Annuler</button>
+        <h2>Demande détectée : avez-vous soif ?</h2>
+        <p>Mouvement de la tête pour valider. La caméra reste visible.</p>
+        <div class="confirm-actions">
+          <div class="confirm-action yes">OUI : haut / bas ×2</div>
+          <div class="confirm-action no">NON : gauche / droite ×2</div>
         </div>
       </div>
     </div>
@@ -614,8 +665,7 @@
 
     const confirmModal = document.getElementById("confirmModal");
     const sentModal = document.getElementById("sentModal");
-    const manualConfirm = document.getElementById("manualConfirm");
-    const manualCancel = document.getElementById("manualCancel");
+     
     const countdownText = document.getElementById("countdownText");
     const sentTitle = document.getElementById("sentTitle");
     const sentBig = document.getElementById("sentBig");
@@ -632,15 +682,20 @@
     let commandLocked = false;
 
     let baselineNoseY = null;
+    let baselineNoseX = null;
     let nodPhase = "waitingDown";
+    let shakePhase = "waitingRight";
     let nodCount = 0;
+    let shakeCount = 0;
     let lastNodAt = 0;
+    let lastShakeAt = 0;
     let countdownInterval = null;
     let autoRestartTimeout = null;
 
     const DRINK_HOLD_MS = 1700;
     const MOUTH_OPEN_THRESHOLD = 0.055;
     const NOD_THRESHOLD = 0.035;
+    const SHAKE_THRESHOLD = 0.035;
 
     function setState(text, type="loading"){
       stateText.textContent = text;
@@ -728,9 +783,13 @@
       mode = "detectDrink";
       lastVideoTime = -1;
       baselineNoseY = null;
+      baselineNoseX = null;
       nodPhase = "waitingDown";
+      shakePhase = "waitingRight";
       nodCount = 0;
+      shakeCount = 0;
       lastNodAt = 0;
+      lastShakeAt = 0;
       confirmModal.classList.remove("show");
       sentModal.classList.remove("show");
       sentTitle.textContent = "Ordre envoyé";
@@ -740,7 +799,7 @@
       countdownText.textContent = "Distribution : 10 s";
       progressBar.style.width = "0%";
       commandState.textContent = "en attente";
-      nodCountEl.textContent = "0 / 2";
+      nodCountEl.textContent = "OUI 0 / 2 · NON 0 / 2";
       scenarioText.textContent =
         "Tirez la langue ou ouvrez fortement la bouche pendant environ 2 secondes pour simuler la demande d'eau.";
       setState("Système prêt", "ready");
@@ -826,7 +885,7 @@
           setState("Demande détectée", "alert");
           commandState.textContent = "confirmation attendue";
           scenarioText.textContent =
-            "Demande d'eau détectée. Confirmez avec deux hochements de tête.";
+            "Demande d'eau détectée. Oui = haut/bas deux fois. Non = gauche/droite deux fois.";
         }
       }else{
         mouthStart = null;
@@ -834,32 +893,80 @@
       }
     }
 
-    function detectNod(landmarks, now){
-      const noseY = landmarks[1].y;
+    function detectHeadConfirmation(landmarks, now){
+      const nose = landmarks[1];
+      const noseY = nose.y;
+      const noseX = nose.x;
 
       if(baselineNoseY === null){
         baselineNoseY = noseY;
+        baselineNoseX = noseX;
         return;
       }
 
       baselineNoseY = baselineNoseY * 0.94 + noseY * 0.06;
-      const delta = noseY - baselineNoseY;
+      baselineNoseX = baselineNoseX * 0.94 + noseX * 0.06;
 
-      if(now - lastNodAt < 350) return;
+      const deltaY = noseY - baselineNoseY;
+      const deltaX = noseX - baselineNoseX;
 
-      if(nodPhase === "waitingDown" && delta > NOD_THRESHOLD){
-        nodPhase = "waitingUp";
-        lastNodAt = now;
-      } else if(nodPhase === "waitingUp" && delta < -NOD_THRESHOLD * 0.55){
-        nodPhase = "waitingDown";
-        nodCount += 1;
-        lastNodAt = now;
-        nodCountEl.textContent = nodCount + " / 2";
+      // OUI : mouvement haut / bas
+      if(now - lastNodAt > 330){
+        if(nodPhase === "waitingDown" && deltaY > NOD_THRESHOLD){
+          nodPhase = "waitingUp";
+          lastNodAt = now;
+        } else if(nodPhase === "waitingUp" && deltaY < -NOD_THRESHOLD * 0.55){
+          nodPhase = "waitingDown";
+          nodCount += 1;
+          lastNodAt = now;
+          nodCountEl.textContent = "OUI " + nodCount + " / 2 · NON " + shakeCount + " / 2";
 
-        if(nodCount >= 2){
-          sendDrinkOrder();
+          if(nodCount >= 2){
+            sendDrinkOrder();
+            return;
+          }
         }
       }
+
+      // NON : mouvement gauche / droite
+      if(now - lastShakeAt > 330){
+        if(shakePhase === "waitingRight" && deltaX > SHAKE_THRESHOLD){
+          shakePhase = "waitingLeft";
+          lastShakeAt = now;
+        } else if(shakePhase === "waitingLeft" && deltaX < -SHAKE_THRESHOLD){
+          shakePhase = "waitingRight";
+          shakeCount += 1;
+          lastShakeAt = now;
+          nodCountEl.textContent = "OUI " + nodCount + " / 2 · NON " + shakeCount + " / 2";
+
+          if(shakeCount >= 2){
+            cancelDrinkRequest();
+            return;
+          }
+        }
+      }
+    }
+
+    function cancelDrinkRequest(){
+      confirmModal.classList.remove("show");
+      setState("Demande annulée", "ready");
+      commandState.textContent = "demande annulée";
+      scenarioText.textContent =
+        "Demande annulée. Le système revient en détection visage et attend un nouveau geste.";
+      progressBar.style.width = "0%";
+
+      mouthStart = null;
+      commandLocked = false;
+      mode = "detectDrink";
+      baselineNoseY = null;
+      baselineNoseX = null;
+      nodPhase = "waitingDown";
+      shakePhase = "waitingRight";
+      nodCount = 0;
+      shakeCount = 0;
+      lastNodAt = 0;
+      lastShakeAt = 0;
+      nodCountEl.textContent = "OUI 0 / 2 · NON 0 / 2";
     }
 
     function sendDrinkOrder(){
@@ -933,7 +1040,7 @@
           }
 
           if(mode === "confirm"){
-            detectNod(landmarks, now);
+            detectHeadConfirmation(landmarks, now);
           }
 
         }else{
@@ -964,11 +1071,6 @@
       showScreen(home);
     });
 
-    manualConfirm.addEventListener("click", sendDrinkOrder);
-
-    manualCancel.addEventListener("click", () => {
-      resetDetection();
-    });
 
 
     window.addEventListener("resize", resizeCanvas);
