@@ -2,21 +2,19 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Mobilife - Redonner le pouvoir d'agir</title>
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mobilife - Simulateur Visage</title>
   <style>
     :root{
-      --bg:#050816;
-      --panel:rgba(255,255,255,.08);
-      --line:rgba(255,255,255,.18);
+      --bg:#050914;
+      --panel:#10182b;
+      --panel2:#15213a;
+      --cyan:#35d7ff;
+      --green:#37ff9b;
+      --red:#ff365f;
+      --orange:#ffb238;
       --text:#f7fbff;
-      --muted:#a9b7d0;
-      --green:#26ff9a;
-      --red:#ff3b5f;
-      --orange:#ffb020;
-      --blue:#45d6ff;
-      --purple:#8b5cf6;
+      --muted:#9fb0c8;
     }
 
     *{box-sizing:border-box}
@@ -24,19 +22,13 @@
     body{
       margin:0;
       min-height:100vh;
-      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
       background:
-        radial-gradient(circle at top left, rgba(69,214,255,.22), transparent 35%),
-        radial-gradient(circle at bottom right, rgba(139,92,246,.28), transparent 40%),
+        radial-gradient(circle at 15% 10%, rgba(53,215,255,.24), transparent 30%),
+        radial-gradient(circle at 85% 85%, rgba(55,255,155,.16), transparent 28%),
         var(--bg);
       color:var(--text);
+      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
       overflow:hidden;
-    }
-
-    button{
-      font-family:inherit;
-      border:none;
-      cursor:pointer;
     }
 
     .screen{
@@ -56,214 +48,177 @@
     }
 
     .home-card{
-      width:min(980px, 94vw);
-      border:1px solid var(--line);
-      background:linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.04));
-      border-radius:32px;
+      width:min(1050px,95vw);
+      background:rgba(16,24,43,.82);
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:34px;
       padding:34px;
       box-shadow:0 30px 90px rgba(0,0,0,.45);
-      backdrop-filter:blur(18px);
     }
 
-    .brand{
-      text-align:center;
-      margin-bottom:34px;
-    }
-
-    .brand h1{
+    h1{
       margin:0;
-      font-size:clamp(46px, 8vw, 92px);
-      letter-spacing:-.06em;
-      line-height:.9;
+      text-align:center;
+      font-size:clamp(54px,8vw,105px);
+      letter-spacing:-.07em;
+      line-height:.86;
     }
 
-    .brand p{
-      margin:14px 0 0;
+    .slogan{
+      text-align:center;
       color:var(--green);
-      font-size:clamp(18px, 3vw, 28px);
-      font-weight:800;
-      letter-spacing:.02em;
+      font-size:clamp(20px,3vw,32px);
+      font-weight:900;
+      margin:16px 0 34px;
     }
 
-    .choice-grid{
+    .choices{
       display:grid;
       grid-template-columns:1fr 1fr;
-      gap:22px;
+      gap:24px;
     }
 
     .choice{
       min-height:280px;
-      border-radius:28px;
-      background:rgba(255,255,255,.075);
-      border:1px solid rgba(255,255,255,.18);
+      border-radius:30px;
+      background:linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.04));
+      border:1px solid rgba(255,255,255,.16);
       color:white;
       display:flex;
       flex-direction:column;
       align-items:center;
       justify-content:center;
-      gap:18px;
-      transition:.22s ease;
-      position:relative;
-      overflow:hidden;
+      gap:14px;
+      cursor:pointer;
+      transition:.2s;
     }
 
-    .choice::before{
-      content:"";
-      position:absolute;
-      inset:-60px;
-      background:radial-gradient(circle, rgba(69,214,255,.22), transparent 55%);
-      opacity:.75;
-    }
-
-    .choice span.icon{
-      font-size:92px;
-      z-index:1;
-      filter:drop-shadow(0 10px 18px rgba(0,0,0,.35));
-    }
-
-    .choice strong{
-      z-index:1;
-      font-size:32px;
-    }
-
-    .choice small{
-      z-index:1;
-      color:var(--muted);
-      font-size:17px;
-    }
-
-    .choice:not(.disabled):hover{
-      transform:translateY(-4px) scale(1.01);
-      border-color:rgba(38,255,154,.6);
-      box-shadow:0 18px 50px rgba(38,255,154,.12);
+    .choice:hover{
+      transform:translateY(-5px);
+      border-color:rgba(55,255,155,.65);
+      box-shadow:0 20px 70px rgba(55,255,155,.12);
     }
 
     .choice.disabled{
-      opacity:.42;
+      opacity:.36;
       cursor:not-allowed;
       filter:grayscale(.6);
     }
 
-    #app{
-      background:#02040b;
+    .choice span{
+      font-size:95px;
+    }
+
+    .choice strong{
+      font-size:34px;
+    }
+
+    .choice small{
+      color:var(--muted);
+      font-size:17px;
+    }
+
+    #sim{
       flex-direction:column;
     }
 
-    .topbar{
-      position:absolute;
-      top:14px;
-      left:14px;
-      right:14px;
-      height:62px;
+    header{
+      height:76px;
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap:12px;
-      z-index:10;
-      pointer-events:none;
+      padding:12px 18px;
+      background:rgba(0,0,0,.28);
+      border-bottom:1px solid rgba(255,255,255,.08);
     }
 
-    .pill{
-      pointer-events:auto;
+    .brand-small{
       display:flex;
-      align-items:center;
-      gap:10px;
-      background:rgba(0,0,0,.52);
-      border:1px solid rgba(255,255,255,.16);
-      backdrop-filter:blur(12px);
-      border-radius:999px;
-      padding:12px 16px;
-      color:white;
+      flex-direction:column;
+      line-height:1.05;
+    }
+
+    .brand-small strong{
+      font-size:26px;
+      letter-spacing:-.05em;
+    }
+
+    .brand-small span{
+      color:var(--green);
+      font-size:14px;
       font-weight:800;
-      box-shadow:0 12px 34px rgba(0,0,0,.35);
     }
 
-    .dot{
-      width:12px;
-      height:12px;
+    .badge{
       border-radius:999px;
-      background:var(--orange);
-      box-shadow:0 0 18px var(--orange);
-    }
-
-    .dot.ready{
-      background:var(--green);
-      box-shadow:0 0 18px var(--green);
-    }
-
-    .dot.alert{
-      background:var(--red);
-      box-shadow:0 0 18px var(--red);
-      animation:blink .55s infinite alternate;
-    }
-
-    @keyframes blink{
-      from{opacity:.25}
-      to{opacity:1}
+      padding:10px 15px;
+      background:rgba(55,255,155,.13);
+      border:1px solid rgba(55,255,155,.45);
+      color:white;
+      font-weight:900;
     }
 
     .back{
-      pointer-events:auto;
-      background:rgba(255,255,255,.12);
-      color:white;
-      border:1px solid rgba(255,255,255,.18);
+      border:none;
       border-radius:999px;
-      padding:12px 16px;
-      font-weight:800;
+      padding:11px 16px;
+      background:rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.18);
+      color:white;
+      font-weight:900;
+      cursor:pointer;
     }
 
-    .camera-wrap{
-      position:absolute;
-      inset:0;
-      display:flex;
-      align-items:center;
-      justify-content:center;
+    main{
+      flex:1;
+      display:grid;
+      grid-template-columns:1.45fr .9fr;
+      gap:18px;
+      padding:18px;
+      min-height:0;
+    }
+
+    .canvas-panel,
+    .control-panel{
+      background:rgba(16,24,43,.74);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:28px;
       overflow:hidden;
+      box-shadow:0 20px 70px rgba(0,0,0,.25);
+      min-height:0;
     }
 
-    video, canvas{
-      position:absolute;
+    .canvas-panel{
+      position:relative;
+    }
+
+    canvas{
       width:100%;
       height:100%;
-      object-fit:cover;
-      transform:scaleX(-1);
+      display:block;
+      background:
+        radial-gradient(circle at center, rgba(53,215,255,.12), transparent 34%),
+        linear-gradient(180deg,#08111f,#02050c);
     }
 
-    video{
-      opacity:.82;
-    }
-
-    #overlay{
-      z-index:2;
-    }
-
-    .hud{
+    .floating{
       position:absolute;
       left:18px;
       right:18px;
       bottom:18px;
-      z-index:12;
-      display:grid;
-      grid-template-columns:1fr auto;
-      gap:14px;
-      align-items:end;
-    }
-
-    .status-card{
       background:rgba(0,0,0,.62);
-      border:1px solid rgba(255,255,255,.17);
-      backdrop-filter:blur(16px);
-      border-radius:24px;
-      padding:18px;
-      box-shadow:0 16px 48px rgba(0,0,0,.42);
+      backdrop-filter:blur(14px);
+      border:1px solid rgba(255,255,255,.13);
+      border-radius:22px;
+      padding:16px;
     }
 
-    .status-card h2{
+    .floating h2{
       margin:0 0 8px;
-      font-size:22px;
+      font-size:24px;
     }
 
-    .status-card p{
+    .floating p{
       margin:0;
       color:var(--muted);
       font-size:16px;
@@ -271,129 +226,167 @@
     }
 
     .progress{
-      height:10px;
-      background:rgba(255,255,255,.10);
-      border-radius:999px;
-      overflow:hidden;
       margin-top:14px;
+      height:12px;
+      border-radius:999px;
+      background:rgba(255,255,255,.12);
+      overflow:hidden;
     }
 
-    .progress div{
+    .bar{
       height:100%;
       width:0%;
-      background:linear-gradient(90deg, var(--green), var(--blue));
       border-radius:999px;
-      transition:width .18s linear;
+      background:linear-gradient(90deg,var(--green),var(--cyan));
+      transition:width .2s;
     }
 
-    .debug{
-      background:rgba(255,255,255,.09);
-      border:1px solid rgba(255,255,255,.15);
+    .control-panel{
+      padding:20px;
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+      overflow:auto;
+    }
+
+    .control-panel h2{
+      margin:0;
+      font-size:26px;
+    }
+
+    .box{
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.10);
       border-radius:20px;
-      padding:14px 16px;
-      min-width:260px;
-      font-size:14px;
-      color:var(--muted);
+      padding:15px;
     }
 
-    .debug strong{
+    .box strong{
+      display:block;
+      margin-bottom:6px;
       color:white;
     }
 
-    .modal{
-      position:absolute;
-      inset:0;
-      display:none;
-      align-items:center;
-      justify-content:center;
-      background:rgba(0,0,0,.55);
-      z-index:30;
-      padding:22px;
-    }
-
-    .modal.show{
-      display:flex;
-    }
-
-    .modal-card{
-      width:min(560px, 94vw);
-      text-align:center;
-      border-radius:30px;
-      padding:30px;
-      border:1px solid rgba(255,255,255,.18);
-      background:linear-gradient(180deg, rgba(8,15,32,.96), rgba(7,9,19,.96));
-      box-shadow:0 30px 100px rgba(0,0,0,.55);
-    }
-
-    .modal-card h2{
-      margin:0 0 10px;
-      font-size:34px;
-    }
-
-    .modal-card p{
+    .box p{
       margin:0;
       color:var(--muted);
-      font-size:18px;
-      line-height:1.45;
+      line-height:1.35;
     }
 
-    .modal-card .big{
-      color:var(--green);
-      font-size:22px;
-      font-weight:900;
-      margin-top:16px;
+    .buttons{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:10px;
     }
 
-    .manual{
-      margin-top:22px;
-      display:flex;
-      gap:12px;
-      justify-content:center;
-      flex-wrap:wrap;
-    }
-
-    .manual button{
-      background:rgba(38,255,154,.15);
+    button.action{
+      border:none;
+      border-radius:17px;
+      padding:15px 16px;
+      background:rgba(53,215,255,.13);
+      border:1px solid rgba(53,215,255,.38);
       color:white;
-      border:1px solid rgba(38,255,154,.45);
-      border-radius:14px;
-      padding:12px 16px;
-      font-weight:800;
+      font-weight:900;
+      font-size:16px;
+      cursor:pointer;
+      text-align:left;
     }
 
-    .manual button.secondary{
-      background:rgba(255,255,255,.08);
-      border-color:rgba(255,255,255,.18);
+    button.action.good{
+      background:rgba(55,255,155,.15);
+      border-color:rgba(55,255,155,.45);
     }
 
-    @media (max-width:720px){
-      .home-card{padding:22px;border-radius:24px}
-      .choice-grid{grid-template-columns:1fr}
+    button.action.danger{
+      background:rgba(255,54,95,.14);
+      border-color:rgba(255,54,95,.42);
+    }
+
+    .state{
+      font-size:18px;
+      font-weight:900;
+      color:var(--green);
+    }
+
+    .log{
+      min-height:115px;
+      font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size:13px;
+      line-height:1.45;
+      color:#b9c7dd;
+      white-space:pre-line;
+    }
+
+    .toast{
+      position:absolute;
+      top:96px;
+      left:50%;
+      transform:translateX(-50%);
+      width:min(680px,90vw);
+      background:rgba(5,9,20,.92);
+      border:1px solid rgba(55,255,155,.45);
+      box-shadow:0 18px 70px rgba(0,0,0,.45);
+      border-radius:26px;
+      padding:22px;
+      text-align:center;
+      z-index:5;
+      display:none;
+    }
+
+    .toast.show{
+      display:block;
+      animation:pop .25s ease-out;
+    }
+
+    @keyframes pop{
+      from{transform:translateX(-50%) scale(.92); opacity:0}
+      to{transform:translateX(-50%) scale(1); opacity:1}
+    }
+
+    .toast h2{
+      margin:0 0 8px;
+      font-size:30px;
+      color:var(--green);
+    }
+
+    .toast p{
+      margin:0;
+      color:var(--text);
+      font-size:18px;
+    }
+
+    .countdown{
+      margin-top:12px;
+      color:var(--green);
+      font-size:20px;
+      font-weight:900;
+    }
+
+    @media(max-width:900px){
+      body{overflow:auto}
+      .screen.active{position:relative; min-height:100vh}
+      main{grid-template-columns:1fr}
+      .canvas-panel{height:58vh}
+      .choices{grid-template-columns:1fr}
       .choice{min-height:190px}
-      .choice span.icon{font-size:72px}
-      .hud{grid-template-columns:1fr}
-      .debug{display:none}
     }
   </style>
 </head>
-
 <body>
   <section id="home" class="screen active">
     <div class="home-card">
-      <div class="brand">
-        <h1>Mobilife</h1>
-        <p>Redonner le pouvoir d'agir</p>
-      </div>
+      <h1>Mobilife</h1>
+      <div class="slogan">Redonner le pouvoir d'agir</div>
 
-      <div class="choice-grid">
-        <button class="choice" id="faceButton">
-          <span class="icon">🙂</span>
+      <div class="choices">
+        <button class="choice" id="startFace">
+          <span>🙂</span>
           <strong>Visage</strong>
-          <small>Reconnaissance faciale active</small>
+          <small>Prototype scénario n°1 : j'ai soif</small>
         </button>
 
-        <button class="choice disabled" aria-disabled="true">
-          <span class="icon">✋</span>
+        <button class="choice disabled">
+          <span>✋</span>
           <strong>Main</strong>
           <small>Bientôt disponible</small>
         </button>
@@ -401,400 +394,457 @@
     </div>
   </section>
 
-  <section id="app" class="screen">
-    <div class="camera-wrap">
-      <video id="video" playsinline autoplay muted></video>
-      <canvas id="overlay"></canvas>
-    </div>
-
-    <div class="topbar">
-      <div class="pill">
-        <span id="stateDot" class="dot"></span>
-        <span id="stateText">Chargement...</span>
+  <section id="sim" class="screen">
+    <header>
+      <div class="brand-small">
+        <strong>Mobilife</strong>
+        <span>Redonner le pouvoir d'agir</span>
       </div>
-      <button class="back" id="backButton">Accueil</button>
-    </div>
+      <div class="badge" id="topStatus">SYSTÈME PRÊT</div>
+      <button class="back" id="backHome">Accueil</button>
+    </header>
 
-    <div class="hud">
-      <div class="status-card">
-        <h2 id="scenarioTitle">Scénario n°1 : J'ai soif</h2>
-        <p id="scenarioText">
-          Tirez la langue ou ouvrez fortement la bouche pendant environ 2 secondes pour simuler la demande d'eau.
-        </p>
-        <div class="progress">
-          <div id="progressBar"></div>
+    <main>
+      <section class="canvas-panel">
+        <canvas id="canvas"></canvas>
+
+        <div class="toast" id="toast">
+          <h2 id="toastTitle">Demande détectée</h2>
+          <p id="toastText">Vous avez soif ? Faites OUI de la tête deux fois pour confirmer.</p>
+          <div class="countdown" id="countdownText"></div>
         </div>
-      </div>
 
-      <div class="debug">
-        <div><strong>Bouche :</strong> <span id="mouthValue">0</span></div>
-        <div><strong>Commande :</strong> <span id="commandState">en attente</span></div>
-        <div><strong>Hochements :</strong> <span id="nodCount">0 / 2</span></div>
-      </div>
-    </div>
-
-    <div id="confirmModal" class="modal">
-      <div class="modal-card">
-        <h2>Demande détectée</h2>
-        <p>
-          Vous avez peut-être soif.<br>
-          Voulez-vous demander la paille ?
-        </p>
-        <p class="big">Pour confirmer : faites OUI de la tête deux fois.</p>
-        <div class="manual">
-          <button id="manualConfirm">Valider manuellement</button>
-          <button id="manualCancel" class="secondary">Annuler</button>
+        <div class="floating">
+          <h2 id="scenarioTitle">Scénario n°1 : Hydratation autonome</h2>
+          <p id="scenarioText">
+            Geste simulé : tirer la langue pendant 2 secondes. Le système demande confirmation avant d'envoyer l'ordre.
+          </p>
+          <div class="progress"><div class="bar" id="bar"></div></div>
         </div>
-      </div>
-    </div>
+      </section>
 
-    <div id="sentModal" class="modal">
-      <div class="modal-card">
-        <h2>Ordre envoyé</h2>
-        <p class="big">Attention, mouvement en cours.</p>
-        <p>
-          Commande simulée : <strong>DRINK_REQUEST</strong><br>
-          Plus tard, cette commande sera envoyée en Bluetooth à la carte.
-        </p>
-        <div class="manual">
-          <button id="resetButton">Nouvelle détection</button>
+      <aside class="control-panel">
+        <h2>Simulateur de test</h2>
+
+        <div class="box">
+          <strong>Objectif</strong>
+          <p>Tester la logique avant la vraie caméra : détection du besoin, confirmation, puis ordre envoyé vers la carte.</p>
         </div>
-      </div>
-    </div>
+
+        <div class="box">
+          <strong>État actuel</strong>
+          <div class="state" id="state">En attente du geste</div>
+        </div>
+
+        <div class="buttons">
+          <button class="action" id="btnTongue">👅 Simuler : je tire la langue / j'ai soif</button>
+          <button class="action good" id="btnNod">✅ Simuler : OUI de la tête</button>
+          <button class="action danger" id="btnCancel">❌ Annuler / réinitialiser</button>
+        </div>
+
+        <div class="box">
+          <strong>Commande future Bluetooth</strong>
+          <p><code>DRINK_REQUEST</code><br>Pour l'instant, on simule seulement l'envoi.</p>
+        </div>
+
+        <div class="box">
+          <strong>Journal</strong>
+          <div class="log" id="log">Mobilife initialisé.
+Mode visage sélectionné.
+En attente...</div>
+        </div>
+      </aside>
+    </main>
   </section>
 
-  <script type="module">
-    import {
-      FaceLandmarker,
-      FilesetResolver,
-      DrawingUtils
-    } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14";
+  <script>
+    const home = document.getElementById('home');
+    const sim = document.getElementById('sim');
+    const startFace = document.getElementById('startFace');
+    const backHome = document.getElementById('backHome');
 
-    const home = document.getElementById("home");
-    const app = document.getElementById("app");
-    const faceButton = document.getElementById("faceButton");
-    const backButton = document.getElementById("backButton");
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
 
-    const video = document.getElementById("video");
-    const canvas = document.getElementById("overlay");
-    const ctx = canvas.getContext("2d");
+    const topStatus = document.getElementById('topStatus');
+    const state = document.getElementById('state');
+    const scenarioText = document.getElementById('scenarioText');
+    const bar = document.getElementById('bar');
+    const log = document.getElementById('log');
+    const toast = document.getElementById('toast');
+    const toastTitle = document.getElementById('toastTitle');
+    const toastText = document.getElementById('toastText');
+    const countdownText = document.getElementById('countdownText');
 
-    const stateDot = document.getElementById("stateDot");
-    const stateText = document.getElementById("stateText");
-    const scenarioText = document.getElementById("scenarioText");
-    const progressBar = document.getElementById("progressBar");
-    const mouthValue = document.getElementById("mouthValue");
-    const commandState = document.getElementById("commandState");
-    const nodCountEl = document.getElementById("nodCount");
+    const btnTongue = document.getElementById('btnTongue');
+    const btnNod = document.getElementById('btnNod');
+    const btnCancel = document.getElementById('btnCancel');
 
-    const confirmModal = document.getElementById("confirmModal");
-    const sentModal = document.getElementById("sentModal");
-    const manualConfirm = document.getElementById("manualConfirm");
-    const manualCancel = document.getElementById("manualCancel");
-    const resetButton = document.getElementById("resetButton");
+    let mode = 'idle';
+    let nods = 0;
+    let anim = 0;
+    let tongueAnim = 0;
+    let nodAnim = 0;
+    let sentAnim = 0;
+    let autoResetTimer = null;
+    let countdownTimer = null;
 
-    let faceLandmarker = null;
-    let drawingUtils = null;
-    let running = false;
-    let lastVideoTime = -1;
-
-    let mode = "detectDrink";
-    let mouthStart = null;
-    let commandLocked = false;
-
-    let baselineNoseY = null;
-    let nodPhase = "waitingDown";
-    let nodCount = 0;
-    let lastNodAt = 0;
-
-    const DRINK_HOLD_MS = 1700;
-    const MOUTH_OPEN_THRESHOLD = 0.055;
-    const NOD_THRESHOLD = 0.035;
-
-    function setState(text, type="loading"){
-      stateText.textContent = text;
-      stateDot.className = "dot";
-      if(type === "ready") stateDot.classList.add("ready");
-      if(type === "alert") stateDot.classList.add("alert");
+    function addLog(text){
+      log.textContent += "\\n" + text;
+      log.scrollTop = log.scrollHeight;
     }
 
-    function showScreen(target){
-      home.classList.remove("active");
-      app.classList.remove("active");
-      target.classList.add("active");
+    function showSim(){
+      home.classList.remove('active');
+      sim.classList.add('active');
+      reset();
+      resize();
+      draw();
     }
 
-    function resizeCanvas(){
+    function showHome(){
+      sim.classList.remove('active');
+      home.classList.add('active');
+    }
+
+    function reset(){
+      if(autoResetTimer) clearTimeout(autoResetTimer);
+      if(countdownTimer) clearInterval(countdownTimer);
+      autoResetTimer = null;
+      countdownTimer = null;
+      mode = 'idle';
+      nods = 0;
+      tongueAnim = 0;
+      nodAnim = 0;
+      sentAnim = 0;
+      topStatus.textContent = 'SYSTÈME PRÊT';
+      topStatus.style.color = 'white';
+      state.textContent = 'En attente du geste';
+      state.style.color = 'var(--green)';
+      scenarioText.textContent = "Geste simulé : tirer la langue pendant 2 secondes. Le système demande confirmation avant d'envoyer l'ordre.";
+      bar.style.width = '0%';
+      toast.classList.remove('show');
+      countdownText.textContent = '';
+      log.textContent = "Mobilife initialisé.\\nMode visage sélectionné.\\nEn attente...";
+    }
+
+    function resize(){
+      const rect = canvas.parentElement.getBoundingClientRect();
       const dpr = window.devicePixelRatio || 1;
-      canvas.width = Math.round(window.innerWidth * dpr);
-      canvas.height = Math.round(window.innerHeight * dpr);
-      canvas.style.width = window.innerWidth + "px";
-      canvas.style.height = window.innerHeight + "px";
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      canvas.style.width = rect.width + 'px';
+      canvas.style.height = rect.height + 'px';
+      ctx.setTransform(dpr,0,0,dpr,0,0);
     }
 
-    async function initFaceLandmarker(){
-      if(faceLandmarker) return;
+    function simulateTongue(){
+      if(mode !== 'idle') return;
+      mode = 'tongue';
+      tongueAnim = 1;
+      topStatus.textContent = 'GESTE DÉTECTÉ';
+      state.textContent = 'Demande de paille détectée';
+      state.style.color = 'var(--orange)';
+      scenarioText.textContent = "Demande détectée : vous avez soif. Confirmation nécessaire par deux hochements de tête.";
+      addLog("Geste détecté : J'AI SOIF.");
+      bar.style.width = '55%';
 
-      setState("Chargement IA visage...");
-      const filesetResolver = await FilesetResolver.forVisionTasks(
-        "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm"
-      );
-
-      faceLandmarker = await FaceLandmarker.createFromOptions(filesetResolver, {
-        baseOptions: {
-          modelAssetPath:
-            "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/latest/face_landmarker.task",
-          delegate: "GPU"
-        },
-        outputFaceBlendshapes: true,
-        runningMode: "VIDEO",
-        numFaces: 1
-      });
-
-      drawingUtils = new DrawingUtils(ctx);
+      setTimeout(() => {
+        mode = 'confirm';
+        toastTitle.textContent = 'Demande détectée';
+        toastText.textContent = 'Vous avez soif ? Faites OUI de la tête deux fois pour confirmer.';
+        toast.classList.add('show');
+        topStatus.textContent = 'CONFIRMATION ATTENDUE';
+        state.textContent = 'En attente : oui de la tête 0 / 2';
+        addLog("Confirmation demandée : 2 hochements de tête.");
+        bar.style.width = '70%';
+      }, 1100);
     }
 
-    async function startCamera(){
-      await initFaceLandmarker();
+    function simulateNod(){
+      if(mode !== 'confirm') return;
+      nods++;
+      nodAnim = 1;
+      state.textContent = 'Oui détecté : ' + nods + ' / 2';
+      addLog("Hochement de tête validé : " + nods + " / 2.");
 
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: "user",
-          width: { ideal: 1280 },
-          height: { ideal: 720 }
-        },
-        audio: false
-      });
-
-      video.srcObject = stream;
-      await video.play();
-
-      running = true;
-      mode = "detectDrink";
-      resetDetection();
-      setState("Système prêt", "ready");
-
-      requestAnimationFrame(loop);
-    }
-
-    function stopCamera(){
-      running = false;
-      if(video.srcObject){
-        for(const track of video.srcObject.getTracks()) track.stop();
-        video.srcObject = null;
+      if(nods >= 2){
+        sendOrder();
       }
-      ctx.clearRect(0,0,canvas.width,canvas.height);
     }
 
-    function resetDetection(){
-      mouthStart = null;
-      commandLocked = false;
-      baselineNoseY = null;
-      nodPhase = "waitingDown";
-      nodCount = 0;
-      lastNodAt = 0;
-      confirmModal.classList.remove("show");
-      sentModal.classList.remove("show");
-      progressBar.style.width = "0%";
-      commandState.textContent = "en attente";
-      nodCountEl.textContent = "0 / 2";
-      scenarioText.textContent =
-        "Tirez la langue ou ouvrez fortement la bouche pendant environ 2 secondes pour simuler la demande d'eau.";
-      setState("Système prêt", "ready");
+    function sendOrder(){
+      mode = 'sent';
+      sentAnim = 1;
+      toast.classList.add('show');
+      toastTitle.textContent = 'Ordre envoyé';
+      toastText.textContent = 'Attention, mouvement en cours. La paille se mettrait en position.';
+      topStatus.textContent = 'ORDRE ENVOYÉ';
+      topStatus.style.color = 'var(--green)';
+      state.textContent = 'Commande DRINK_REQUEST envoyée';
+      state.style.color = 'var(--green)';
+      scenarioText.textContent = "Commande envoyée : le servomoteur placerait la paille devant la bouche, puis retour automatique après 15 secondes.";
+      bar.style.width = '100%';
+      addLog("Commande simulée vers carte : DRINK_REQUEST.");
+      addLog("Actionneur : servo paille à droite → position bouche.");
+      addLog("Temporisation prévue : 15 secondes, puis retour.");
+      addLog("Nouvelle détection automatique dans 5 secondes.");
+
+      let remaining = 5;
+      countdownText.textContent = "Nouvelle détection dans " + remaining + " s";
+
+      if(countdownTimer) clearInterval(countdownTimer);
+      countdownTimer = setInterval(() => {
+        remaining--;
+        countdownText.textContent = "Nouvelle détection dans " + remaining + " s";
+        if(remaining <= 0){
+          clearInterval(countdownTimer);
+          countdownTimer = null;
+        }
+      }, 1000);
+
+      if(autoResetTimer) clearTimeout(autoResetTimer);
+      autoResetTimer = setTimeout(() => {
+        resetLight();
+      }, 5000);
     }
 
-    function getDistance(a,b){
-      const dx = a.x - b.x;
-      const dy = a.y - b.y;
-      return Math.sqrt(dx*dx + dy*dy);
+    function resetLight(){
+      if(autoResetTimer) clearTimeout(autoResetTimer);
+      if(countdownTimer) clearInterval(countdownTimer);
+      autoResetTimer = null;
+      countdownTimer = null;
+
+      mode = 'idle';
+      nods = 0;
+      tongueAnim = 0;
+      nodAnim = 0;
+      sentAnim = 0;
+
+      topStatus.textContent = 'SYSTÈME PRÊT';
+      topStatus.style.color = 'white';
+      state.textContent = 'En attente du geste';
+      state.style.color = 'var(--green)';
+      scenarioText.textContent = "Geste simulé : tirer la langue pendant 2 secondes. Le système demande confirmation avant d'envoyer l'ordre.";
+      bar.style.width = '0%';
+      toast.classList.remove('show');
+      countdownText.textContent = '';
+      addLog("Système relancé automatiquement. En attente d'une nouvelle demande.");
     }
 
-    function getMouthOpenRatio(lm){
-      const upperLip = lm[13];
-      const lowerLip = lm[14];
-      const leftMouth = lm[61];
-      const rightMouth = lm[291];
-
-      const open = getDistance(upperLip, lowerLip);
-      const width = getDistance(leftMouth, rightMouth);
-
-      if(width === 0) return 0;
-      return open / width;
-    }
-
-    function drawFaceMesh(landmarks){
-      ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
-
-      if(!landmarks) return;
-
+    function drawFace(cx, cy, scale){
       ctx.save();
+      ctx.translate(cx, cy + Math.sin(anim*.02)*4 + nodAnim*22);
+      ctx.scale(scale, scale);
 
-      for(const p of landmarks){
-        const x = p.x * window.innerWidth;
-        const y = p.y * window.innerHeight;
+      // halo scanner
+      ctx.strokeStyle = 'rgba(53,215,255,.18)';
+      ctx.lineWidth = 2;
+      for(let r=150;r<=230;r+=28){
         ctx.beginPath();
-        ctx.arc(x, y, 1.45, 0, Math.PI * 2);
-        ctx.fillStyle = "rgba(38,255,154,.92)";
+        ctx.ellipse(0,0,r,r*1.18,0,0,Math.PI*2);
+        ctx.stroke();
+      }
+
+      // face
+      ctx.fillStyle = 'rgba(255,224,190,.9)';
+      ctx.strokeStyle = 'rgba(255,255,255,.95)';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.ellipse(0,0,112,146,0,0,Math.PI*2);
+      ctx.fill();
+      ctx.stroke();
+
+      // points mesh
+      const points = [];
+      for(let y=-105;y<=95;y+=28){
+        const maxX = 88 * (1 - Math.abs(y)/150);
+        for(let x=-maxX;x<=maxX;x+=28){
+          points.push([x,y]);
+        }
+      }
+
+      ctx.strokeStyle = 'rgba(53,215,255,.24)';
+      ctx.lineWidth = 1;
+      for(let i=0;i<points.length;i++){
+        for(let j=i+1;j<points.length;j++){
+          const dx=points[i][0]-points[j][0];
+          const dy=points[i][1]-points[j][1];
+          if(Math.sqrt(dx*dx+dy*dy)<36){
+            ctx.beginPath();
+            ctx.moveTo(points[i][0],points[i][1]);
+            ctx.lineTo(points[j][0],points[j][1]);
+            ctx.stroke();
+          }
+        }
+      }
+
+      ctx.fillStyle = 'var(--green)';
+      for(const [x,y] of points){
+        ctx.beginPath();
+        ctx.arc(x,y,2.2,0,Math.PI*2);
         ctx.fill();
       }
 
-      drawingUtils.drawConnectors(landmarks, FaceLandmarker.FACE_LANDMARKS_TESSELATION, {
-        color: "rgba(69,214,255,.22)",
-        lineWidth: 1
-      });
+      // eyes
+      ctx.strokeStyle = 'rgba(0,30,40,.8)';
+      ctx.lineWidth = 5;
+      ctx.beginPath();
+      ctx.ellipse(-43,-35,23,11,0,0,Math.PI*2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.ellipse(43,-35,23,11,0,0,Math.PI*2);
+      ctx.stroke();
 
-      drawingUtils.drawConnectors(landmarks, FaceLandmarker.FACE_LANDMARKS_RIGHT_EYE, {
-        color: "rgba(38,255,154,.95)",
-        lineWidth: 2
-      });
+      ctx.fillStyle = '#06101f';
+      ctx.beginPath();
+      ctx.arc(-43,-35,7,0,Math.PI*2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(43,-35,7,0,Math.PI*2);
+      ctx.fill();
 
-      drawingUtils.drawConnectors(landmarks, FaceLandmarker.FACE_LANDMARKS_LEFT_EYE, {
-        color: "rgba(38,255,154,.95)",
-        lineWidth: 2
-      });
+      // nose
+      ctx.strokeStyle = 'rgba(0,0,0,.35)';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.moveTo(0,-12);
+      ctx.lineTo(-9,22);
+      ctx.lineTo(8,22);
+      ctx.stroke();
 
-      drawingUtils.drawConnectors(landmarks, FaceLandmarker.FACE_LANDMARKS_LIPS, {
-        color: "rgba(255,59,95,.95)",
-        lineWidth: 3
-      });
+      // mouth
+      ctx.strokeStyle = 'rgba(255,54,95,.95)';
+      ctx.lineWidth = 6;
+      ctx.beginPath();
+      ctx.ellipse(0,61,34,12 + tongueAnim*10,0,0,Math.PI*2);
+      ctx.stroke();
 
-      drawingUtils.drawConnectors(landmarks, FaceLandmarker.FACE_LANDMARKS_FACE_OVAL, {
-        color: "rgba(255,255,255,.9)",
-        lineWidth: 2
-      });
+      // tongue
+      if(tongueAnim > .05){
+        ctx.fillStyle = 'rgba(255,82,120,.95)';
+        ctx.beginPath();
+        ctx.ellipse(0,82,17,28*tongueAnim,0,0,Math.PI*2);
+        ctx.fill();
+      }
+
+      // labels
+      ctx.fillStyle = 'rgba(255,255,255,.92)';
+      ctx.font = 'bold 18px system-ui';
+      ctx.textAlign = 'center';
+      ctx.fillText('VISAGE RECONNU', 0, -185);
 
       ctx.restore();
     }
 
-    function detectDrink(landmarks, now){
-      const mouthRatio = getMouthOpenRatio(landmarks);
-      mouthValue.textContent = mouthRatio.toFixed(3);
+    function drawActuator(w,h){
+      const baseX = w - 220;
+      const baseY = h - 155;
 
-      if(mouthRatio > MOUTH_OPEN_THRESHOLD){
-        if(!mouthStart) mouthStart = now;
-        const elapsed = now - mouthStart;
-        const pct = Math.min(100, (elapsed / DRINK_HOLD_MS) * 100);
-        progressBar.style.width = pct + "%";
+      ctx.save();
 
-        if(elapsed >= DRINK_HOLD_MS && !commandLocked){
-          commandLocked = true;
-          mode = "confirm";
-          confirmModal.classList.add("show");
-          setState("Demande détectée", "alert");
-          commandState.textContent = "confirmation attendue";
-          scenarioText.textContent =
-            "Demande d'eau détectée. Confirmez avec deux hochements de tête.";
-        }
-      }else{
-        mouthStart = null;
-        if(!commandLocked) progressBar.style.width = "0%";
-      }
+      // patient side / straw servo
+      ctx.fillStyle = 'rgba(255,255,255,.07)';
+      ctx.strokeStyle = 'rgba(255,255,255,.16)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.roundRect(baseX-80, baseY-70, 170, 120, 22);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = 'rgba(255,255,255,.85)';
+      ctx.font = 'bold 15px system-ui';
+      ctx.textAlign = 'center';
+      ctx.fillText('Servo paille', baseX+5, baseY-38);
+
+      // servo body
+      ctx.fillStyle = '#293a5e';
+      ctx.strokeStyle = 'rgba(53,215,255,.75)';
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.roundRect(baseX-28, baseY-20, 56, 42, 10);
+      ctx.fill();
+      ctx.stroke();
+
+      // moving arm
+      const angle = sentAnim > .05 ? -0.75 : .38;
+      const armLen = 112;
+      const x2 = baseX + Math.cos(angle)*armLen;
+      const y2 = baseY + Math.sin(angle)*armLen;
+
+      ctx.strokeStyle = sentAnim > .05 ? 'rgba(55,255,155,.95)' : 'rgba(255,178,56,.85)';
+      ctx.lineWidth = 9;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(baseX, baseY);
+      ctx.lineTo(x2, y2);
+      ctx.stroke();
+
+      // straw
+      ctx.strokeStyle = '#eafcff';
+      ctx.lineWidth = 5;
+      ctx.beginPath();
+      ctx.moveTo(x2, y2);
+      ctx.lineTo(x2+42, y2-10);
+      ctx.stroke();
+
+      ctx.fillStyle = sentAnim > .05 ? 'var(--green)' : 'var(--orange)';
+      ctx.beginPath();
+      ctx.arc(baseX, baseY, 9,0,Math.PI*2);
+      ctx.fill();
+
+      ctx.restore();
     }
 
-    function detectNod(landmarks, now){
-      const noseY = landmarks[1].y;
+    function draw(){
+      if(!sim.classList.contains('active')) return;
+      const rect = canvas.getBoundingClientRect();
+      const w = rect.width;
+      const h = rect.height;
 
-      if(baselineNoseY === null){
-        baselineNoseY = noseY;
-        return;
+      ctx.clearRect(0,0,w,h);
+
+      anim++;
+
+      if(tongueAnim > 0) tongueAnim *= .96;
+      if(nodAnim > 0) nodAnim *= .88;
+      if(sentAnim > 0) sentAnim = Math.min(1, sentAnim + .03);
+
+      // grid background
+      ctx.strokeStyle = 'rgba(53,215,255,.08)';
+      ctx.lineWidth = 1;
+      const grid = 38;
+      for(let x=0;x<w;x+=grid){
+        ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,h); ctx.stroke();
+      }
+      for(let y=0;y<h;y+=grid){
+        ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke();
       }
 
-      baselineNoseY = baselineNoseY * 0.94 + noseY * 0.06;
-      const delta = noseY - baselineNoseY;
+      // scanner line
+      const scanY = (anim*2)%h;
+      ctx.strokeStyle = 'rgba(55,255,155,.35)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(0,scanY);
+      ctx.lineTo(w,scanY);
+      ctx.stroke();
 
-      if(now - lastNodAt < 350) return;
+      drawFace(w*0.42, h*0.42, Math.min(w,h)/680);
+      drawActuator(w,h);
 
-      if(nodPhase === "waitingDown" && delta > NOD_THRESHOLD){
-        nodPhase = "waitingUp";
-        lastNodAt = now;
-      } else if(nodPhase === "waitingUp" && delta < -NOD_THRESHOLD * 0.55){
-        nodPhase = "waitingDown";
-        nodCount += 1;
-        lastNodAt = now;
-        nodCountEl.textContent = nodCount + " / 2";
-
-        if(nodCount >= 2){
-          sendDrinkOrder();
-        }
-      }
+      requestAnimationFrame(draw);
     }
 
-    function sendDrinkOrder(){
-      mode = "sent";
-      confirmModal.classList.remove("show");
-      sentModal.classList.add("show");
-      setState("Ordre envoyé", "ready");
-      commandState.textContent = "DRINK_REQUEST envoyé";
-      scenarioText.textContent =
-        "Ordre envoyé : attention, mouvement en cours. La paille se mettrait en position.";
-      progressBar.style.width = "100%";
+    startFace.addEventListener('click', showSim);
+    backHome.addEventListener('click', showHome);
+    btnTongue.addEventListener('click', simulateTongue);
+    btnNod.addEventListener('click', simulateNod);
+    btnCancel.addEventListener('click', reset);
 
-      console.log("Mobilife Bluetooth futur : DRINK_REQUEST");
-    }
-
-    async function loop(){
-      if(!running) return;
-
-      resizeCanvas();
-
-      if(video.currentTime !== lastVideoTime && faceLandmarker){
-        lastVideoTime = video.currentTime;
-        const result = faceLandmarker.detectForVideo(video, performance.now());
-
-        if(result.faceLandmarks && result.faceLandmarks.length > 0){
-          const landmarks = result.faceLandmarks[0];
-          drawFaceMesh(landmarks);
-
-          const now = performance.now();
-
-          if(mode === "detectDrink"){
-            detectDrink(landmarks, now);
-          }
-
-          if(mode === "confirm"){
-            detectNod(landmarks, now);
-          }
-
-        }else{
-          ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
-          setState("Visage non détecté");
-        }
-      }
-
-      requestAnimationFrame(loop);
-    }
-
-    faceButton.addEventListener("click", async () => {
-      showScreen(app);
-      resizeCanvas();
-
-      try{
-        await startCamera();
-      }catch(error){
-        console.error(error);
-        setState("Caméra bloquée", "alert");
-        scenarioText.textContent =
-          "Impossible d'activer la caméra. Vérifiez l'autorisation caméra du navigateur.";
-      }
+    window.addEventListener('resize', () => {
+      resize();
     });
-
-    backButton.addEventListener("click", () => {
-      stopCamera();
-      showScreen(home);
-    });
-
-    manualConfirm.addEventListener("click", sendDrinkOrder);
-
-    manualCancel.addEventListener("click", () => {
-      resetDetection();
-    });
-
-    resetButton.addEventListener("click", () => {
-      resetDetection();
-    });
-
-    window.addEventListener("resize", resizeCanvas);
   </script>
 </body>
 </html>
