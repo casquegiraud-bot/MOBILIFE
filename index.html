@@ -901,7 +901,7 @@
         <div class="command-icon" id="iconTV">
           <div class="emoji">📺</div>
           <strong>Télé</strong>
-          <small>clin d’œil droit 2 s</small>
+          <small>3 clins d’œil droits</small>
         </div>
 
         <div class="command-icon" id="iconCancel">
@@ -1114,6 +1114,9 @@
     let painBrowStart = null;
     let musicSmileStart = null;
     let tvGestureStart = null;
+    let tvBlinkCount = 0;
+    let tvBlinkLock = false;
+    let tvBlinkTimer = 0;
     let universalShakePhase = "waitingRight";
     let universalShakeCount = 0;
     let lastUniversalShakeAt = 0;
