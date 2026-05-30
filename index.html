@@ -101,7 +101,7 @@
       flex-direction:column;
       align-items:center;
       justify-content:center;
-      gap:14px;
+      gap:18px;
       transition:.22s ease;
       position:relative;
       overflow:hidden;
@@ -259,10 +259,10 @@
 
     .command-col{
       position:absolute;
-      top:15%;
+      top:17%;
       display:flex;
       flex-direction:column;
-      gap:14px;
+      gap:12px;
     }
 
     .command-col.left{left:0}
@@ -271,13 +271,13 @@
     .command-bottom{
       position:absolute;
       left:50%;
-      bottom:18px;
+      bottom:8px;
       transform:translateX(-50%);
     }
 
     .command-icon{
-      width:104px;
-      min-height:94px;
+      width:98px;
+      min-height:88px;
       padding:12px 10px;
       border-radius:24px;
       background:rgba(0,0,0,.54);
@@ -294,18 +294,18 @@
     }
 
     .command-icon .emoji{
-      font-size:40px;
+      font-size:32px;
       line-height:1;
     }
 
     .command-icon strong{
-      font-size:14px;
+      font-size:12px;
       line-height:1.05;
       color:white;
     }
 
     .command-icon small{
-      font-size:11px;
+      font-size:9px;
       line-height:1.1;
       color:var(--muted);
     }
@@ -677,7 +677,7 @@
       display:flex;
       align-items:center;
       justify-content:center;
-      gap:14px;
+      gap:18px;
     }
 
     .music-player-card{
@@ -812,98 +812,98 @@
 
     .direction-zone{
       position:absolute;
-      inset:88px 0 118px 0;
+      inset:0;
       z-index:13;
       pointer-events:none;
     }
 
     .direction-tile{
       position:absolute;
-      width:108px;
-      min-height:92px;
-      padding:9px 8px;
-      border-radius:22px;
-      background:rgba(0,0,0,.58);
+      width:92px;
+      min-height:78px;
+      padding:7px 5px;
+      border-radius:18px;
+      background:rgba(0,0,0,.62);
       border:1px solid rgba(255,255,255,.18);
       backdrop-filter:blur(14px);
-      box-shadow:0 14px 40px rgba(0,0,0,.35);
+      box-shadow:0 12px 34px rgba(0,0,0,.35);
       display:flex;
       flex-direction:column;
       align-items:center;
       justify-content:center;
-      gap:4px;
+      gap:3px;
       text-align:center;
       transition:.15s ease;
     }
 
     .direction-tile .emoji{
-      font-size:34px;
+      font-size:28px;
       line-height:1;
     }
 
     .direction-tile strong{
-      font-size:13px;
+      font-size:11px;
       line-height:1.05;
       color:white;
     }
 
     .direction-tile small{
-      font-size:10px;
+      font-size:9px;
       color:var(--muted);
       line-height:1.1;
     }
 
     .direction-tile.top{
-      top:-78px;
+      top:74px;
       left:50%;
       transform:translateX(-50%);
     }
 
     .direction-tile.bottom{
-      bottom:-106px;
+      bottom:96px;
       left:50%;
       transform:translateX(-50%);
     }
 
     .direction-tile.left{
-      top:52%;
-      left:4px;
+      top:58%;
+      left:0;
       transform:translateY(-50%);
     }
 
     .direction-tile.right{
-      top:52%;
-      right:4px;
+      top:58%;
+      right:0;
       transform:translateY(-50%);
     }
 
     .direction-tile.active{
       border-color:rgba(38,255,154,.95);
-      background:rgba(38,255,154,.20);
+      background:rgba(38,255,154,.22);
       box-shadow:0 0 34px rgba(38,255,154,.50), 0 14px 40px rgba(0,0,0,.35);
-    }
-
-    .direction-tile.left.active{
-      transform:translateY(-50%) scale(1.04);
-    }
-
-    .direction-tile.right.active{
-      transform:translateY(-50%) scale(1.04);
-    }
-
-    .direction-tile.top.active,
-    .direction-tile.bottom.active{
-      transform:translateX(-50%) scale(1.04);
     }
 
     .direction-tile.triggered{
       border-color:rgba(69,214,255,.95);
-      background:rgba(69,214,255,.24);
+      background:rgba(69,214,255,.26);
       box-shadow:0 0 36px rgba(69,214,255,.55), 0 14px 40px rgba(0,0,0,.35);
     }
 
-    .tv-autoload{
-      display:none;
+    .direction-tile.left.active,
+    .direction-tile.left.triggered{
+      transform:translateY(-50%) scale(1.04);
+    }
+
+    .direction-tile.right.active,
+    .direction-tile.right.triggered{
+      transform:translateY(-50%) scale(1.04);
+    }
+
+    .direction-tile.top.active,
+    .direction-tile.top.triggered,
+    .direction-tile.bottom.active,
+    .direction-tile.bottom.triggered{
+      transform:translateX(-50%) scale(1.04);
     }
 
     @media (max-width:720px){
@@ -913,27 +913,23 @@
       .choice span.icon{font-size:72px}
       .hud{grid-template-columns:1fr}
       .debug{display:none}
-      .command-icon{width:92px;min-height:94px;border-radius:18px;padding:8px 6px}
-      .command-icon .emoji{font-size:30px}
-      .command-icon strong{font-size:12px}
-      .command-icon small{font-size:10px}
-      .command-zone{inset:82px 8px 12px}
-      .command-col{gap:12px}
-
-      .command-zone{inset:82px 0 10px}
-      .command-col{gap:10px;top:18%}
-      .command-col.left{left:8px}
-      .command-col.right{right:8px}
-      .command-bottom{bottom:18px;gap:10px}
-      .direction-zone{inset:88px 0 118px 0}
-      .direction-tile{width:86px;min-height:78px;border-radius:18px;padding:7px 5px}
-      .direction-tile.top{top:-76px}
-      .direction-tile.bottom{bottom:-100px}
-      .direction-tile.left{left:4px;top:54%}
-      .direction-tile.right{right:4px;top:54%}
-      .direction-tile .emoji{font-size:28px}
-      .direction-tile strong{font-size:11px}
-      .direction-tile small{font-size:9px}
+      .command-icon{width:82px;min-height:76px;border-radius:16px;padding:6px 4px}
+      .command-icon .emoji{font-size:26px}
+      .command-icon strong{font-size:10px}
+      .command-icon small{font-size:8px}
+      .command-zone{inset:82px 0 8px}
+      .command-col{gap:8px;top:18%}
+      .command-col.left{left:4px}
+      .command-col.right{right:4px}
+      .command-bottom{bottom:8px;gap:10px}
+      .direction-tile{width:76px;min-height:66px;border-radius:15px;padding:5px 4px}
+      .direction-tile .emoji{font-size:24px}
+      .direction-tile strong{font-size:9px}
+      .direction-tile small{font-size:8px}
+      .direction-tile.top{top:72px}
+      .direction-tile.bottom{bottom:90px}
+      .direction-tile.left{left:0;top:61%}
+      .direction-tile.right{right:0;top:61%}
     }
   </style>
 </head>
@@ -1251,6 +1247,9 @@
     let painBrowStart = null;
     let musicSmileStart = null;
     let tvGestureStart = null;
+    let tvBlinkCount = 0;
+    let tvBlinkLock = false;
+    let tvBlinkTimer = 0;
     let dirBaseX = null;
     let dirBaseY = null;
     let dirHoldStart = null;
@@ -1757,10 +1756,8 @@
       }else if(dy > DIR_HEAD_THRESHOLD){
         direction = "down";
       }else if(dx > DIR_HEAD_THRESHOLD){
-        // Caméra miroir : tête utilisateur vers la gauche affichée à droite.
         direction = "left";
       }else if(dx < -DIR_HEAD_THRESHOLD){
-        // Caméra miroir : tête utilisateur vers la droite affichée à gauche.
         direction = "right";
       }
 
@@ -2112,12 +2109,10 @@
       updateTVChannel();
       tvModal.classList.add("show");
 
-      // Tentative d'ouverture automatique.
-      // Certains navigateurs/sites bloquent les iframes ou les popups non issues d'un vrai clic.
       try{
-        tvOpenLink.click();
+        tvFrame.src = TV_CHANNELS[currentTVIndex].url;
       }catch(e){
-        console.warn("Ouverture automatique TV bloquée", e);
+        console.warn("Chargement TV intégré bloqué", e);
       }
 
       setState("Télévision en cours", "ready");
