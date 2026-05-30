@@ -259,7 +259,7 @@
 
     .command-col{
       position:absolute;
-      top:8%;
+      top:14%;
       display:flex;
       flex-direction:column;
       gap:18px;
@@ -812,18 +812,18 @@
 
     .direction-zone{
       position:absolute;
-      inset:92px 142px 130px;
+      inset:18px 0 18px 0;
       z-index:13;
       pointer-events:none;
     }
 
     .direction-tile{
       position:absolute;
-      width:116px;
-      min-height:104px;
+      width:118px;
+      min-height:106px;
       padding:10px;
       border-radius:24px;
-      background:rgba(0,0,0,.56);
+      background:rgba(0,0,0,.58);
       border:1px solid rgba(255,255,255,.18);
       backdrop-filter:blur(14px);
       box-shadow:0 14px 40px rgba(0,0,0,.35);
@@ -833,27 +833,75 @@
       justify-content:center;
       gap:5px;
       text-align:center;
-      transition:.2s ease;
+      transition:.15s ease;
     }
 
-    .direction-tile .emoji{ font-size:38px; line-height:1; }
-    .direction-tile strong{ font-size:14px; line-height:1.05; color:white; }
-    .direction-tile small{ font-size:11px; color:var(--muted); line-height:1.1; }
-    .direction-tile.top{ top:0; left:50%; transform:translateX(-50%); }
-    .direction-tile.bottom{ bottom:0; left:50%; transform:translateX(-50%); }
-    .direction-tile.left{ top:50%; left:0; transform:translateY(-50%); }
-    .direction-tile.right{ top:50%; right:0; transform:translateY(-50%); }
+    .direction-tile .emoji{
+      font-size:38px;
+      line-height:1;
+    }
+
+    .direction-tile strong{
+      font-size:14px;
+      line-height:1.05;
+      color:white;
+    }
+
+    .direction-tile small{
+      font-size:11px;
+      color:var(--muted);
+      line-height:1.1;
+    }
+
+    .direction-tile.top{
+      top:0;
+      left:50%;
+      transform:translateX(-50%);
+    }
+
+    .direction-tile.bottom{
+      bottom:0;
+      left:50%;
+      transform:translateX(-50%);
+    }
+
+    .direction-tile.left{
+      top:50%;
+      left:8px;
+      transform:translateY(-50%);
+    }
+
+    .direction-tile.right{
+      top:50%;
+      right:8px;
+      transform:translateY(-50%);
+    }
+
     .direction-tile.active{
       border-color:rgba(38,255,154,.95);
-      background:rgba(38,255,154,.18);
-      box-shadow:0 0 34px rgba(38,255,154,.45), 0 14px 40px rgba(0,0,0,.35);
-    }
-    .direction-tile.triggered{
-      border-color:rgba(69,214,255,.95);
-      background:rgba(69,214,255,.20);
-      box-shadow:0 0 34px rgba(69,214,255,.45), 0 14px 40px rgba(0,0,0,.35);
+      background:rgba(38,255,154,.20);
+      box-shadow:0 0 34px rgba(38,255,154,.50), 0 14px 40px rgba(0,0,0,.35);
+      transform:scale(1.04);
     }
 
+    .direction-tile.left.active{
+      transform:translateY(-50%) scale(1.04);
+    }
+
+    .direction-tile.right.active{
+      transform:translateY(-50%) scale(1.04);
+    }
+
+    .direction-tile.top.active,
+    .direction-tile.bottom.active{
+      transform:translateX(-50%) scale(1.04);
+    }
+
+    .direction-tile.triggered{
+      border-color:rgba(69,214,255,.95);
+      background:rgba(69,214,255,.24);
+      box-shadow:0 0 36px rgba(69,214,255,.55), 0 14px 40px rgba(0,0,0,.35);
+    }
 
     @media (max-width:720px){
       .home-card{padding:22px;border-radius:24px}
@@ -868,8 +916,10 @@
       .command-icon small{font-size:10px}
       .command-zone{inset:82px 8px 12px}
       .command-col{gap:12px}
-      .direction-zone{inset:86px 104px 118px}
-      .direction-tile{width:86px;min-height:82px;border-radius:18px;padding:7px 5px}
+      .direction-zone{inset:12px 0 12px 0}
+      .direction-tile{width:88px;min-height:80px;border-radius:18px;padding:7px 5px}
+      .direction-tile.left{left:4px}
+      .direction-tile.right{right:4px}
       .direction-tile .emoji{font-size:28px}
       .direction-tile strong{font-size:11px}
       .direction-tile small{font-size:9px}
@@ -908,7 +958,7 @@
       <div id="lightOff" class="light-off"></div>
     </div>
 
-    <div class="gesture-tip">Mobilife détecte les gestes du visage — confirmation obligatoire avant chaque action.</div>
+    <div class="gesture-tip" style="display:none"></div>
 
     <div class="command-zone">
       <div class="command-col left">
@@ -949,12 +999,6 @@
           <small>sourire 2 s</small>
         </div>
 
-        <div class="command-icon" id="iconTV">
-          <div class="emoji">📺</div>
-          <strong>Télé</strong>
-          <small>tête bas 2 s</small>
-        </div>
-
         <div class="command-icon" id="iconCancel">
           <div class="emoji">⛔</div>
           <strong>Annuler</strong>
@@ -967,22 +1011,25 @@
       <div class="direction-tile top" id="dirTopTile">
         <div class="emoji">❓</div>
         <strong>Action haut</strong>
-        <small>tête haut 2 s</small>
+        <small>tête haut</small>
       </div>
+
       <div class="direction-tile left" id="dirLeftTile">
         <div class="emoji">❓</div>
         <strong>Action gauche</strong>
-        <small>tête gauche 2 s</small>
+        <small>tête gauche</small>
       </div>
+
       <div class="direction-tile right" id="dirRightTile">
         <div class="emoji">❓</div>
         <strong>Action droite</strong>
-        <small>tête droite 2 s</small>
+        <small>tête droite</small>
       </div>
+
       <div class="direction-tile bottom" id="dirBottomTile">
         <div class="emoji">📺</div>
         <strong>Télé</strong>
-        <small>tête bas 2 s</small>
+        <small>tête bas</small>
       </div>
     </div>
 
@@ -1136,7 +1183,7 @@
     const iconLight = document.getElementById("iconLight");
     const iconComfort = document.getElementById("iconComfort");
     const iconMusic = document.getElementById("iconMusic");
-    const iconTV = document.getElementById("iconTV");
+    const iconTV = document.getElementById("dirBottomTile");
     const iconCancel = document.getElementById("iconCancel");
 
     const dirTopTile = document.getElementById("dirTopTile");
@@ -1231,8 +1278,8 @@
     const MUSIC_HOLD_MS = 1200;
     const TV_WINK_THRESHOLD = 0.72;
     const TV_WINK_HOLD_MS = 2000;
-    const DIR_HEAD_THRESHOLD = 0.055;
-    const DIR_HOLD_MS = 2000;
+    const DIR_HEAD_THRESHOLD = 0.045;
+    const DIR_HOLD_MS = 900;
 
     function setState(text, type="loading"){
       stateText.textContent = text;
@@ -1260,7 +1307,7 @@
 
     function clearIconStates(){
       for(const el of [iconDrink, iconPain, iconSleep, iconLight, iconComfort, iconMusic, iconTV, iconCancel]){
-        el.classList.remove("active", "alert");
+        if(el) el.classList.remove("active", "alert", "triggered");
       }
       for(const el of [dirTopTile, dirLeftTile, dirRightTile, dirBottomTile]){
         if(el) el.classList.remove("active", "triggered");
@@ -1654,9 +1701,8 @@
         if(smileScore < 0.25) musicSmileStart = null;
       }
 
-      // 6. TÉLÉ : désactivé ici.
-      // La télévision est maintenant déclenchée par la vignette directionnelle du bas
-      // avec tête vers le bas maintenue 2 secondes.
+      // 6. TÉLÉ : déclenchement déplacé sur la vignette directionnelle du bas.
+      // Tête vers le bas maintenue brièvement = demande Télé.
 
     }
 
@@ -1683,6 +1729,7 @@
 
     function detectDirectionalTiles(landmarks, now){
       if(mode !== "detectDrink" || commandLocked) return;
+
       const nose = landmarks[1];
       if(!nose) return;
 
@@ -1692,19 +1739,25 @@
         return;
       }
 
-      dirBaseX = dirBaseX * 0.96 + nose.x * 0.04;
-      dirBaseY = dirBaseY * 0.96 + nose.y * 0.04;
-
       const dx = nose.x - dirBaseX;
       const dy = nose.y - dirBaseY;
+
       let direction = null;
 
-      if(dy < -DIR_HEAD_THRESHOLD){ direction = "up"; }
-      else if(dy > DIR_HEAD_THRESHOLD){ direction = "down"; }
-      else if(dx < -DIR_HEAD_THRESHOLD){ direction = "left"; }
-      else if(dx > DIR_HEAD_THRESHOLD){ direction = "right"; }
+      if(dy < -DIR_HEAD_THRESHOLD){
+        direction = "up";
+      }else if(dy > DIR_HEAD_THRESHOLD){
+        direction = "down";
+      }else if(dx < -DIR_HEAD_THRESHOLD){
+        direction = "left";
+      }else if(dx > DIR_HEAD_THRESHOLD){
+        direction = "right";
+      }
 
+      // Recalibrage seulement quand la tête revient au centre.
       if(!direction){
+        dirBaseX = dirBaseX * 0.85 + nose.x * 0.15;
+        dirBaseY = dirBaseY * 0.85 + nose.y * 0.15;
         dirCurrent = null;
         dirHoldStart = null;
         dirTriggered = false;
@@ -1731,12 +1784,16 @@
 
         setState("Vignette " + directionLabel(direction) + " validée", "ready");
         commandState.textContent = "DIRECTION_" + direction.toUpperCase();
-        setTimeout(clearDirectionTiles, 700);
       }
     }
 
     function directionLabel(direction){
-      return { up:"haut", down:"bas", left:"gauche", right:"droite" }[direction] || direction;
+      return {
+        up: "haut",
+        down: "bas",
+        left: "gauche",
+        right: "droite"
+      }[direction] || direction;
     }
 
 
