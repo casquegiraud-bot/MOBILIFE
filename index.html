@@ -101,7 +101,7 @@
       flex-direction:column;
       align-items:center;
       justify-content:center;
-      gap:18px;
+      gap:14px;
       transition:.22s ease;
       position:relative;
       overflow:hidden;
@@ -259,10 +259,10 @@
 
     .command-col{
       position:absolute;
-      top:14%;
+      top:15%;
       display:flex;
       flex-direction:column;
-      gap:18px;
+      gap:14px;
     }
 
     .command-col.left{left:0}
@@ -271,13 +271,13 @@
     .command-bottom{
       position:absolute;
       left:50%;
-      bottom:10px;
+      bottom:18px;
       transform:translateX(-50%);
     }
 
     .command-icon{
-      width:118px;
-      min-height:112px;
+      width:104px;
+      min-height:94px;
       padding:12px 10px;
       border-radius:24px;
       background:rgba(0,0,0,.54);
@@ -677,7 +677,7 @@
       display:flex;
       align-items:center;
       justify-content:center;
-      gap:18px;
+      gap:14px;
     }
 
     .music-player-card{
@@ -812,17 +812,17 @@
 
     .direction-zone{
       position:absolute;
-      inset:18px 0 18px 0;
+      inset:88px 0 118px 0;
       z-index:13;
       pointer-events:none;
     }
 
     .direction-tile{
       position:absolute;
-      width:118px;
-      min-height:106px;
-      padding:10px;
-      border-radius:24px;
+      width:108px;
+      min-height:92px;
+      padding:9px 8px;
+      border-radius:22px;
       background:rgba(0,0,0,.58);
       border:1px solid rgba(255,255,255,.18);
       backdrop-filter:blur(14px);
@@ -831,49 +831,49 @@
       flex-direction:column;
       align-items:center;
       justify-content:center;
-      gap:5px;
+      gap:4px;
       text-align:center;
       transition:.15s ease;
     }
 
     .direction-tile .emoji{
-      font-size:38px;
+      font-size:34px;
       line-height:1;
     }
 
     .direction-tile strong{
-      font-size:14px;
+      font-size:13px;
       line-height:1.05;
       color:white;
     }
 
     .direction-tile small{
-      font-size:11px;
+      font-size:10px;
       color:var(--muted);
       line-height:1.1;
     }
 
     .direction-tile.top{
-      top:0;
+      top:-78px;
       left:50%;
       transform:translateX(-50%);
     }
 
     .direction-tile.bottom{
-      bottom:0;
+      bottom:-106px;
       left:50%;
       transform:translateX(-50%);
     }
 
     .direction-tile.left{
-      top:50%;
-      left:8px;
+      top:52%;
+      left:4px;
       transform:translateY(-50%);
     }
 
     .direction-tile.right{
-      top:50%;
-      right:8px;
+      top:52%;
+      right:4px;
       transform:translateY(-50%);
     }
 
@@ -881,7 +881,6 @@
       border-color:rgba(38,255,154,.95);
       background:rgba(38,255,154,.20);
       box-shadow:0 0 34px rgba(38,255,154,.50), 0 14px 40px rgba(0,0,0,.35);
-      transform:scale(1.04);
     }
 
     .direction-tile.left.active{
@@ -903,6 +902,10 @@
       box-shadow:0 0 36px rgba(69,214,255,.55), 0 14px 40px rgba(0,0,0,.35);
     }
 
+    .tv-autoload{
+      display:none;
+    }
+
     @media (max-width:720px){
       .home-card{padding:22px;border-radius:24px}
       .choice-grid{grid-template-columns:1fr}
@@ -916,10 +919,18 @@
       .command-icon small{font-size:10px}
       .command-zone{inset:82px 8px 12px}
       .command-col{gap:12px}
-      .direction-zone{inset:12px 0 12px 0}
-      .direction-tile{width:88px;min-height:80px;border-radius:18px;padding:7px 5px}
-      .direction-tile.left{left:4px}
-      .direction-tile.right{right:4px}
+
+      .command-zone{inset:82px 0 10px}
+      .command-col{gap:10px;top:18%}
+      .command-col.left{left:8px}
+      .command-col.right{right:8px}
+      .command-bottom{bottom:18px;gap:10px}
+      .direction-zone{inset:88px 0 118px 0}
+      .direction-tile{width:86px;min-height:78px;border-radius:18px;padding:7px 5px}
+      .direction-tile.top{top:-76px}
+      .direction-tile.bottom{bottom:-100px}
+      .direction-tile.left{left:4px;top:54%}
+      .direction-tile.right{right:4px;top:54%}
       .direction-tile .emoji{font-size:28px}
       .direction-tile strong{font-size:11px}
       .direction-tile small{font-size:9px}
@@ -1240,9 +1251,6 @@
     let painBrowStart = null;
     let musicSmileStart = null;
     let tvGestureStart = null;
-    let tvBlinkCount = 0;
-    let tvBlinkLock = false;
-    let tvBlinkTimer = 0;
     let dirBaseX = null;
     let dirBaseY = null;
     let dirHoldStart = null;
@@ -1748,13 +1756,14 @@
         direction = "up";
       }else if(dy > DIR_HEAD_THRESHOLD){
         direction = "down";
-      }else if(dx < -DIR_HEAD_THRESHOLD){
-        direction = "left";
       }else if(dx > DIR_HEAD_THRESHOLD){
+        // Caméra miroir : tête utilisateur vers la gauche affichée à droite.
+        direction = "left";
+      }else if(dx < -DIR_HEAD_THRESHOLD){
+        // Caméra miroir : tête utilisateur vers la droite affichée à gauche.
         direction = "right";
       }
 
-      // Recalibrage seulement quand la tête revient au centre.
       if(!direction){
         dirBaseX = dirBaseX * 0.85 + nose.x * 0.15;
         dirBaseY = dirBaseY * 0.85 + nose.y * 0.15;
@@ -2102,6 +2111,14 @@
 
       updateTVChannel();
       tvModal.classList.add("show");
+
+      // Tentative d'ouverture automatique.
+      // Certains navigateurs/sites bloquent les iframes ou les popups non issues d'un vrai clic.
+      try{
+        tvOpenLink.click();
+      }catch(e){
+        console.warn("Ouverture automatique TV bloquée", e);
+      }
 
       setState("Télévision en cours", "ready");
       commandState.textContent = "TV_PLAY envoyé";
