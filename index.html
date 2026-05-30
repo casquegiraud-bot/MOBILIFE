@@ -259,10 +259,10 @@
 
     .command-col{
       position:absolute;
-      top:17%;
+      top:8%;
       display:flex;
       flex-direction:column;
-      gap:12px;
+      gap:18px;
     }
 
     .command-col.left{left:0}
@@ -271,13 +271,13 @@
     .command-bottom{
       position:absolute;
       left:50%;
-      bottom:8px;
+      bottom:10px;
       transform:translateX(-50%);
     }
 
     .command-icon{
-      width:98px;
-      min-height:88px;
+      width:118px;
+      min-height:112px;
       padding:12px 10px;
       border-radius:24px;
       background:rgba(0,0,0,.54);
@@ -294,18 +294,18 @@
     }
 
     .command-icon .emoji{
-      font-size:32px;
+      font-size:40px;
       line-height:1;
     }
 
     .command-icon strong{
-      font-size:12px;
+      font-size:14px;
       line-height:1.05;
       color:white;
     }
 
     .command-icon small{
-      font-size:9px;
+      font-size:11px;
       line-height:1.1;
       color:var(--muted);
     }
@@ -677,7 +677,7 @@
       display:flex;
       align-items:center;
       justify-content:center;
-      gap:104px;
+      gap:18px;
     }
 
     .music-player-card{
@@ -772,157 +772,6 @@
       display:block;
     }
 
-
-
-    .tv-frame{
-      width:100%;
-      height:min(62vh, 520px);
-      border:0;
-      border-radius:20px;
-      background:#000;
-      box-shadow:0 18px 60px rgba(0,0,0,.45);
-    }
-
-    .tv-actions{
-      margin-top:14px;
-      display:flex;
-      justify-content:center;
-      gap:10px;
-      flex-wrap:wrap;
-    }
-
-    .tv-actions a, .tv-actions button{
-      text-decoration:none;
-      color:white;
-      background:rgba(38,255,154,.15);
-      border:1px solid rgba(38,255,154,.45);
-      border-radius:14px;
-      padding:12px 16px;
-      font-weight:900;
-    }
-
-    .tv-warning{
-      margin-top:12px;
-      color:var(--orange);
-      font-weight:900;
-      font-size:14px;
-      line-height:1.35;
-    }
-
-
-    .direction-zone{
-      position:absolute;
-      inset:0;
-      z-index:13;
-      pointer-events:none;
-    }
-
-    .direction-tile{
-      position:absolute;
-      width:92px;
-      min-height:78px;
-      padding:7px 5px;
-      border-radius:18px;
-      background:rgba(0,0,0,.62);
-      border:1px solid rgba(255,255,255,.18);
-      backdrop-filter:blur(14px);
-      box-shadow:0 12px 34px rgba(0,0,0,.35);
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      gap:3px;
-      text-align:center;
-      transition:.15s ease;
-    }
-
-    .direction-tile .emoji{
-      font-size:28px;
-      line-height:1;
-    }
-
-    .direction-tile strong{
-      font-size:11px;
-      line-height:1.05;
-      color:white;
-    }
-
-    .direction-tile small{
-      font-size:9px;
-      color:var(--muted);
-      line-height:1.1;
-    }
-
-    .direction-tile.top{
-      top:22px;
-      left:50%;
-      transform:translateX(-50%);
-    }
-
-    .direction-tile.bottom{
-      bottom:8px;
-      left:50%;
-      transform:translateX(-50%);
-    }
-
-    .direction-tile.left{
-      top:60%;
-      left:0;
-      transform:translateY(-50%);
-    }
-
-    .direction-tile.right{
-      top:60%;
-      right:0;
-      transform:translateY(-50%);
-    }
-
-    .direction-tile.active{
-      border-color:rgba(38,255,154,.95);
-      background:rgba(38,255,154,.22);
-      box-shadow:0 0 34px rgba(38,255,154,.50), 0 14px 40px rgba(0,0,0,.35);
-    }
-
-    .direction-tile.triggered{
-      border-color:rgba(69,214,255,.95);
-      background:rgba(69,214,255,.26);
-      box-shadow:0 0 36px rgba(69,214,255,.55), 0 14px 40px rgba(0,0,0,.35);
-    }
-
-    .direction-tile.left.active,
-    .direction-tile.left.triggered{
-      transform:translateY(-50%) scale(1.04);
-    }
-
-    .direction-tile.right.active,
-    .direction-tile.right.triggered{
-      transform:translateY(-50%) scale(1.04);
-    }
-
-    .direction-tile.top.active,
-    .direction-tile.top.triggered,
-    .direction-tile.bottom.active,
-    .direction-tile.bottom.triggered{
-      transform:translateX(-50%) scale(1.04);
-    }
-
-
-    .command-bottom{
-      bottom:8px !important;
-      gap:104px !important;
-    }
-
-    .direction-tile.bottom{
-      bottom:8px !important;
-      left:50% !important;
-      transform:translateX(-50%) !important;
-    }
-
-    .direction-tile.bottom.active,
-    .direction-tile.bottom.triggered{
-      transform:translateX(-50%) scale(1.04) !important;
-    }
-
     @media (max-width:720px){
       .home-card{padding:22px;border-radius:24px}
       .choice-grid{grid-template-columns:1fr}
@@ -930,27 +779,25 @@
       .choice span.icon{font-size:72px}
       .hud{grid-template-columns:1fr}
       .debug{display:none}
-      .command-icon{width:82px;min-height:76px;border-radius:16px;padding:6px 4px}
-      .command-icon .emoji{font-size:26px}
-      .command-icon strong{font-size:10px}
-      .command-icon small{font-size:8px}
-      .command-zone{inset:82px 0 8px}
-      .command-col{gap:8px;top:18%}
-      .command-col.left{left:4px}
-      .command-col.right{right:4px}
-      .command-bottom{bottom:8px;gap:10px}
-      .direction-tile{width:76px;min-height:66px;border-radius:15px;padding:5px 4px}
-      .direction-tile .emoji{font-size:24px}
-      .direction-tile strong{font-size:9px}
-      .direction-tile small{font-size:8px}
-      .direction-tile.top{
-      top:22px;top:61%}
-      .direction-tile.right{right:0;top:61%}
-
-      .command-bottom{bottom:8px !important;gap:86px !important}
-      .direction-tile.bottom{bottom:8px !important}
-
+      .command-icon{width:92px;min-height:94px;border-radius:18px;padding:8px 6px}
+      .command-icon .emoji{font-size:30px}
+      .command-icon strong{font-size:12px}
+      .command-icon small{font-size:10px}
+      .command-zone{inset:82px 8px 12px}
+      .command-col{gap:12px}
     }
+
+    .direction-tile.top{
+      top:8px !important;
+      left:50% !important;
+      transform:translateX(-50%) !important;
+    }
+
+    .direction-tile.top.active,
+    .direction-tile.top.triggered{
+      transform:translateX(-50%) scale(1.04) !important;
+    }
+
   </style>
 </head>
 
@@ -985,7 +832,7 @@
       <div id="lightOff" class="light-off"></div>
     </div>
 
-    <div class="gesture-tip" style="display:none"></div>
+    <div class="gesture-tip">Mobilife détecte les gestes du visage — confirmation obligatoire avant chaque action.</div>
 
     <div class="command-zone">
       <div class="command-col left">
@@ -1031,32 +878,6 @@
           <strong>Annuler</strong>
           <small>tête gauche/droite</small>
         </div>
-      </div>
-    </div>
-
-    <div class="direction-zone">
-      <div class="direction-tile top" id="dirTopTile">
-        <div class="emoji">❓</div>
-        <strong>Action haut</strong>
-        <small>tête haut</small>
-      </div>
-
-      <div class="direction-tile left" id="dirLeftTile">
-        <div class="emoji">❓</div>
-        <strong>Action gauche</strong>
-        <small>tête gauche</small>
-      </div>
-
-      <div class="direction-tile right" id="dirRightTile">
-        <div class="emoji">❓</div>
-        <strong>Action droite</strong>
-        <small>tête droite</small>
-      </div>
-
-      <div class="direction-tile bottom" id="dirBottomTile">
-        <div class="emoji">📺</div>
-        <strong>Télé</strong>
-        <small>tête bas</small>
       </div>
     </div>
 
@@ -1134,34 +955,10 @@
         <div class="music-frame-wrap">
           <div class="music-inner">
             <div class="music-note">🎵</div>
-            <h2 id="musicTrackTitle">Murray Head</h2>
+            <h2 id="musicTrackTitle">Wonderful Life</h2>
             <p id="musicTrackHint">Lecture audio intégrée — tête vers la droite = musique suivante · tête gauche/droite = annuler</p>
-            <audio id="musicAudio" src="wonderful life.mp3" preload="auto" playsinline controls></audio>
+            <audio id="musicAudio" src="Wonderful%20Life.mp3" preload="auto" playsinline controls></audio>
             <div id="audioWarning" class="audio-warning">Si le son ne démarre pas, touchez une fois le lecteur pour autoriser l’audio.</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div id="tvModal" class="modal">
-      <div class="music-player-card">
-        <div class="music-player-head">
-          <div>
-            <strong>📺 Télévision Mobilife</strong><br>
-            <span>Lecteur intégré — tête vers la droite = chaîne suivante · gauche/droite = annuler</span>
-          </div>
-          <button class="back" id="tvCloseButton">Annuler</button>
-        </div>
-        <div class="music-frame-wrap">
-          <div class="music-inner" style="width:min(900px, 94vw);">
-            <div class="music-note">📺</div>
-            <h2 id="tvChannelTitle">ARTE Direct</h2>
-            <p id="tvChannelHint">Chaîne : ARTE — tête vers la droite = chaîne suivante.</p>
-            <iframe id="tvFrame" class="tv-frame" src="" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
-            <div class="tv-actions">
-              <button id="tvNextButton" type="button">Chaîne suivante</button>
-            </div>
-            <div class="tv-warning">Mobilife ouvre ARTE automatiquement. Si un bouton lecture reste affiché, c’est une sécurité du lecteur ARTE : le navigateur peut refuser le lancement vidéo sans action humaine directe.</div>
           </div>
         </div>
       </div>
@@ -1209,13 +1006,7 @@
     const iconLight = document.getElementById("iconLight");
     const iconComfort = document.getElementById("iconComfort");
     const iconMusic = document.getElementById("iconMusic");
-    const iconTV = document.getElementById("dirBottomTile");
     const iconCancel = document.getElementById("iconCancel");
-
-    const dirTopTile = document.getElementById("dirTopTile");
-    const dirLeftTile = document.getElementById("dirLeftTile");
-    const dirRightTile = document.getElementById("dirRightTile");
-    const dirBottomTile = document.getElementById("dirBottomTile");
 
     const musicModal = document.getElementById("musicModal");
     const musicAudio = document.getElementById("musicAudio");
@@ -1224,23 +1015,16 @@
     const musicTrackTitle = document.getElementById("musicTrackTitle");
     const musicTrackHint = document.getElementById("musicTrackHint");
 
-    const tvModal = document.getElementById("tvModal");
-    const tvFrame = document.getElementById("tvFrame");
-    const tvCloseButton = document.getElementById("tvCloseButton");
-    const tvNextButton = document.getElementById("tvNextButton");
-    const tvChannelTitle = document.getElementById("tvChannelTitle");
-    const tvChannelHint = document.getElementById("tvChannelHint");
-    const tvOpenLink = document.getElementById("tvOpenLink");
-
-    const TV_CHANNELS = [
-      { title: "ARTE Direct", url: "https://www.arte.tv/fr/direct/" }
-    ];
-    let currentTVIndex = 0;
-
+    const radioModal = document.getElementById("radioModal");
+    const radioAudio = document.getElementById("radioAudio");
+    const radioWarning = document.getElementById("radioWarning");
+    const radioCloseButton = document.getElementById("radioCloseButton");
+    const radioStationTitle = document.getElementById("radioStationTitle");
+    const radioStationHint = document.getElementById("radioStationHint");
+    const radioStationList = document.getElementById("radioStationList");
     const MUSIC_PLAYLIST = [
-      { title: "Murray Head", file: "Murray Head.mp3" },
-      { title: "Take On Me", file: "TAKE ON ME.mp3" },
-      { title: "Wonderful Life", file: "wonderful life.mp3" }
+      { title: "Wonderful Life", file: "Wonderful%20Life.mp3" },
+      { title: "Take On Me", file: "Take%20On%20Me.mp3" }
     ];
     let currentMusicIndex = 0;
     let lastNextTrackAt = 0;
@@ -1265,15 +1049,6 @@
     let expressionStart = null;
     let painBrowStart = null;
     let musicSmileStart = null;
-    let tvGestureStart = null;
-    let tvBlinkCount = 0;
-    let tvBlinkLock = false;
-    let tvBlinkTimer = 0;
-    let dirBaseX = null;
-    let dirBaseY = null;
-    let dirHoldStart = null;
-    let dirCurrent = null;
-    let dirTriggered = false;
     let universalShakePhase = "waitingRight";
     let universalShakeCount = 0;
     let lastUniversalShakeAt = 0;
@@ -1302,10 +1077,6 @@
     const EXPRESSION_HOLD_MS = 900;
     const MUSIC_SMILE_THRESHOLD = 0.45;
     const MUSIC_HOLD_MS = 1200;
-    const TV_WINK_THRESHOLD = 0.72;
-    const TV_WINK_HOLD_MS = 2000;
-    const DIR_HEAD_THRESHOLD = 0.065;
-    const DIR_HOLD_MS = 1100;
 
     function setState(text, type="loading"){
       stateText.textContent = text;
@@ -1332,11 +1103,8 @@
     }
 
     function clearIconStates(){
-      for(const el of [iconDrink, iconPain, iconSleep, iconLight, iconComfort, iconMusic, iconTV, iconCancel]){
-        if(el) el.classList.remove("active", "alert", "triggered");
-      }
-      for(const el of [dirTopTile, dirLeftTile, dirRightTile, dirBottomTile]){
-        if(el) el.classList.remove("active", "triggered");
+      for(const el of [iconDrink, iconPain, iconSleep, iconLight, iconComfort, iconMusic, iconCancel]){
+        el.classList.remove("active", "alert");
       }
     }
 
@@ -1349,7 +1117,6 @@
         light: iconLight,
         comfort: iconComfort,
         music: iconMusic,
-        tv: iconTV,
         cancel: iconCancel
       };
       if(map[type]){
@@ -1364,8 +1131,7 @@
         sleep: "Vous voulez dormir ?",
         light: "Vous voulez allumer la lumière ?",
         comfort: "Vous avez chaud ?",
-        music: "Vous voulez écouter de la musique ?",
-        tv: "Vous voulez regarder la télé ?"
+        music: "Vous voulez écouter de la musique ?"
       }[type] || "Demande détectée";
     }
 
@@ -1376,8 +1142,7 @@
         sleep: "LIGHT_OFF",
         light: "LIGHT_ON",
         comfort: "FAN_ON",
-        music: "MUSIC_PLAY",
-        tv: "TV_PLAY"
+        music: "MUSIC_PLAY"
       }[type] || "UNKNOWN";
     }
 
@@ -1469,7 +1234,6 @@
       if(countdownInterval) clearInterval(countdownInterval);
       if(autoRestartTimeout) clearTimeout(autoRestartTimeout);
       stopMusicPlayer();
-      stopTVPlayer();
       countdownInterval = null;
       autoRestartTimeout = null;
       mouthStart = null;
@@ -1497,16 +1261,8 @@
       expressionStart = null;
       painBrowStart = null;
       musicSmileStart = null;
-      tvGestureStart = null;
-      tvBlinkCount = 0;
-      tvBlinkLock = false;
-      tvBlinkTimer = 0;
-      dirBaseX = null;
-      dirBaseY = null;
-      dirHoldStart = null;
-      dirCurrent = null;
-      dirTriggered = false;
       lastNextTrackAt = 0;
+      lastRadioSwitchAt = 0;
       nextTrackArmed = true;
       universalShakePhase = "waitingRight";
       universalShakeCount = 0;
@@ -1726,101 +1482,7 @@
         iconMusic.classList.remove("active");
         if(smileScore < 0.25) musicSmileStart = null;
       }
-
-      // 6. TÉLÉ : déclenchement déplacé sur la vignette directionnelle du bas.
-      // Tête vers le bas maintenue brièvement = demande Télé.
-
     }
-
-
-    function clearDirectionTiles(){
-      for(const el of [dirTopTile, dirLeftTile, dirRightTile, dirBottomTile]){
-        if(el) el.classList.remove("active", "triggered");
-      }
-    }
-
-    function setDirectionTile(direction, triggered=false){
-      clearDirectionTiles();
-      const map = {
-        up: dirTopTile,
-        down: dirBottomTile,
-        left: dirLeftTile,
-        right: dirRightTile
-      };
-      const tile = map[direction];
-      if(tile){
-        tile.classList.add(triggered ? "triggered" : "active");
-      }
-    }
-
-    function detectDirectionalTiles(landmarks, now){
-      if(mode !== "detectDrink" || commandLocked) return;
-
-      const nose = landmarks[1];
-      if(!nose) return;
-
-      if(dirBaseX === null || dirBaseY === null){
-        dirBaseX = nose.x;
-        dirBaseY = nose.y;
-        return;
-      }
-
-      const dx = nose.x - dirBaseX;
-      const dy = nose.y - dirBaseY;
-
-      let direction = null;
-
-      if(dy < -DIR_HEAD_THRESHOLD){
-        direction = "up";
-      }else if(dy > DIR_HEAD_THRESHOLD){
-        direction = "down";
-      }else if(dx > DIR_HEAD_THRESHOLD){
-        direction = "left";
-      }else if(dx < -DIR_HEAD_THRESHOLD){
-        direction = "right";
-      }
-
-      if(!direction){
-        dirBaseX = dirBaseX * 0.85 + nose.x * 0.15;
-        dirBaseY = dirBaseY * 0.85 + nose.y * 0.15;
-        dirCurrent = null;
-        dirHoldStart = null;
-        dirTriggered = false;
-        clearDirectionTiles();
-        return;
-      }
-
-      if(direction !== dirCurrent){
-        dirCurrent = direction;
-        dirHoldStart = now;
-        dirTriggered = false;
-      }
-
-      setDirectionTile(direction, false);
-
-      if(now - dirHoldStart >= DIR_HOLD_MS && !dirTriggered){
-        dirTriggered = true;
-        setDirectionTile(direction, true);
-
-        if(direction === "down"){
-          beginConfirmation("tv");
-          return;
-        }
-
-        setState("Vignette " + directionLabel(direction) + " validée", "ready");
-        commandState.textContent = "DIRECTION_" + direction.toUpperCase();
-      }
-    }
-
-    function directionLabel(direction){
-      return {
-        up: "haut",
-        down: "bas",
-        left: "gauche",
-        right: "droite"
-      }[direction] || direction;
-    }
-
 
     function detectUniversalCancelShake(landmarks, now){
       const noseX = landmarks[1].x;
@@ -1835,13 +1497,12 @@
 
       // Pendant la musique : une bascule simple vers la droite passe au morceau suivant.
       // Le geste gauche/droite complet reste réservé à ANNULER.
-      if(mode === "music" || mode === "tv"){
+      if(mode === "music"){
         if(Math.abs(deltaX) < SHAKE_THRESHOLD * 0.45){
           nextTrackArmed = true;
         }
         if(nextTrackArmed && deltaX > SHAKE_THRESHOLD * 1.45 && now - lastNextTrackAt > 1200){
-          if(mode === "music") nextMusicTrack();
-          if(mode === "tv") nextTVChannel();
+          nextMusicTrack();
           universalShakePhase = "waitingRight";
           universalShakeCount = 0;
           lastUniversalShakeAt = now;
@@ -1968,11 +1629,6 @@
         return;
       }
 
-      if(type === "tv"){
-        startTVPlayer();
-        return;
-      }
-
       mode = "sent";
       commandLocked = true;
       confirmModal.classList.remove("show");
@@ -2021,7 +1677,8 @@
     async function unlockAudioOnce(){
       if(!musicAudio) return;
       try{
-        updateMusicTrack(true);
+        musicAudio.src = MUSIC_PLAYLIST[currentMusicIndex].file;
+        musicAudio.load();
         musicAudio.muted = true;
         await musicAudio.play();
         musicAudio.pause();
@@ -2045,8 +1702,9 @@
 
       if(musicAudio){
         try{
-          updateMusicTrack(true);
+          musicAudio.src = MUSIC_PLAYLIST[currentMusicIndex].file;
           musicAudio.muted = false;
+          musicAudio.currentTime = 0;
           await musicAudio.play();
         }catch(error){
           console.warn("Lecture automatique MP3 bloquée par le navigateur", error);
@@ -2065,109 +1723,6 @@
       lastUniversalShakeAt = 0;
     }
 
-    function updateMusicTrack(resetTime = true){
-      if(!musicAudio) return;
-      const track = MUSIC_PLAYLIST[currentMusicIndex];
-
-      musicAudio.src = track.file;
-      musicAudio.load();
-
-      if(resetTime){
-        try{
-          musicAudio.currentTime = 0;
-        }catch(e){}
-      }
-
-      if(musicTrackTitle){
-        musicTrackTitle.textContent = track.title;
-      }
-
-      if(musicTrackHint){
-        musicTrackHint.textContent =
-          "Lecture : " + track.file + " — tête vers la droite = musique suivante · gauche/droite = annuler";
-      }
-    }
-
-    async function nextMusicTrack(){
-      currentMusicIndex = (currentMusicIndex + 1) % MUSIC_PLAYLIST.length;
-      lastNextTrackAt = performance.now();
-      nextTrackArmed = false;
-
-      updateMusicTrack(true);
-
-      if(mode === "music" && musicAudio){
-        try{
-          await musicAudio.play();
-          if(audioWarning) audioWarning.classList.remove("show");
-        }catch(error){
-          console.warn("Lecture automatique du morceau suivant bloquée", error);
-          if(audioWarning) audioWarning.classList.add("show");
-        }
-      }
-
-      setState("Musique suivante : " + MUSIC_PLAYLIST[currentMusicIndex].title, "ready");
-      commandState.textContent = "MUSIC_NEXT";
-    }
-
-    function updateTVChannel(){
-      if(!tvFrame) return;
-      const channel = TV_CHANNELS[currentTVIndex];
-      tvFrame.src = channel.url;
-      if(tvChannelTitle) tvChannelTitle.textContent = channel.title;
-      if(tvChannelHint) tvChannelHint.textContent = "Chaîne : " + channel.title + " — tête vers la droite = chaîne suivante · gauche/droite = annuler";
-      if(tvOpenLink) tvOpenLink.href = channel.url;
-    }
-
-    function startTVPlayer(){
-      mode = "tv";
-      commandLocked = true;
-      confirmModal.classList.remove("show");
-      sentModal.classList.remove("show");
-      setIconActive("tv");
-
-      updateTVChannel();
-      tvModal.classList.add("show");
-
-      try{
-        tvFrame.src = TV_CHANNELS[currentTVIndex].url;
-      }catch(e){
-        console.warn("Chargement TV intégré bloqué", e);
-      }
-
-      // ARTE refuse souvent l'affichage intégré dans une iframe.
-      // Pour un usage sans les mains, on bascule automatiquement vers la chaîne.
-      setTimeout(() => {
-        if(mode === "tv"){
-          window.location.href = TV_CHANNELS[currentTVIndex].url;
-        }
-      }, 1200);
-
-      setState("Télévision en cours", "ready");
-      commandState.textContent = "TV_PLAY envoyé";
-      scenarioText.textContent = "Télévision : lecteur intégré Mobilife. Tête vers la droite = chaîne suivante. Tête gauche/droite = annuler.";
-      progressBar.style.width = "100%";
-
-      baselineNoseX = null;
-      universalShakePhase = "waitingRight";
-      universalShakeCount = 0;
-      lastUniversalShakeAt = 0;
-      nextTrackArmed = true;
-    }
-
-    function nextTVChannel(){
-      currentTVIndex = (currentTVIndex + 1) % TV_CHANNELS.length;
-      lastNextTrackAt = performance.now();
-      nextTrackArmed = false;
-      updateTVChannel();
-      setState("Chaîne suivante : " + TV_CHANNELS[currentTVIndex].title, "ready");
-      commandState.textContent = "TV_NEXT";
-    }
-
-    function stopTVPlayer(){
-      if(tvFrame) tvFrame.src = "";
-      if(tvModal) tvModal.classList.remove("show");
-    }
-
     function stopMusicPlayer(){
       if(musicAudio){
         musicAudio.pause();
@@ -2179,7 +1734,6 @@
 
     function universalCancel(){
       stopMusicPlayer();
-      stopTVPlayer();
       if(countdownInterval) clearInterval(countdownInterval);
       if(autoRestartTimeout) clearTimeout(autoRestartTimeout);
       countdownInterval = null;
@@ -2205,8 +1759,7 @@
         sleep: "🌙",
         light: "💡",
         comfort: "🌬️",
-        music: "🎵",
-        tv: "📺"
+        music: "🎵"
       }[type] || "💧";
     }
 
@@ -2217,8 +1770,7 @@
         sleep: "Extinction de la lumière en cours.",
         light: "Allumage de la lumière en cours.",
         comfort: "Ventilation activée.",
-        music: "Musique lancée.",
-        tv: "Télévision lancée."
+        music: "Musique lancée."
       }[type] || "Action en cours.";
     }
 
@@ -2228,8 +1780,7 @@
         pain: 'Commande simulée : <strong>PAIN_ALERT</strong><br>Message : “J’ai mal” envoyé à l’infirmier.', 
         sleep: 'Commande simulée : <strong>LIGHT_OFF</strong><br>La lumière de la chambre s’éteint.',
         comfort: 'Commande simulée : <strong>FAN_ON</strong><br>Le ventilateur de confort se met en route.',
-        music: 'Commande simulée : <strong>MUSIC_PLAY</strong><br>La musique se lance dans le lecteur intégré Mobilife.',
-        tv: 'Commande simulée : <strong>TV_PLAY</strong><br>La télévision se lance dans le lecteur intégré Mobilife.'
+        music: 'Commande simulée : <strong>MUSIC_PLAY</strong><br>La musique se lance dans le lecteur intégré Mobilife.'
       }[type] || "";
     }
 
@@ -2240,8 +1791,7 @@
         sleep: "Lumière éteinte",
         light: "Lumière allumée",
         comfort: "Confort activé",
-        music: "Musique",
-        tv: "Télévision"
+        music: "Musique"
       }[type] || "Action envoyée";
     }
 
@@ -2252,8 +1802,7 @@
         sleep: "Sommeil : la lumière est éteinte pour permettre le repos.",
         light: "Lumière : la lampe est allumée.",
         comfort: "Confort : le ventilateur est activé pour rafraîchir la personne.",
-        music: "Musique : le lecteur intégré est ouvert sans quitter Mobilife.",
-        tv: "Télévision : le direct est ouvert dans Mobilife."
+        music: "Musique : le lecteur intégré est ouvert sans quitter Mobilife."
       }[type] || "";
     }
 
@@ -2302,14 +1851,13 @@
 
           if(mode === "detectDrink"){
             detectRequests(landmarks, result, now);
-            detectDirectionalTiles(landmarks, now);
           }
 
           if(mode === "confirm"){
             detectHeadConfirmation(landmarks, now);
           }
 
-          if(mode === "sent" || mode === "music" || mode === "tv"){
+          if(mode === "sent" || mode === "music"){
             detectUniversalCancelShake(landmarks, now);
           }
 
@@ -2341,14 +1889,6 @@
       universalCancel();
     });
 
-    tvCloseButton.addEventListener("click", () => {
-      universalCancel();
-    });
-
-    tvNextButton.addEventListener("click", () => {
-      nextTVChannel();
-    });
-
     if(musicAudio){
       musicAudio.addEventListener("ended", () => {
         if(mode === "music") nextMusicTrack();
@@ -2357,7 +1897,6 @@
 
     backButton.addEventListener("click", () => {
       stopCamera();
-      stopTVPlayer();
       showScreen(home);
     });
 
