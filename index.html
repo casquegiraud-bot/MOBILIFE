@@ -259,10 +259,10 @@
 
     .command-col{
       position:absolute;
-      top:8%;
+      top:17%;
       display:flex;
       flex-direction:column;
-      gap:18px;
+      gap:12px;
     }
 
     .command-col.left{left:0}
@@ -271,13 +271,13 @@
     .command-bottom{
       position:absolute;
       left:50%;
-      bottom:10px;
+      bottom:8px;
       transform:translateX(-50%);
     }
 
     .command-icon{
-      width:118px;
-      min-height:112px;
+      width:98px;
+      min-height:88px;
       padding:12px 10px;
       border-radius:24px;
       background:rgba(0,0,0,.54);
@@ -294,18 +294,18 @@
     }
 
     .command-icon .emoji{
-      font-size:40px;
+      font-size:32px;
       line-height:1;
     }
 
     .command-icon strong{
-      font-size:14px;
+      font-size:12px;
       line-height:1.05;
       color:white;
     }
 
     .command-icon small{
-      font-size:11px;
+      font-size:9px;
       line-height:1.1;
       color:var(--muted);
     }
@@ -677,7 +677,7 @@
       display:flex;
       align-items:center;
       justify-content:center;
-      gap:18px;
+      gap:104px;
     }
 
     .music-player-card{
@@ -773,6 +773,43 @@
     }
 
 
+
+    .tv-frame{
+      width:100%;
+      height:min(62vh, 520px);
+      border:0;
+      border-radius:20px;
+      background:#000;
+      box-shadow:0 18px 60px rgba(0,0,0,.45);
+    }
+
+    .tv-actions{
+      margin-top:14px;
+      display:flex;
+      justify-content:center;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .tv-actions a, .tv-actions button{
+      text-decoration:none;
+      color:white;
+      background:rgba(38,255,154,.15);
+      border:1px solid rgba(38,255,154,.45);
+      border-radius:14px;
+      padding:12px 16px;
+      font-weight:900;
+    }
+
+    .tv-warning{
+      margin-top:12px;
+      color:var(--orange);
+      font-weight:900;
+      font-size:14px;
+      line-height:1.35;
+    }
+
+
     .direction-zone{
       position:absolute;
       inset:0;
@@ -799,32 +836,45 @@
       transition:.15s ease;
     }
 
-    .direction-tile .emoji{font-size:28px;line-height:1}
-    .direction-tile strong{font-size:11px;line-height:1.05;color:white}
-    .direction-tile small{font-size:9px;color:var(--muted);line-height:1.1}
+    .direction-tile .emoji{
+      font-size:28px;
+      line-height:1;
+    }
+
+    .direction-tile strong{
+      font-size:11px;
+      line-height:1.05;
+      color:white;
+    }
+
+    .direction-tile small{
+      font-size:9px;
+      color:var(--muted);
+      line-height:1.1;
+    }
 
     .direction-tile.top{
-      top:8px !important;
-      left:50% !important;
-      transform:translateX(-50%) !important;
+      top:8px;
+      left:50%;
+      transform:translateX(-50%);
     }
 
     .direction-tile.bottom{
-      bottom:8px !important;
-      left:50% !important;
-      transform:translateX(-50%) !important;
+      bottom:8px;
+      left:50%;
+      transform:translateX(-50%);
     }
 
     .direction-tile.left{
-      left:0 !important;
-      top:60% !important;
-      transform:translateY(-50%) !important;
+      top:60%;
+      left:0;
+      transform:translateY(-50%);
     }
 
     .direction-tile.right{
-      right:0 !important;
-      top:60% !important;
-      transform:translateY(-50%) !important;
+      top:60%;
+      right:0;
+      transform:translateY(-50%);
     }
 
     .direction-tile.active{
@@ -839,78 +889,39 @@
       box-shadow:0 0 36px rgba(69,214,255,.55), 0 14px 40px rgba(0,0,0,.35);
     }
 
+    .direction-tile.left.active,
+    .direction-tile.left.triggered{
+      transform:translateY(-50%) scale(1.04);
+    }
+
+    .direction-tile.right.active,
+    .direction-tile.right.triggered{
+      transform:translateY(-50%) scale(1.04);
+    }
+
     .direction-tile.top.active,
     .direction-tile.top.triggered,
     .direction-tile.bottom.active,
     .direction-tile.bottom.triggered{
+      transform:translateX(-50%) scale(1.04);
+    }
+
+
+    .command-bottom{
+      bottom:8px !important;
+      gap:104px !important;
+    }
+
+    .direction-tile.bottom{
+      bottom:8px !important;
+      left:50% !important;
+      transform:translateX(-50%) !important;
+    }
+
+    .direction-tile.bottom.active,
+    .direction-tile.bottom.triggered{
       transform:translateX(-50%) scale(1.04) !important;
     }
-
-    .direction-tile.left.active,
-    .direction-tile.left.triggered,
-    .direction-tile.right.active,
-    .direction-tile.right.triggered{
-      transform:translateY(-50%) scale(1.04) !important;
-    }
-
-    .radio-station-list{
-      margin:14px auto 0;
-      display:grid;
-      gap:8px;
-      max-width:520px;
-      text-align:left;
-    }
-
-    .radio-station{
-      padding:10px 12px;
-      border-radius:14px;
-      background:rgba(255,255,255,.07);
-      border:1px solid rgba(255,255,255,.12);
-      color:var(--muted);
-      font-weight:800;
-      font-size:14px;
-    }
-
-    .radio-station.active{
-      color:var(--green);
-      border-color:rgba(38,255,154,.55);
-      background:rgba(38,255,154,.12);
-    }
-
-    .tv-frame{
-      width:100%;
-      height:min(62vh, 520px);
-      border:0;
-      border-radius:20px;
-      background:#000;
-      box-shadow:0 18px 60px rgba(0,0,0,.45);
-    }
-
-    .tv-actions{
-      margin-top:14px;
-      display:flex;
-      justify-content:center;
-      gap:10px;
-      flex-wrap:wrap;
-    }
-
-    .tv-actions button{
-      color:white;
-      background:rgba(38,255,154,.15);
-      border:1px solid rgba(38,255,154,.45);
-      border-radius:14px;
-      padding:12px 16px;
-      font-weight:900;
-    }
-
-    .tv-warning{
-      margin-top:12px;
-      color:var(--orange);
-      font-weight:900;
-      font-size:14px;
-      line-height:1.35;
-    }
-
 
     @media (max-width:720px){
       .home-card{padding:22px;border-radius:24px}
@@ -919,20 +930,53 @@
       .choice span.icon{font-size:72px}
       .hud{grid-template-columns:1fr}
       .debug{display:none}
-      .command-icon{width:92px;min-height:94px;border-radius:18px;padding:8px 6px}
-      .command-icon .emoji{font-size:30px}
-      .command-icon strong{font-size:12px}
-      .command-icon small{font-size:10px}
-      .command-zone{inset:82px 8px 12px}
+      .command-icon{width:82px;min-height:76px;border-radius:16px;padding:6px 4px}
+      .command-icon .emoji{font-size:26px}
+      .command-icon strong{font-size:10px}
+      .command-icon small{font-size:8px}
+      .command-zone{inset:82px 0 8px}
       .command-col{gap:8px;top:18%}
       .command-col.left{left:4px}
       .command-col.right{right:4px}
-      .command-bottom{bottom:8px;gap:104px}
+      .command-bottom{bottom:8px;gap:10px}
       .direction-tile{width:76px;min-height:66px;border-radius:15px;padding:5px 4px}
       .direction-tile .emoji{font-size:24px}
       .direction-tile strong{font-size:9px}
       .direction-tile small{font-size:8px}
+      .direction-tile.top{
+      top:8px;top:8px !important}
+      .direction-tile.right{right:0;top:8px !important}
+
+      .command-bottom{bottom:8px !important;gap:86px !important}
+      .direction-tile.bottom{bottom:8px !important}
+
     }
+
+    .direction-tile.top{
+      top:8px !important;
+      left:50% !important;
+      transform:translateX(-50%) !important;
+    }
+
+    .direction-tile.top.active,
+    .direction-tile.top.triggered{
+      transform:translateX(-50%) scale(1.04) !important;
+    }
+
+
+    /* V10 */
+    .direction-tile.top{top:8px !important;left:50% !important;transform:translateX(-50%) !important;}
+    .direction-tile.top.active,.direction-tile.top.triggered{transform:translateX(-50%) scale(1.04) !important;}
+    .direction-tile.bottom{bottom:8px !important;left:50% !important;transform:translateX(-50%) !important;}
+    .direction-tile.bottom.active,.direction-tile.bottom.triggered{transform:translateX(-50%) scale(1.04) !important;}
+    .direction-tile.left{left:0 !important;top:60% !important;transform:translateY(-50%) !important;}
+    .direction-tile.left.active,.direction-tile.left.triggered{transform:translateY(-50%) scale(1.04) !important;}
+    .direction-tile.right{right:0 !important;top:60% !important;transform:translateY(-50%) !important;}
+    .direction-tile.right.active,.direction-tile.right.triggered{transform:translateY(-50%) scale(1.04) !important;}
+    .radio-station-list{margin:14px auto 0;display:grid;gap:8px;max-width:520px;text-align:left;}
+    .radio-station{padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:var(--muted);font-weight:800;font-size:14px;}
+    .radio-station.active{color:var(--green);border-color:rgba(38,255,154,.55);background:rgba(38,255,154,.12);}
+
   </style>
 </head>
 
@@ -1116,14 +1160,15 @@
         <div class="music-frame-wrap">
           <div class="music-inner">
             <div class="music-note">🎵</div>
-            <h2 id="musicTrackTitle">Wonderful Life</h2>
+            <h2 id="musicTrackTitle">Murray Head</h2>
             <p id="musicTrackHint">Lecture audio intégrée — tête vers la droite = musique suivante · tête gauche/droite = annuler</p>
-            <audio id="musicAudio" src="Wonderful%20Life.mp3" preload="auto" playsinline controls></audio>
+            <audio id="musicAudio" src="wonderful life.mp3" preload="auto" playsinline controls></audio>
             <div id="audioWarning" class="audio-warning">Si le son ne démarre pas, touchez une fois le lecteur pour autoriser l’audio.</div>
           </div>
         </div>
       </div>
     </div>
+
 
     <div id="radioModal" class="modal">
       <div class="music-player-card">
@@ -1151,8 +1196,8 @@
       <div class="music-player-card">
         <div class="music-player-head">
           <div>
-            <strong>📺 Télévision Mobilife — CNEWS</strong><br>
-            <span>Lecteur intégré — tête droite = chaîne suivante · gauche/droite = annuler</span>
+            <strong>📺 Télévision Mobilife</strong><br>
+            <span>Lecteur intégré — tête vers la droite = chaîne suivante · gauche/droite = annuler</span>
           </div>
           <button class="back" id="tvCloseButton">Annuler</button>
         </div>
@@ -1242,6 +1287,8 @@
     const tvNextButton = document.getElementById("tvNextButton");
     const tvChannelTitle = document.getElementById("tvChannelTitle");
     const tvChannelHint = document.getElementById("tvChannelHint");
+    const tvOpenLink = document.getElementById("tvOpenLink");
+
     const RADIO_STATIONS = [
       { title: "NRJ", file: "https://streaming.nrjaudio.fm/oumvmk8fnozc?origine=fluxurlradio" },
       { title: "Chérie FM", file: "https://streaming.nrjaudio.fm/ouuku85n3nje?origine=fluxurlradio" },
@@ -1256,8 +1303,9 @@
     let currentTVIndex = 0;
 
     const MUSIC_PLAYLIST = [
-      { title: "Wonderful Life", file: "Wonderful%20Life.mp3" },
-      { title: "Take On Me", file: "Take%20On%20Me.mp3" }
+      { title: "Murray Head", file: "Murray Head.mp3" },
+      { title: "Take On Me", file: "TAKE ON ME.mp3" },
+      { title: "Wonderful Life", file: "wonderful life.mp3" }
     ];
     let currentMusicIndex = 0;
     let lastNextTrackAt = 0;
@@ -1282,6 +1330,10 @@
     let expressionStart = null;
     let painBrowStart = null;
     let musicSmileStart = null;
+    let tvGestureStart = null;
+    let tvBlinkCount = 0;
+    let tvBlinkLock = false;
+    let tvBlinkTimer = 0;
     let dirBaseX = null;
     let dirBaseY = null;
     let dirHoldStart = null;
@@ -1315,6 +1367,8 @@
     const EXPRESSION_HOLD_MS = 900;
     const MUSIC_SMILE_THRESHOLD = 0.45;
     const MUSIC_HOLD_MS = 1200;
+    const TV_WINK_THRESHOLD = 0.72;
+    const TV_WINK_HOLD_MS = 2000;
     const DIR_HEAD_THRESHOLD = 0.065;
     const DIR_HOLD_MS = 1100;
 
@@ -1512,6 +1566,10 @@
       expressionStart = null;
       painBrowStart = null;
       musicSmileStart = null;
+      tvGestureStart = null;
+      tvBlinkCount = 0;
+      tvBlinkLock = false;
+      tvBlinkTimer = 0;
       dirBaseX = null;
       dirBaseY = null;
       dirHoldStart = null;
@@ -1738,6 +1796,10 @@
         iconMusic.classList.remove("active");
         if(smileScore < 0.25) musicSmileStart = null;
       }
+
+      // 6. TÉLÉ : déclenchement déplacé sur la vignette directionnelle du bas.
+      // Tête vers le bas maintenue brièvement = demande Télé.
+
     }
 
 
@@ -1749,9 +1811,16 @@
 
     function setDirectionTile(direction, triggered=false){
       clearDirectionTiles();
-      const map = { up: dirTopTile, down: dirBottomTile, left: dirLeftTile, right: dirRightTile };
+      const map = {
+        up: dirTopTile,
+        down: dirBottomTile,
+        left: dirLeftTile,
+        right: dirRightTile
+      };
       const tile = map[direction];
-      if(tile) tile.classList.add(triggered ? "triggered" : "active");
+      if(tile){
+        tile.classList.add(triggered ? "triggered" : "active");
+      }
     }
 
     function detectDirectionalTiles(landmarks, now){
@@ -1768,6 +1837,7 @@
 
       const dx = nose.x - dirBaseX;
       const dy = nose.y - dirBaseY;
+
       let direction = null;
 
       if(dy < -DIR_HEAD_THRESHOLD){
@@ -1818,7 +1888,12 @@
     }
 
     function directionLabel(direction){
-      return { up:"haut", down:"bas", left:"gauche", right:"droite" }[direction] || direction;
+      return {
+        up: "haut",
+        down: "bas",
+        left: "gauche",
+        right: "droite"
+      }[direction] || direction;
     }
 
 
@@ -2036,8 +2111,7 @@
     async function unlockAudioOnce(){
       if(!musicAudio) return;
       try{
-        musicAudio.src = MUSIC_PLAYLIST[currentMusicIndex].file;
-        musicAudio.load();
+        updateMusicTrack(true);
         musicAudio.muted = true;
         await musicAudio.play();
         musicAudio.pause();
@@ -2061,9 +2135,8 @@
 
       if(musicAudio){
         try{
-          musicAudio.src = MUSIC_PLAYLIST[currentMusicIndex].file;
+          updateMusicTrack(true);
           musicAudio.muted = false;
-          musicAudio.currentTime = 0;
           await musicAudio.play();
         }catch(error){
           console.warn("Lecture automatique MP3 bloquée par le navigateur", error);
@@ -2080,6 +2153,50 @@
       universalShakePhase = "waitingRight";
       universalShakeCount = 0;
       lastUniversalShakeAt = 0;
+    }
+
+    function updateMusicTrack(resetTime = true){
+      if(!musicAudio) return;
+      const track = MUSIC_PLAYLIST[currentMusicIndex];
+
+      musicAudio.src = track.file;
+      musicAudio.load();
+
+      if(resetTime){
+        try{
+          musicAudio.currentTime = 0;
+        }catch(e){}
+      }
+
+      if(musicTrackTitle){
+        musicTrackTitle.textContent = track.title;
+      }
+
+      if(musicTrackHint){
+        musicTrackHint.textContent =
+          "Lecture : " + track.file + " — tête vers la droite = musique suivante · gauche/droite = annuler";
+      }
+    }
+
+    async function nextMusicTrack(){
+      currentMusicIndex = (currentMusicIndex + 1) % MUSIC_PLAYLIST.length;
+      lastNextTrackAt = performance.now();
+      nextTrackArmed = false;
+
+      updateMusicTrack(true);
+
+      if(mode === "music" && musicAudio){
+        try{
+          await musicAudio.play();
+          if(audioWarning) audioWarning.classList.remove("show");
+        }catch(error){
+          console.warn("Lecture automatique du morceau suivant bloquée", error);
+          if(audioWarning) audioWarning.classList.add("show");
+        }
+      }
+
+      setState("Musique suivante : " + MUSIC_PLAYLIST[currentMusicIndex].title, "ready");
+      commandState.textContent = "MUSIC_NEXT";
     }
 
 
@@ -2110,7 +2227,6 @@
       radioModal.classList.add("show");
       if(radioWarning) radioWarning.classList.remove("show");
       updateRadioStation();
-
       try{
         radioAudio.muted = false;
         await radioAudio.play();
@@ -2118,7 +2234,6 @@
         console.warn("Lecture automatique radio bloquée", error);
         if(radioWarning) radioWarning.classList.add("show");
       }
-
       setState("Radio en cours : " + RADIO_STATIONS[currentRadioIndex].title, "ready");
       commandState.textContent = "RADIO_PLAY envoyé";
       scenarioText.textContent = "Radio Live : tête droite = station suivante, tête gauche = station précédente, gauche/droite = annuler.";
@@ -2135,7 +2250,7 @@
       lastRadioSwitchAt = performance.now();
       nextTrackArmed = false;
       updateRadioStation();
-      try{ await radioAudio.play(); }catch(error){ if(radioWarning) radioWarning.classList.add("show"); }
+      try{ await radioAudio.play(); if(radioWarning) radioWarning.classList.remove("show"); }catch(error){ if(radioWarning) radioWarning.classList.add("show"); }
       setState("Radio suivante : " + RADIO_STATIONS[currentRadioIndex].title, "ready");
       commandState.textContent = "RADIO_NEXT";
     }
@@ -2145,7 +2260,7 @@
       lastRadioSwitchAt = performance.now();
       nextTrackArmed = false;
       updateRadioStation();
-      try{ await radioAudio.play(); }catch(error){ if(radioWarning) radioWarning.classList.add("show"); }
+      try{ await radioAudio.play(); if(radioWarning) radioWarning.classList.remove("show"); }catch(error){ if(radioWarning) radioWarning.classList.add("show"); }
       setState("Radio précédente : " + RADIO_STATIONS[currentRadioIndex].title, "ready");
       commandState.textContent = "RADIO_PREVIOUS";
     }
@@ -2159,12 +2274,14 @@
       if(radioModal) radioModal.classList.remove("show");
     }
 
+
     function updateTVChannel(){
       if(!tvFrame) return;
       const channel = TV_CHANNELS[currentTVIndex];
       tvFrame.src = channel.url;
       if(tvChannelTitle) tvChannelTitle.textContent = channel.title;
-      if(tvChannelHint) tvChannelHint.textContent = "Chaîne : " + channel.title + " — tête vers la droite = chaîne suivante";
+      if(tvChannelHint) tvChannelHint.textContent = "Chaîne : " + channel.title + " — tête vers la droite = chaîne suivante · gauche/droite = annuler";
+      if(tvOpenLink) tvOpenLink.href = channel.url;
     }
 
     function startTVPlayer(){
@@ -2173,12 +2290,24 @@
       confirmModal.classList.remove("show");
       sentModal.classList.remove("show");
       setIconActive("tv");
+
       updateTVChannel();
       tvModal.classList.add("show");
-      setState("Télévision en cours : CNEWS", "ready");
+
+      try{
+        tvFrame.src = TV_CHANNELS[currentTVIndex].url;
+      }catch(e){
+        console.warn("Chargement TV intégré bloqué", e);
+      }
+
+      // CNEWS refuse souvent l'affichage intégré dans une iframe.
+      // Pour un usage sans les mains, on bascule automatiquement vers la chaîne.
+
+      setState("Télévision en cours", "ready");
       commandState.textContent = "TV_PLAY envoyé";
-      scenarioText.textContent = "Télévision CNEWS : lecteur intégré Mobilife. Tête gauche/droite = annuler.";
+      scenarioText.textContent = "Télévision : lecteur intégré Mobilife. Tête vers la droite = chaîne suivante. Tête gauche/droite = annuler.";
       progressBar.style.width = "100%";
+
       baselineNoseX = null;
       universalShakePhase = "waitingRight";
       universalShakeCount = 0;
@@ -2191,7 +2320,7 @@
       lastNextTrackAt = performance.now();
       nextTrackArmed = false;
       updateTVChannel();
-      setState("Chaîne : " + TV_CHANNELS[currentTVIndex].title, "ready");
+      setState("Chaîne suivante : " + TV_CHANNELS[currentTVIndex].title, "ready");
       commandState.textContent = "TV_NEXT";
     }
 
@@ -2199,7 +2328,6 @@
       if(tvFrame) tvFrame.src = "";
       if(tvModal) tvModal.classList.remove("show");
     }
-
 
     function stopMusicPlayer(){
       if(musicAudio){
@@ -2239,7 +2367,9 @@
         sleep: "🌙",
         light: "💡",
         comfort: "🌬️",
-        music: "🎵"
+        music: "🎵",
+        radio: "📻",
+        tv: "📺"
       }[type] || "💧";
     }
 
@@ -2250,7 +2380,9 @@
         sleep: "Extinction de la lumière en cours.",
         light: "Allumage de la lumière en cours.",
         comfort: "Ventilation activée.",
-        music: "Musique lancée."
+        music: "Musique lancée.",
+        radio: "Radio lancée.",
+        tv: "Télévision lancée."
       }[type] || "Action en cours.";
     }
 
@@ -2260,7 +2392,9 @@
         pain: 'Commande simulée : <strong>PAIN_ALERT</strong><br>Message : “J’ai mal” envoyé à l’infirmier.', 
         sleep: 'Commande simulée : <strong>LIGHT_OFF</strong><br>La lumière de la chambre s’éteint.',
         comfort: 'Commande simulée : <strong>FAN_ON</strong><br>Le ventilateur de confort se met en route.',
-        music: 'Commande simulée : <strong>MUSIC_PLAY</strong><br>La musique se lance dans le lecteur intégré Mobilife.'
+        music: 'Commande simulée : <strong>MUSIC_PLAY</strong><br>La musique se lance dans le lecteur intégré Mobilife.',
+        radio: 'Commande simulée : <strong>RADIO_PLAY</strong><br>La radio se lance dans le lecteur intégré Mobilife.',
+        tv: 'Commande simulée : <strong>TV_PLAY</strong><br>La télévision se lance dans le lecteur intégré Mobilife.'
       }[type] || "";
     }
 
@@ -2271,7 +2405,9 @@
         sleep: "Lumière éteinte",
         light: "Lumière allumée",
         comfort: "Confort activé",
-        music: "Musique"
+        music: "Musique",
+        radio: "Radio Live",
+        tv: "Télévision"
       }[type] || "Action envoyée";
     }
 
@@ -2282,7 +2418,9 @@
         sleep: "Sommeil : la lumière est éteinte pour permettre le repos.",
         light: "Lumière : la lampe est allumée.",
         comfort: "Confort : le ventilateur est activé pour rafraîchir la personne.",
-        music: "Musique : le lecteur intégré est ouvert sans quitter Mobilife."
+        music: "Musique : le lecteur intégré est ouvert sans quitter Mobilife.",
+        radio: "Radio Live : le flux audio direct est ouvert dans Mobilife.",
+        tv: "Télévision : le direct est ouvert dans Mobilife."
       }[type] || "";
     }
 
