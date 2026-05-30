@@ -809,6 +809,52 @@
       line-height:1.35;
     }
 
+
+    .direction-zone{
+      position:absolute;
+      inset:92px 142px 130px;
+      z-index:13;
+      pointer-events:none;
+    }
+
+    .direction-tile{
+      position:absolute;
+      width:116px;
+      min-height:104px;
+      padding:10px;
+      border-radius:24px;
+      background:rgba(0,0,0,.56);
+      border:1px solid rgba(255,255,255,.18);
+      backdrop-filter:blur(14px);
+      box-shadow:0 14px 40px rgba(0,0,0,.35);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:5px;
+      text-align:center;
+      transition:.2s ease;
+    }
+
+    .direction-tile .emoji{ font-size:38px; line-height:1; }
+    .direction-tile strong{ font-size:14px; line-height:1.05; color:white; }
+    .direction-tile small{ font-size:11px; color:var(--muted); line-height:1.1; }
+    .direction-tile.top{ top:0; left:50%; transform:translateX(-50%); }
+    .direction-tile.bottom{ bottom:0; left:50%; transform:translateX(-50%); }
+    .direction-tile.left{ top:50%; left:0; transform:translateY(-50%); }
+    .direction-tile.right{ top:50%; right:0; transform:translateY(-50%); }
+    .direction-tile.active{
+      border-color:rgba(38,255,154,.95);
+      background:rgba(38,255,154,.18);
+      box-shadow:0 0 34px rgba(38,255,154,.45), 0 14px 40px rgba(0,0,0,.35);
+    }
+    .direction-tile.triggered{
+      border-color:rgba(69,214,255,.95);
+      background:rgba(69,214,255,.20);
+      box-shadow:0 0 34px rgba(69,214,255,.45), 0 14px 40px rgba(0,0,0,.35);
+    }
+
+
     @media (max-width:720px){
       .home-card{padding:22px;border-radius:24px}
       .choice-grid{grid-template-columns:1fr}
@@ -822,6 +868,11 @@
       .command-icon small{font-size:10px}
       .command-zone{inset:82px 8px 12px}
       .command-col{gap:12px}
+      .direction-zone{inset:86px 104px 118px}
+      .direction-tile{width:86px;min-height:82px;border-radius:18px;padding:7px 5px}
+      .direction-tile .emoji{font-size:28px}
+      .direction-tile strong{font-size:11px}
+      .direction-tile small{font-size:9px}
     }
   </style>
 </head>
@@ -901,7 +952,7 @@
         <div class="command-icon" id="iconTV">
           <div class="emoji">📺</div>
           <strong>Télé</strong>
-          <small>3 clins d’œil droits</small>
+          <small>tête bas 2 s</small>
         </div>
 
         <div class="command-icon" id="iconCancel">
@@ -909,6 +960,29 @@
           <strong>Annuler</strong>
           <small>tête gauche/droite</small>
         </div>
+      </div>
+    </div>
+
+    <div class="direction-zone">
+      <div class="direction-tile top" id="dirTopTile">
+        <div class="emoji">❓</div>
+        <strong>Action haut</strong>
+        <small>tête haut 2 s</small>
+      </div>
+      <div class="direction-tile left" id="dirLeftTile">
+        <div class="emoji">❓</div>
+        <strong>Action gauche</strong>
+        <small>tête gauche 2 s</small>
+      </div>
+      <div class="direction-tile right" id="dirRightTile">
+        <div class="emoji">❓</div>
+        <strong>Action droite</strong>
+        <small>tête droite 2 s</small>
+      </div>
+      <div class="direction-tile bottom" id="dirBottomTile">
+        <div class="emoji">📺</div>
+        <strong>Télé</strong>
+        <small>tête bas 2 s</small>
       </div>
     </div>
 
@@ -1065,6 +1139,11 @@
     const iconTV = document.getElementById("iconTV");
     const iconCancel = document.getElementById("iconCancel");
 
+    const dirTopTile = document.getElementById("dirTopTile");
+    const dirLeftTile = document.getElementById("dirLeftTile");
+    const dirRightTile = document.getElementById("dirRightTile");
+    const dirBottomTile = document.getElementById("dirBottomTile");
+
     const musicModal = document.getElementById("musicModal");
     const musicAudio = document.getElementById("musicAudio");
     const audioWarning = document.getElementById("audioWarning");
@@ -1117,6 +1196,11 @@
     let tvBlinkCount = 0;
     let tvBlinkLock = false;
     let tvBlinkTimer = 0;
+    let dirBaseX = null;
+    let dirBaseY = null;
+    let dirHoldStart = null;
+    let dirCurrent = null;
+    let dirTriggered = false;
     let universalShakePhase = "waitingRight";
     let universalShakeCount = 0;
     let lastUniversalShakeAt = 0;
@@ -1147,6 +1231,8 @@
     const MUSIC_HOLD_MS = 1200;
     const TV_WINK_THRESHOLD = 0.72;
     const TV_WINK_HOLD_MS = 2000;
+    const DIR_HEAD_THRESHOLD = 0.055;
+    const DIR_HOLD_MS = 2000;
 
     function setState(text, type="loading"){
       stateText.textContent = text;
@@ -1175,6 +1261,9 @@
     function clearIconStates(){
       for(const el of [iconDrink, iconPain, iconSleep, iconLight, iconComfort, iconMusic, iconTV, iconCancel]){
         el.classList.remove("active", "alert");
+      }
+      for(const el of [dirTopTile, dirLeftTile, dirRightTile, dirBottomTile]){
+        if(el) el.classList.remove("active", "triggered");
       }
     }
 
@@ -1336,6 +1425,14 @@
       painBrowStart = null;
       musicSmileStart = null;
       tvGestureStart = null;
+      tvBlinkCount = 0;
+      tvBlinkLock = false;
+      tvBlinkTimer = 0;
+      dirBaseX = null;
+      dirBaseY = null;
+      dirHoldStart = null;
+      dirCurrent = null;
+      dirTriggered = false;
       lastNextTrackAt = 0;
       nextTrackArmed = true;
       universalShakePhase = "waitingRight";
@@ -1557,22 +1654,91 @@
         if(smileScore < 0.25) musicSmileStart = null;
       }
 
-      // 6. TÉLÉ : clin d’œil droit maintenu environ 2 secondes
-      // Œil droit fermé + œil gauche ouvert : évite le conflit avec Sommeil.
-      if(eyeBlinkRight > TV_WINK_THRESHOLD && eyeBlinkLeft < 0.35){
-        if(tvGestureStart === null) tvGestureStart = now;
-        iconTV.classList.add("active");
+      // 6. TÉLÉ : désactivé ici.
+      // La télévision est maintenant déclenchée par la vignette directionnelle du bas
+      // avec tête vers le bas maintenue 2 secondes.
 
-        if(now - tvGestureStart > TV_WINK_HOLD_MS){
-          tvGestureStart = null;
+    }
+
+
+    function clearDirectionTiles(){
+      for(const el of [dirTopTile, dirLeftTile, dirRightTile, dirBottomTile]){
+        if(el) el.classList.remove("active", "triggered");
+      }
+    }
+
+    function setDirectionTile(direction, triggered=false){
+      clearDirectionTiles();
+      const map = {
+        up: dirTopTile,
+        down: dirBottomTile,
+        left: dirLeftTile,
+        right: dirRightTile
+      };
+      const tile = map[direction];
+      if(tile){
+        tile.classList.add(triggered ? "triggered" : "active");
+      }
+    }
+
+    function detectDirectionalTiles(landmarks, now){
+      if(mode !== "detectDrink" || commandLocked) return;
+      const nose = landmarks[1];
+      if(!nose) return;
+
+      if(dirBaseX === null || dirBaseY === null){
+        dirBaseX = nose.x;
+        dirBaseY = nose.y;
+        return;
+      }
+
+      dirBaseX = dirBaseX * 0.96 + nose.x * 0.04;
+      dirBaseY = dirBaseY * 0.96 + nose.y * 0.04;
+
+      const dx = nose.x - dirBaseX;
+      const dy = nose.y - dirBaseY;
+      let direction = null;
+
+      if(dy < -DIR_HEAD_THRESHOLD){ direction = "up"; }
+      else if(dy > DIR_HEAD_THRESHOLD){ direction = "down"; }
+      else if(dx < -DIR_HEAD_THRESHOLD){ direction = "left"; }
+      else if(dx > DIR_HEAD_THRESHOLD){ direction = "right"; }
+
+      if(!direction){
+        dirCurrent = null;
+        dirHoldStart = null;
+        dirTriggered = false;
+        clearDirectionTiles();
+        return;
+      }
+
+      if(direction !== dirCurrent){
+        dirCurrent = direction;
+        dirHoldStart = now;
+        dirTriggered = false;
+      }
+
+      setDirectionTile(direction, false);
+
+      if(now - dirHoldStart >= DIR_HOLD_MS && !dirTriggered){
+        dirTriggered = true;
+        setDirectionTile(direction, true);
+
+        if(direction === "down"){
           beginConfirmation("tv");
           return;
         }
-      }else{
-        iconTV.classList.remove("active");
-        if(eyeBlinkRight < 0.35 || eyeBlinkLeft > 0.50) tvGestureStart = null;
+
+        setState("Vignette " + directionLabel(direction) + " validée", "ready");
+        commandState.textContent = "DIRECTION_" + direction.toUpperCase();
+        setTimeout(clearDirectionTiles, 700);
       }
     }
+
+    function directionLabel(direction){
+      return { up:"haut", down:"bas", left:"gauche", right:"droite" }[direction] || direction;
+    }
+
 
     function detectUniversalCancelShake(landmarks, now){
       const noseX = landmarks[1].x;
@@ -2040,13 +2206,14 @@
 
           if(mode === "detectDrink"){
             detectRequests(landmarks, result, now);
+            detectDirectionalTiles(landmarks, now);
           }
 
           if(mode === "confirm"){
             detectHeadConfirmation(landmarks, now);
           }
 
-          if(mode === "sent" || mode === "music"){
+          if(mode === "sent" || mode === "music" || mode === "tv"){
             detectUniversalCancelShake(landmarks, now);
           }
 
