@@ -772,6 +772,146 @@
       display:block;
     }
 
+
+    .direction-zone{
+      position:absolute;
+      inset:0;
+      z-index:13;
+      pointer-events:none;
+    }
+
+    .direction-tile{
+      position:absolute;
+      width:92px;
+      min-height:78px;
+      padding:7px 5px;
+      border-radius:18px;
+      background:rgba(0,0,0,.62);
+      border:1px solid rgba(255,255,255,.18);
+      backdrop-filter:blur(14px);
+      box-shadow:0 12px 34px rgba(0,0,0,.35);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:3px;
+      text-align:center;
+      transition:.15s ease;
+    }
+
+    .direction-tile .emoji{font-size:28px;line-height:1}
+    .direction-tile strong{font-size:11px;line-height:1.05;color:white}
+    .direction-tile small{font-size:9px;color:var(--muted);line-height:1.1}
+
+    .direction-tile.top{
+      top:8px !important;
+      left:50% !important;
+      transform:translateX(-50%) !important;
+    }
+
+    .direction-tile.bottom{
+      bottom:8px !important;
+      left:50% !important;
+      transform:translateX(-50%) !important;
+    }
+
+    .direction-tile.left{
+      left:0 !important;
+      top:60% !important;
+      transform:translateY(-50%) !important;
+    }
+
+    .direction-tile.right{
+      right:0 !important;
+      top:60% !important;
+      transform:translateY(-50%) !important;
+    }
+
+    .direction-tile.active{
+      border-color:rgba(38,255,154,.95);
+      background:rgba(38,255,154,.22);
+      box-shadow:0 0 34px rgba(38,255,154,.50), 0 14px 40px rgba(0,0,0,.35);
+    }
+
+    .direction-tile.triggered{
+      border-color:rgba(69,214,255,.95);
+      background:rgba(69,214,255,.26);
+      box-shadow:0 0 36px rgba(69,214,255,.55), 0 14px 40px rgba(0,0,0,.35);
+    }
+
+    .direction-tile.top.active,
+    .direction-tile.top.triggered,
+    .direction-tile.bottom.active,
+    .direction-tile.bottom.triggered{
+      transform:translateX(-50%) scale(1.04) !important;
+    }
+
+    .direction-tile.left.active,
+    .direction-tile.left.triggered,
+    .direction-tile.right.active,
+    .direction-tile.right.triggered{
+      transform:translateY(-50%) scale(1.04) !important;
+    }
+
+    .radio-station-list{
+      margin:14px auto 0;
+      display:grid;
+      gap:8px;
+      max-width:520px;
+      text-align:left;
+    }
+
+    .radio-station{
+      padding:10px 12px;
+      border-radius:14px;
+      background:rgba(255,255,255,.07);
+      border:1px solid rgba(255,255,255,.12);
+      color:var(--muted);
+      font-weight:800;
+      font-size:14px;
+    }
+
+    .radio-station.active{
+      color:var(--green);
+      border-color:rgba(38,255,154,.55);
+      background:rgba(38,255,154,.12);
+    }
+
+    .tv-frame{
+      width:100%;
+      height:min(62vh, 520px);
+      border:0;
+      border-radius:20px;
+      background:#000;
+      box-shadow:0 18px 60px rgba(0,0,0,.45);
+    }
+
+    .tv-actions{
+      margin-top:14px;
+      display:flex;
+      justify-content:center;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .tv-actions button{
+      color:white;
+      background:rgba(38,255,154,.15);
+      border:1px solid rgba(38,255,154,.45);
+      border-radius:14px;
+      padding:12px 16px;
+      font-weight:900;
+    }
+
+    .tv-warning{
+      margin-top:12px;
+      color:var(--orange);
+      font-weight:900;
+      font-size:14px;
+      line-height:1.35;
+    }
+
+
     @media (max-width:720px){
       .home-card{padding:22px;border-radius:24px}
       .choice-grid{grid-template-columns:1fr}
@@ -784,20 +924,15 @@
       .command-icon strong{font-size:12px}
       .command-icon small{font-size:10px}
       .command-zone{inset:82px 8px 12px}
-      .command-col{gap:12px}
+      .command-col{gap:8px;top:18%}
+      .command-col.left{left:4px}
+      .command-col.right{right:4px}
+      .command-bottom{bottom:8px;gap:104px}
+      .direction-tile{width:76px;min-height:66px;border-radius:15px;padding:5px 4px}
+      .direction-tile .emoji{font-size:24px}
+      .direction-tile strong{font-size:9px}
+      .direction-tile small{font-size:8px}
     }
-
-    .direction-tile.top{
-      top:8px !important;
-      left:50% !important;
-      transform:translateX(-50%) !important;
-    }
-
-    .direction-tile.top.active,
-    .direction-tile.top.triggered{
-      transform:translateX(-50%) scale(1.04) !important;
-    }
-
   </style>
 </head>
 
@@ -832,7 +967,7 @@
       <div id="lightOff" class="light-off"></div>
     </div>
 
-    <div class="gesture-tip">Mobilife détecte les gestes du visage — confirmation obligatoire avant chaque action.</div>
+    <div class="gesture-tip" style="display:none"></div>
 
     <div class="command-zone">
       <div class="command-col left">
@@ -878,6 +1013,32 @@
           <strong>Annuler</strong>
           <small>tête gauche/droite</small>
         </div>
+      </div>
+    </div>
+
+    <div class="direction-zone">
+      <div class="direction-tile top" id="dirTopTile">
+        <div class="emoji">📻</div>
+        <strong>Radio Live</strong>
+        <small>tête haut</small>
+      </div>
+
+      <div class="direction-tile left" id="dirLeftTile">
+        <div class="emoji">❓</div>
+        <strong>Action gauche</strong>
+        <small>tête gauche</small>
+      </div>
+
+      <div class="direction-tile right" id="dirRightTile">
+        <div class="emoji">❓</div>
+        <strong>Action droite</strong>
+        <small>tête droite</small>
+      </div>
+
+      <div class="direction-tile bottom" id="dirBottomTile">
+        <div class="emoji">📺</div>
+        <strong>CNEWS</strong>
+        <small>tête bas</small>
       </div>
     </div>
 
@@ -963,6 +1124,52 @@
         </div>
       </div>
     </div>
+
+    <div id="radioModal" class="modal">
+      <div class="music-player-card">
+        <div class="music-player-head">
+          <div>
+            <strong>📻 Radio Live Mobilife</strong><br>
+            <span>Lecteur intégré — tête droite = station suivante · tête gauche = station précédente · gauche/droite = annuler</span>
+          </div>
+          <button class="back" id="radioCloseButton">Annuler</button>
+        </div>
+        <div class="music-frame-wrap">
+          <div class="music-inner">
+            <div class="music-note">📻</div>
+            <h2 id="radioStationTitle">NRJ</h2>
+            <p id="radioStationHint">Lecture radio en direct — station 1 / 3</p>
+            <audio id="radioAudio" preload="auto" playsinline controls></audio>
+            <div id="radioWarning" class="audio-warning">Si la radio ne démarre pas, touchez une fois le lecteur. Certains navigateurs bloquent parfois l’audio automatique.</div>
+            <div id="radioStationList" class="radio-station-list"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="tvModal" class="modal">
+      <div class="music-player-card">
+        <div class="music-player-head">
+          <div>
+            <strong>📺 Télévision Mobilife — CNEWS</strong><br>
+            <span>Lecteur intégré — tête droite = chaîne suivante · gauche/droite = annuler</span>
+          </div>
+          <button class="back" id="tvCloseButton">Annuler</button>
+        </div>
+        <div class="music-frame-wrap">
+          <div class="music-inner" style="width:min(900px, 94vw);">
+            <div class="music-note">📺</div>
+            <h2 id="tvChannelTitle">CNEWS Direct</h2>
+            <p id="tvChannelHint">Chaîne : CNEWS — tête vers la droite = chaîne suivante.</p>
+            <iframe id="tvFrame" class="tv-frame" src="" allow="autoplay; fullscreen; picture-in-picture; encrypted-media" allowfullscreen></iframe>
+            <div class="tv-actions">
+              <button id="tvNextButton" type="button">Chaîne suivante</button>
+            </div>
+            <div class="tv-warning">CNEWS est chargé via Dailymotion avec autoplay demandé. Si le son reste bloqué, c’est une limitation du navigateur mobile.</div>
+          </div>
+        </div>
+      </div>
+    </div>
   </section>
 
   <script type="module">
@@ -1006,7 +1213,13 @@
     const iconLight = document.getElementById("iconLight");
     const iconComfort = document.getElementById("iconComfort");
     const iconMusic = document.getElementById("iconMusic");
+    const iconTV = document.getElementById("dirBottomTile");
     const iconCancel = document.getElementById("iconCancel");
+
+    const dirTopTile = document.getElementById("dirTopTile");
+    const dirLeftTile = document.getElementById("dirLeftTile");
+    const dirRightTile = document.getElementById("dirRightTile");
+    const dirBottomTile = document.getElementById("dirBottomTile");
 
     const musicModal = document.getElementById("musicModal");
     const musicAudio = document.getElementById("musicAudio");
@@ -1022,6 +1235,26 @@
     const radioStationTitle = document.getElementById("radioStationTitle");
     const radioStationHint = document.getElementById("radioStationHint");
     const radioStationList = document.getElementById("radioStationList");
+
+    const tvModal = document.getElementById("tvModal");
+    const tvFrame = document.getElementById("tvFrame");
+    const tvCloseButton = document.getElementById("tvCloseButton");
+    const tvNextButton = document.getElementById("tvNextButton");
+    const tvChannelTitle = document.getElementById("tvChannelTitle");
+    const tvChannelHint = document.getElementById("tvChannelHint");
+    const RADIO_STATIONS = [
+      { title: "NRJ", file: "https://streaming.nrjaudio.fm/oumvmk8fnozc?origine=fluxurlradio" },
+      { title: "Chérie FM", file: "https://streaming.nrjaudio.fm/ouuku85n3nje?origine=fluxurlradio" },
+      { title: "Europe 2", file: "http://europe2.lmn.fm/europe2.aac" }
+    ];
+    let currentRadioIndex = 0;
+    let lastRadioSwitchAt = 0;
+
+    const TV_CHANNELS = [
+      { title: "CNEWS Direct", url: "https://geo.dailymotion.com/player.html?video=x3b68jn&autoplay=1&mute=0&queue-enable=false" }
+    ];
+    let currentTVIndex = 0;
+
     const MUSIC_PLAYLIST = [
       { title: "Wonderful Life", file: "Wonderful%20Life.mp3" },
       { title: "Take On Me", file: "Take%20On%20Me.mp3" }
@@ -1049,6 +1282,11 @@
     let expressionStart = null;
     let painBrowStart = null;
     let musicSmileStart = null;
+    let dirBaseX = null;
+    let dirBaseY = null;
+    let dirHoldStart = null;
+    let dirCurrent = null;
+    let dirTriggered = false;
     let universalShakePhase = "waitingRight";
     let universalShakeCount = 0;
     let lastUniversalShakeAt = 0;
@@ -1077,6 +1315,8 @@
     const EXPRESSION_HOLD_MS = 900;
     const MUSIC_SMILE_THRESHOLD = 0.45;
     const MUSIC_HOLD_MS = 1200;
+    const DIR_HEAD_THRESHOLD = 0.065;
+    const DIR_HOLD_MS = 1100;
 
     function setState(text, type="loading"){
       stateText.textContent = text;
@@ -1103,8 +1343,11 @@
     }
 
     function clearIconStates(){
-      for(const el of [iconDrink, iconPain, iconSleep, iconLight, iconComfort, iconMusic, iconCancel]){
-        el.classList.remove("active", "alert");
+      for(const el of [iconDrink, iconPain, iconSleep, iconLight, iconComfort, iconMusic, iconTV, iconCancel]){
+        if(el) el.classList.remove("active", "alert", "triggered");
+      }
+      for(const el of [dirTopTile, dirLeftTile, dirRightTile, dirBottomTile]){
+        if(el) el.classList.remove("active", "triggered");
       }
     }
 
@@ -1117,6 +1360,8 @@
         light: iconLight,
         comfort: iconComfort,
         music: iconMusic,
+        radio: dirTopTile,
+        tv: iconTV,
         cancel: iconCancel
       };
       if(map[type]){
@@ -1131,7 +1376,9 @@
         sleep: "Vous voulez dormir ?",
         light: "Vous voulez allumer la lumière ?",
         comfort: "Vous avez chaud ?",
-        music: "Vous voulez écouter de la musique ?"
+        music: "Vous voulez écouter de la musique ?",
+        radio: "Vous voulez écouter la radio ?",
+        tv: "Vous voulez regarder la télé ?"
       }[type] || "Demande détectée";
     }
 
@@ -1142,7 +1389,9 @@
         sleep: "LIGHT_OFF",
         light: "LIGHT_ON",
         comfort: "FAN_ON",
-        music: "MUSIC_PLAY"
+        music: "MUSIC_PLAY",
+        radio: "RADIO_PLAY",
+        tv: "TV_PLAY"
       }[type] || "UNKNOWN";
     }
 
@@ -1234,6 +1483,8 @@
       if(countdownInterval) clearInterval(countdownInterval);
       if(autoRestartTimeout) clearTimeout(autoRestartTimeout);
       stopMusicPlayer();
+      stopRadioPlayer();
+      stopTVPlayer();
       countdownInterval = null;
       autoRestartTimeout = null;
       mouthStart = null;
@@ -1261,6 +1512,11 @@
       expressionStart = null;
       painBrowStart = null;
       musicSmileStart = null;
+      dirBaseX = null;
+      dirBaseY = null;
+      dirHoldStart = null;
+      dirCurrent = null;
+      dirTriggered = false;
       lastNextTrackAt = 0;
       lastRadioSwitchAt = 0;
       nextTrackArmed = true;
@@ -1484,6 +1740,88 @@
       }
     }
 
+
+    function clearDirectionTiles(){
+      for(const el of [dirTopTile, dirLeftTile, dirRightTile, dirBottomTile]){
+        if(el) el.classList.remove("active", "triggered");
+      }
+    }
+
+    function setDirectionTile(direction, triggered=false){
+      clearDirectionTiles();
+      const map = { up: dirTopTile, down: dirBottomTile, left: dirLeftTile, right: dirRightTile };
+      const tile = map[direction];
+      if(tile) tile.classList.add(triggered ? "triggered" : "active");
+    }
+
+    function detectDirectionalTiles(landmarks, now){
+      if(mode !== "detectDrink" || commandLocked) return;
+
+      const nose = landmarks[1];
+      if(!nose) return;
+
+      if(dirBaseX === null || dirBaseY === null){
+        dirBaseX = nose.x;
+        dirBaseY = nose.y;
+        return;
+      }
+
+      const dx = nose.x - dirBaseX;
+      const dy = nose.y - dirBaseY;
+      let direction = null;
+
+      if(dy < -DIR_HEAD_THRESHOLD){
+        direction = "up";
+      }else if(dy > DIR_HEAD_THRESHOLD){
+        direction = "down";
+      }else if(dx > DIR_HEAD_THRESHOLD){
+        direction = "left";
+      }else if(dx < -DIR_HEAD_THRESHOLD){
+        direction = "right";
+      }
+
+      if(!direction){
+        dirBaseX = dirBaseX * 0.85 + nose.x * 0.15;
+        dirBaseY = dirBaseY * 0.85 + nose.y * 0.15;
+        dirCurrent = null;
+        dirHoldStart = null;
+        dirTriggered = false;
+        clearDirectionTiles();
+        return;
+      }
+
+      if(direction !== dirCurrent){
+        dirCurrent = direction;
+        dirHoldStart = now;
+        dirTriggered = false;
+      }
+
+      setDirectionTile(direction, false);
+
+      if(now - dirHoldStart >= DIR_HOLD_MS && !dirTriggered){
+        dirTriggered = true;
+        setDirectionTile(direction, true);
+
+        if(direction === "up"){
+          beginConfirmation("radio");
+          return;
+        }
+
+        if(direction === "down"){
+          beginConfirmation("tv");
+          return;
+        }
+
+        setState("Vignette " + directionLabel(direction) + " validée", "ready");
+        commandState.textContent = "DIRECTION_" + direction.toUpperCase();
+      }
+    }
+
+    function directionLabel(direction){
+      return { up:"haut", down:"bas", left:"gauche", right:"droite" }[direction] || direction;
+    }
+
+
     function detectUniversalCancelShake(landmarks, now){
       const noseX = landmarks[1].x;
 
@@ -1495,14 +1833,25 @@
       baselineNoseX = baselineNoseX * 0.90 + noseX * 0.10;
       const deltaX = noseX - baselineNoseX;
 
-      // Pendant la musique : une bascule simple vers la droite passe au morceau suivant.
-      // Le geste gauche/droite complet reste réservé à ANNULER.
-      if(mode === "music"){
+      // Pendant la musique / TV : tête droite = suivant.
+      // Pendant la radio : tête droite = station suivante, tête gauche = station précédente.
+      if(mode === "music" || mode === "tv" || mode === "radio"){
         if(Math.abs(deltaX) < SHAKE_THRESHOLD * 0.45){
           nextTrackArmed = true;
         }
+
         if(nextTrackArmed && deltaX > SHAKE_THRESHOLD * 1.45 && now - lastNextTrackAt > 1200){
-          nextMusicTrack();
+          if(mode === "music") nextMusicTrack();
+          if(mode === "tv") nextTVChannel();
+          if(mode === "radio") nextRadioStation();
+          universalShakePhase = "waitingRight";
+          universalShakeCount = 0;
+          lastUniversalShakeAt = now;
+          return;
+        }
+
+        if(nextTrackArmed && mode === "radio" && deltaX < -SHAKE_THRESHOLD * 1.45 && now - lastRadioSwitchAt > 1200){
+          previousRadioStation();
           universalShakePhase = "waitingRight";
           universalShakeCount = 0;
           lastUniversalShakeAt = now;
@@ -1629,6 +1978,16 @@
         return;
       }
 
+      if(type === "radio"){
+        startRadioPlayer();
+        return;
+      }
+
+      if(type === "tv"){
+        startTVPlayer();
+        return;
+      }
+
       mode = "sent";
       commandLocked = true;
       confirmModal.classList.remove("show");
@@ -1723,6 +2082,125 @@
       lastUniversalShakeAt = 0;
     }
 
+
+    function updateRadioStation(){
+      if(!radioAudio) return;
+      const station = RADIO_STATIONS[currentRadioIndex];
+      radioAudio.src = station.file;
+      radioAudio.load();
+      if(radioStationTitle) radioStationTitle.textContent = station.title;
+      if(radioStationHint) radioStationHint.textContent = "Lecture : " + station.title + " — station " + (currentRadioIndex + 1) + " / " + RADIO_STATIONS.length;
+      updateRadioStationList();
+    }
+
+    function updateRadioStationList(){
+      if(!radioStationList) return;
+      radioStationList.innerHTML = RADIO_STATIONS.map((station, index) => {
+        const cls = index === currentRadioIndex ? "radio-station active" : "radio-station";
+        return '<div class="' + cls + '">▶ ' + station.title + '</div>';
+      }).join("");
+    }
+
+    async function startRadioPlayer(){
+      mode = "radio";
+      commandLocked = true;
+      confirmModal.classList.remove("show");
+      sentModal.classList.remove("show");
+      setIconActive("radio");
+      radioModal.classList.add("show");
+      if(radioWarning) radioWarning.classList.remove("show");
+      updateRadioStation();
+
+      try{
+        radioAudio.muted = false;
+        await radioAudio.play();
+      }catch(error){
+        console.warn("Lecture automatique radio bloquée", error);
+        if(radioWarning) radioWarning.classList.add("show");
+      }
+
+      setState("Radio en cours : " + RADIO_STATIONS[currentRadioIndex].title, "ready");
+      commandState.textContent = "RADIO_PLAY envoyé";
+      scenarioText.textContent = "Radio Live : tête droite = station suivante, tête gauche = station précédente, gauche/droite = annuler.";
+      progressBar.style.width = "100%";
+      baselineNoseX = null;
+      universalShakePhase = "waitingRight";
+      universalShakeCount = 0;
+      lastUniversalShakeAt = 0;
+      nextTrackArmed = true;
+    }
+
+    async function nextRadioStation(){
+      currentRadioIndex = (currentRadioIndex + 1) % RADIO_STATIONS.length;
+      lastRadioSwitchAt = performance.now();
+      nextTrackArmed = false;
+      updateRadioStation();
+      try{ await radioAudio.play(); }catch(error){ if(radioWarning) radioWarning.classList.add("show"); }
+      setState("Radio suivante : " + RADIO_STATIONS[currentRadioIndex].title, "ready");
+      commandState.textContent = "RADIO_NEXT";
+    }
+
+    async function previousRadioStation(){
+      currentRadioIndex = (currentRadioIndex - 1 + RADIO_STATIONS.length) % RADIO_STATIONS.length;
+      lastRadioSwitchAt = performance.now();
+      nextTrackArmed = false;
+      updateRadioStation();
+      try{ await radioAudio.play(); }catch(error){ if(radioWarning) radioWarning.classList.add("show"); }
+      setState("Radio précédente : " + RADIO_STATIONS[currentRadioIndex].title, "ready");
+      commandState.textContent = "RADIO_PREVIOUS";
+    }
+
+    function stopRadioPlayer(){
+      if(radioAudio){
+        radioAudio.pause();
+        radioAudio.currentTime = 0;
+      }
+      if(radioWarning) radioWarning.classList.remove("show");
+      if(radioModal) radioModal.classList.remove("show");
+    }
+
+    function updateTVChannel(){
+      if(!tvFrame) return;
+      const channel = TV_CHANNELS[currentTVIndex];
+      tvFrame.src = channel.url;
+      if(tvChannelTitle) tvChannelTitle.textContent = channel.title;
+      if(tvChannelHint) tvChannelHint.textContent = "Chaîne : " + channel.title + " — tête vers la droite = chaîne suivante";
+    }
+
+    function startTVPlayer(){
+      mode = "tv";
+      commandLocked = true;
+      confirmModal.classList.remove("show");
+      sentModal.classList.remove("show");
+      setIconActive("tv");
+      updateTVChannel();
+      tvModal.classList.add("show");
+      setState("Télévision en cours : CNEWS", "ready");
+      commandState.textContent = "TV_PLAY envoyé";
+      scenarioText.textContent = "Télévision CNEWS : lecteur intégré Mobilife. Tête gauche/droite = annuler.";
+      progressBar.style.width = "100%";
+      baselineNoseX = null;
+      universalShakePhase = "waitingRight";
+      universalShakeCount = 0;
+      lastUniversalShakeAt = 0;
+      nextTrackArmed = true;
+    }
+
+    function nextTVChannel(){
+      currentTVIndex = (currentTVIndex + 1) % TV_CHANNELS.length;
+      lastNextTrackAt = performance.now();
+      nextTrackArmed = false;
+      updateTVChannel();
+      setState("Chaîne : " + TV_CHANNELS[currentTVIndex].title, "ready");
+      commandState.textContent = "TV_NEXT";
+    }
+
+    function stopTVPlayer(){
+      if(tvFrame) tvFrame.src = "";
+      if(tvModal) tvModal.classList.remove("show");
+    }
+
+
     function stopMusicPlayer(){
       if(musicAudio){
         musicAudio.pause();
@@ -1734,6 +2212,8 @@
 
     function universalCancel(){
       stopMusicPlayer();
+      stopRadioPlayer();
+      stopTVPlayer();
       if(countdownInterval) clearInterval(countdownInterval);
       if(autoRestartTimeout) clearTimeout(autoRestartTimeout);
       countdownInterval = null;
@@ -1851,13 +2331,14 @@
 
           if(mode === "detectDrink"){
             detectRequests(landmarks, result, now);
+            detectDirectionalTiles(landmarks, now);
           }
 
           if(mode === "confirm"){
             detectHeadConfirmation(landmarks, now);
           }
 
-          if(mode === "sent" || mode === "music"){
+          if(mode === "sent" || mode === "music" || mode === "tv" || mode === "radio"){
             detectUniversalCancelShake(landmarks, now);
           }
 
@@ -1889,6 +2370,18 @@
       universalCancel();
     });
 
+    radioCloseButton.addEventListener("click", () => {
+      universalCancel();
+    });
+
+    tvCloseButton.addEventListener("click", () => {
+      universalCancel();
+    });
+
+    tvNextButton.addEventListener("click", () => {
+      nextTVChannel();
+    });
+
     if(musicAudio){
       musicAudio.addEventListener("ended", () => {
         if(mode === "music") nextMusicTrack();
@@ -1897,6 +2390,8 @@
 
     backButton.addEventListener("click", () => {
       stopCamera();
+      stopRadioPlayer();
+      stopTVPlayer();
       showScreen(home);
     });
 
