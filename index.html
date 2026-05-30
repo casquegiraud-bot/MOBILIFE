@@ -677,7 +677,7 @@
       display:flex;
       align-items:center;
       justify-content:center;
-      gap:18px;
+      gap:104px;
     }
 
     .music-player-card{
@@ -854,25 +854,25 @@
     }
 
     .direction-tile.top{
-      top:74px;
+      top:64px;
       left:50%;
       transform:translateX(-50%);
     }
 
     .direction-tile.bottom{
-      bottom:96px;
+      bottom:8px;
       left:50%;
       transform:translateX(-50%);
     }
 
     .direction-tile.left{
-      top:58%;
+      top:60%;
       left:0;
       transform:translateY(-50%);
     }
 
     .direction-tile.right{
-      top:58%;
+      top:60%;
       right:0;
       transform:translateY(-50%);
     }
@@ -906,6 +906,23 @@
       transform:translateX(-50%) scale(1.04);
     }
 
+
+    .command-bottom{
+      bottom:8px !important;
+      gap:104px !important;
+    }
+
+    .direction-tile.bottom{
+      bottom:8px !important;
+      left:50% !important;
+      transform:translateX(-50%) !important;
+    }
+
+    .direction-tile.bottom.active,
+    .direction-tile.bottom.triggered{
+      transform:translateX(-50%) scale(1.04) !important;
+    }
+
     @media (max-width:720px){
       .home-card{padding:22px;border-radius:24px}
       .choice-grid{grid-template-columns:1fr}
@@ -926,10 +943,13 @@
       .direction-tile .emoji{font-size:24px}
       .direction-tile strong{font-size:9px}
       .direction-tile small{font-size:8px}
-      .direction-tile.top{top:72px}
-      .direction-tile.bottom{bottom:90px}
-      .direction-tile.left{left:0;top:61%}
+      .direction-tile.top{
+      top:64px;top:61%}
       .direction-tile.right{right:0;top:61%}
+
+      .command-bottom{bottom:8px !important;gap:86px !important}
+      .direction-tile.bottom{bottom:8px !important}
+
     }
   </style>
 </head>
@@ -1139,10 +1159,9 @@
             <p id="tvChannelHint">Chaîne : ARTE — tête vers la droite = chaîne suivante.</p>
             <iframe id="tvFrame" class="tv-frame" src="" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
             <div class="tv-actions">
-              <a id="tvOpenLink" href="https://www.arte.tv/fr/direct/" target="_blank" rel="noopener">Ouvrir la chaîne</a>
               <button id="tvNextButton" type="button">Chaîne suivante</button>
             </div>
-            <div class="tv-warning">Si la chaîne refuse l’affichage intégré, utilisez “Ouvrir la chaîne”. Certains sites bloquent volontairement les iframes.</div>
+            <div class="tv-warning">Mobilife tente d’ouvrir ARTE automatiquement. Si le direct reste noir, c’est que le site bloque l’intégration dans une application externe.</div>
           </div>
         </div>
       </div>
@@ -1285,8 +1304,8 @@
     const MUSIC_HOLD_MS = 1200;
     const TV_WINK_THRESHOLD = 0.72;
     const TV_WINK_HOLD_MS = 2000;
-    const DIR_HEAD_THRESHOLD = 0.045;
-    const DIR_HOLD_MS = 900;
+    const DIR_HEAD_THRESHOLD = 0.085;
+    const DIR_HOLD_MS = 1300;
 
     function setState(text, type="loading"){
       stateText.textContent = text;
@@ -2114,6 +2133,14 @@
       }catch(e){
         console.warn("Chargement TV intégré bloqué", e);
       }
+
+      // ARTE refuse souvent l'affichage intégré dans une iframe.
+      // Pour un usage sans les mains, on bascule automatiquement vers la chaîne.
+      setTimeout(() => {
+        if(mode === "tv"){
+          window.location.href = TV_CHANNELS[currentTVIndex].url;
+        }
+      }, 1200);
 
       setState("Télévision en cours", "ready");
       commandState.textContent = "TV_PLAY envoyé";
