@@ -1,434 +1,635 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AURA LINK V15.1 - TV IR</title>
-
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"></script>
-
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>AURA LINK V15.4 - Télécommande TV IR + Bluetooth BT05</title>
 <style>
-*{box-sizing:border-box}
-body{
-  margin:0;
-  background:radial-gradient(circle at top,#123,#020711 70%);
-  color:white;
-  font-family:Arial,Helvetica,sans-serif;
-  overflow:hidden;
-}
-#app{width:100vw;height:100vh;position:relative}
-video{
-  position:absolute;
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  transform:scaleX(-1);
-  opacity:.38;
-}
-canvas{
-  position:absolute;
-  width:100%;
-  height:100%;
-  pointer-events:none;
-}
-.topbar{
-  position:absolute;
-  top:12px;
-  left:12px;
-  right:12px;
-  display:flex;
-  justify-content:space-between;
-  z-index:20;
-}
-.badge{
-  background:rgba(0,255,255,.12);
-  border:1px solid #00ffff;
-  border-radius:16px;
-  padding:10px 14px;
-  box-shadow:0 0 18px #00ffff66;
-  font-weight:bold;
-}
-button{
-  border:none;
-  border-radius:18px;
-  padding:16px 22px;
-  font-size:18px;
-  font-weight:bold;
-}
-#connect{
-  background:#00ffff;
-  color:#001018;
-}
-.screen{
-  position:absolute;
-  inset:0;
-  display:none;
-  z-index:10;
-}
-.screen.active{display:block}
-.menuGrid{
-  position:absolute;
-  inset:110px 30px 40px;
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:22px;
-}
-.tile,.remoteBtn{
-  background:rgba(0,30,55,.72);
-  border:2px solid #00ffff;
-  box-shadow:0 0 18px #00ffff66,inset 0 0 18px #00ffff22;
-  border-radius:28px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  text-align:center;
-  font-size:28px;
-  font-weight:bold;
-  backdrop-filter:blur(8px);
-}
-.tile.activeTarget,.remoteBtn.activeTarget{
-  background:rgba(255,140,0,.85);
-  border-color:#ffcc00;
-  box-shadow:0 0 35px #ff9900;
-}
-.remote{
-  position:absolute;
-  inset:90px 20px 30px;
-}
-.remoteBtn{
-  position:absolute;
-  width:30vw;
-  height:18vh;
-}
-.on{left:2vw;top:2vh}
-.off{right:2vw;top:2vh}
-.chp{left:2vw;top:30vh}
-.chm{left:2vw;top:55vh}
-.volp{right:2vw;top:30vh}
-.volm{right:2vw;top:55vh}
-.back{
-  left:35vw;
-  bottom:2vh;
-  width:30vw;
-  height:12vh;
-  font-size:22px;
-}
-.centerLabel{
-  position:absolute;
-  left:50%;
-  top:50%;
-  transform:translate(-50%,-50%);
-  width:220px;
-  height:220px;
-  border:2px solid #00ffff;
-  border-radius:50%;
-  box-shadow:0 0 35px #00ffff88,inset 0 0 35px #00ffff44;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  text-align:center;
-  font-size:22px;
-  font-weight:bold;
-  color:#00ffff;
-  background:rgba(0,20,35,.35);
-}
-.progress{
-  position:absolute;
-  bottom:12px;
-  left:50%;
-  transform:translateX(-50%);
-  width:55%;
-  height:14px;
-  border:1px solid #00ffff;
-  border-radius:20px;
-  overflow:hidden;
-  z-index:30;
-}
-#bar{
-  width:0%;
-  height:100%;
-  background:#ff9900;
-  box-shadow:0 0 18px #ff9900;
-}
+:root{--bg:#030712;--text:#f7fbff;--muted:#9fb2d6;--green:#26ff9a;--cyan:#45d6ff;--red:#ff3b5f;--orange:#ffb020;--purple:#8b5cf6}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;overflow:hidden;color:var(--text);font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:radial-gradient(circle at 15% 15%,rgba(69,214,255,.25),transparent 35%),radial-gradient(circle at 82% 82%,rgba(139,92,246,.28),transparent 40%),#030712}button{font:inherit;border:0;cursor:pointer}.screen{position:absolute;inset:0;display:none}.screen.active{display:flex}#home,#modeScreen{align-items:center;justify-content:center;padding:22px}.glass{width:min(1080px,94vw);border-radius:34px;border:1px solid rgba(255,255,255,.18);background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.04));backdrop-filter:blur(18px);box-shadow:0 30px 100px rgba(0,0,0,.5);padding:34px}.brand{text-align:center;margin-bottom:32px}.brand h1{margin:0;font-size:clamp(52px,9vw,105px);line-height:.86;letter-spacing:-.07em;text-shadow:0 0 34px rgba(69,214,255,.4)}.brand p{margin:16px 0 0;color:var(--green);font-weight:900;font-size:clamp(18px,3vw,30px)}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}.modegrid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.card{min-height:230px;border-radius:28px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.075);color:white;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center;padding:18px;box-shadow:0 18px 60px rgba(0,0,0,.25);transition:.2s}.card:not(.disabled):hover{transform:translateY(-4px) scale(1.01);border-color:rgba(38,255,154,.65);box-shadow:0 0 42px rgba(38,255,154,.16)}.disabled{opacity:.4;filter:grayscale(.6);cursor:not-allowed}.big{font-size:72px;filter:drop-shadow(0 12px 18px rgba(0,0,0,.35))}.card strong{font-size:26px}.card small{color:var(--muted);font-weight:700;line-height:1.35}#app{background:#02040b}video,canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}video{opacity:.78}#overlay{z-index:3;pointer-events:none}.topbar{position:absolute;left:14px;right:14px;top:14px;display:flex;justify-content:space-between;align-items:center;z-index:20;pointer-events:none}.pill,.back{pointer-events:auto;border-radius:999px;padding:11px 15px;background:rgba(0,0,0,.52);border:1px solid rgba(255,255,255,.16);color:white;font-weight:900;backdrop-filter:blur(14px);box-shadow:0 12px 36px rgba(0,0,0,.34)}.dot{display:inline-block;width:12px;height:12px;border-radius:50%;background:var(--orange);box-shadow:0 0 18px var(--orange);margin-right:8px}.dot.ready{background:var(--green);box-shadow:0 0 18px var(--green)}.dot.alert{background:var(--red);box-shadow:0 0 18px var(--red)}.badge{position:absolute;top:72px;left:50%;transform:translateX(-50%);z-index:18;background:rgba(0,0,0,.46);border:1px solid rgba(38,255,154,.24);color:var(--green);border-radius:999px;padding:9px 14px;font-size:13px;font-weight:900;backdrop-filter:blur(12px);text-align:center;pointer-events:none}.ring{position:absolute;left:50%;top:50%;width:min(74vw,560px);height:min(74vw,560px);transform:translate(-50%,-50%);border-radius:50%;border:2px solid rgba(69,214,255,.28);box-shadow:0 0 22px rgba(69,214,255,.42),inset 0 0 24px rgba(38,255,154,.2),0 0 80px rgba(139,92,246,.2);z-index:10;pointer-events:none;animation:pulse 2.3s infinite alternate}.ring:before{content:"";position:absolute;inset:14px;border-radius:50%;border:1px dashed rgba(38,255,154,.28)}@keyframes pulse{from{opacity:.76;transform:translate(-50%,-50%) scale(.992)}to{opacity:1;transform:translate(-50%,-50%) scale(1.006)}}.reticle{position:absolute;left:50%;top:50%;width:92px;height:92px;transform:translate(-50%,-50%);z-index:11;border-radius:50%;border:1px solid rgba(38,255,154,.3);box-shadow:0 0 24px rgba(38,255,154,.24),inset 0 0 24px rgba(69,214,255,.12);pointer-events:none}.reticle:before,.reticle:after{content:"";position:absolute;background:rgba(38,255,154,.55);border-radius:999px}.reticle:before{width:2px;height:118px;left:50%;top:50%;transform:translate(-50%,-50%)}.reticle:after{height:2px;width:118px;left:50%;top:50%;transform:translate(-50%,-50%)}.icon{position:absolute;width:108px;min-height:98px;border-radius:25px;border:1px solid rgba(255,255,255,.16);background:rgba(0,0,0,.58);backdrop-filter:blur(16px);box-shadow:0 14px 44px rgba(0,0,0,.4);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;text-align:center;transition:.18s;z-index:14;overflow:hidden}.icon .emo{font-size:40px}.icon strong{font-size:13px}.icon small{color:var(--muted);font-size:10px;font-weight:800}.icon .fill{position:absolute;left:0;bottom:0;width:100%;height:0;background:linear-gradient(180deg,rgba(38,255,154,0),rgba(38,255,154,.35));transition:height .1s;z-index:0}.icon>*:not(.fill){position:relative;z-index:1}.icon.target{border-color:rgba(38,255,154,.95);background:rgba(38,255,154,.18);box-shadow:0 0 38px rgba(38,255,154,.52),0 14px 44px rgba(0,0,0,.42)}.top{left:50%;top:7%;transform:translateX(-50%)}.right{right:3%;top:50%;transform:translateY(-50%)}.bottom{left:50%;bottom:4%;transform:translateX(-50%)}.left{left:3%;top:50%;transform:translateY(-50%)}.top.target{transform:translateX(-50%) scale(1.07)}.right.target,.left.target{transform:translateY(-50%) scale(1.07)}.bottom.target{transform:translateX(-50%) scale(1.07)}.laser{position:absolute;height:3px;background:linear-gradient(90deg,rgba(38,255,154,.1),rgba(38,255,154,.92),rgba(69,214,255,.85));transform-origin:left center;border-radius:999px;box-shadow:0 0 14px rgba(38,255,154,.75),0 0 28px rgba(69,214,255,.35);opacity:0;transition:opacity .1s;z-index:13}.laser.show{opacity:1}.status{position:absolute;left:18px;bottom:18px;z-index:18;width:min(500px,calc(100vw - 36px));border-radius:22px;border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.56);backdrop-filter:blur(14px);padding:16px}.status h2{margin:0 0 6px;font-size:18px}.status p{margin:0;color:var(--muted);font-size:14px;font-weight:700}.modal{position:absolute;inset:0;z-index:40;display:none;align-items:center;justify-content:center;padding:22px;background:rgba(0,0,0,.56)}.modal.show{display:flex}.player{width:min(980px,96vw);border-radius:30px;overflow:hidden;border:1px solid rgba(255,255,255,.18);background:linear-gradient(180deg,rgba(8,15,32,.98),rgba(7,9,19,.98));box-shadow:0 30px 100px rgba(0,0,0,.65)}.head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px;border-bottom:1px solid rgba(255,255,255,.12)}.head strong{font-size:20px}.head span{color:var(--muted);font-size:14px;font-weight:800}.body{min-height:310px;padding:28px;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at top left,rgba(69,214,255,.24),transparent 38%),radial-gradient(circle at bottom right,rgba(139,92,246,.32),transparent 45%),#02040b}.inner{width:min(660px,92vw);text-align:center;border-radius:28px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);padding:28px;box-shadow:0 18px 60px rgba(0,0,0,.38)}.picon{font-size:82px;line-height:1;filter:drop-shadow(0 12px 24px rgba(0,0,0,.45));animation:mp 1.1s infinite alternate}@keyframes mp{from{transform:scale(1);opacity:.82}to{transform:scale(1.08);opacity:1}}.inner h2{margin:14px 0 8px;font-size:32px}.inner p{margin:0 0 18px;color:var(--muted);font-weight:800}audio{width:100%;max-width:540px;margin-top:8px}.warn{display:none;margin-top:14px;color:var(--orange);font-weight:900}.warn.show{display:block}.stationlist{margin:14px auto 0;display:grid;gap:8px;max-width:520px;text-align:left}.station{padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:var(--muted);font-weight:800;font-size:14px}.station.active{color:var(--green);border-color:rgba(38,255,154,.55);background:rgba(38,255,154,.12)}.tvframe{width:100%;height:min(62vh,520px);border:0;border-radius:20px;background:#000;box-shadow:0 18px 60px rgba(0,0,0,.45)}.tvwarn{margin-top:12px;color:var(--orange);font-weight:900;font-size:14px}@media(max-width:780px){.glass{padding:22px}.grid,.modegrid{grid-template-columns:1fr}.card{min-height:145px}.big{font-size:54px}.ring{width:76vw;height:76vw}.icon{width:82px;min-height:74px;border-radius:18px;padding:6px 4px}.icon .emo{font-size:28px}.icon strong{font-size:10px}.icon small{font-size:8px}.top{top:8px}.bottom{bottom:8px}.left{left:0;top:58%}.right{right:0;top:58%}.status{display:none}.badge{top:62px;font-size:11px;max-width:88vw}.topbar{top:8px;left:8px;right:8px}.pill,.back{padding:9px 11px;font-size:12px}}
+
+.icon.topright{right:14%;top:16%;transform:translate(50%,-50%)}
+.icon.topright.target{transform:translate(50%,-50%) scale(1.07)}
+.icon.bottomright{right:14%;bottom:13%;transform:translate(50%,50%)}
+.icon.bottomright.target{transform:translate(50%,50%) scale(1.07)}
+.icon.bottomleft{left:14%;bottom:13%;transform:translate(-50%,50%)}
+.icon.bottomleft.target{transform:translate(-50%,50%) scale(1.07)}
+.icon.topleft{left:14%;top:16%;transform:translate(-50%,-50%)}
+.icon.topleft.target{transform:translate(-50%,-50%) scale(1.07)}
+.drinkanim{margin:18px auto 8px;width:230px;height:155px;position:relative}
+.glasscup{position:absolute;left:68px;bottom:0;width:92px;height:96px;border:4px solid rgba(255,255,255,.8);border-top:none;border-radius:0 0 18px 18px;overflow:hidden;background:rgba(255,255,255,.06)}
+.waterlevel{position:absolute;left:0;right:0;bottom:0;height:62%;background:linear-gradient(180deg,rgba(69,214,255,.85),rgba(38,255,154,.65));animation:drinkWater 10s linear forwards}
+@keyframes drinkWater{from{height:62%}to{height:8%}}
+.strawx{position:absolute;left:114px;top:8px;width:8px;height:125px;background:#fff;border-radius:999px;transform:rotate(24deg);box-shadow:0 0 18px rgba(255,255,255,.35)}
+.strawx:before{content:"";position:absolute;top:-28px;left:0;width:8px;height:38px;background:#fff;border-radius:999px;transform:rotate(-55deg);transform-origin:bottom center}
+.servox{position:absolute;right:22px;top:52px;width:44px;height:44px;border-radius:12px;background:rgba(69,214,255,.16);border:2px solid rgba(69,214,255,.75)}
+.armx{position:absolute;right:55px;top:71px;width:68px;height:8px;border-radius:999px;background:var(--green);transform-origin:right center;animation:servoTurn 1.1s ease-in-out infinite alternate}
+@keyframes servoTurn{from{transform:rotate(10deg)}to{transform:rotate(-18deg)}}
+@media(max-width:780px){.icon.topright{right:10%;top:18%}.icon.bottomright{right:10%;bottom:15%}.icon.bottomleft{left:10%;bottom:15%}.icon.topleft{left:10%;top:18%}}
+
+/* --- AURA LINK V15.2 : base V14.0 stable migrée vers Firebase dédiée AURA LINK --- */
+.badge{top:calc(50% + min(37vw,280px) + 12px)}
+.homeLinks{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:18px}
+.homeLinks .card{min-height:130px}
+.icon.comm{left:50%;top:23%;transform:translate(-50%,-50%)}
+.icon.comm.target{transform:translate(-50%,-50%) scale(1.07)}
+.icon.inbox{right:3%;top:72%;transform:translateY(-50%)}
+.icon.inbox.target{transform:translateY(-50%) scale(1.07)}
+.commComposer{display:flex;gap:10px;margin:12px 0;align-items:center;justify-content:center;flex-wrap:wrap}
+#messagePreview{min-height:54px;width:100%;border-radius:18px;border:1px solid rgba(38,255,154,.35);background:rgba(0,0,0,.35);padding:14px;color:white;font-weight:900;text-align:left}
+.phraseGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.phraseGrid button{border-radius:16px;padding:10px;background:rgba(255,255,255,.09);color:white;border:1px solid rgba(255,255,255,.16);font-weight:900}
+.sendBtn{background:linear-gradient(180deg,#ff3b5f,#b90025)!important;border-color:rgba(255,59,95,.75)!important;box-shadow:0 0 30px rgba(255,59,95,.35)}
+.clearBtn{background:rgba(255,176,32,.18)!important;border-color:rgba(255,176,32,.55)!important}
+#familyScreen,#nurseScreen{align-items:center;justify-content:center;padding:18px;overflow:auto}
+.feed{width:min(920px,96vw);max-height:72vh;overflow:auto;display:grid;gap:10px;margin-top:18px}
+.msgItem{border-radius:18px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);padding:14px;text-align:left}
+.msgItem strong{display:block;color:var(--green);font-size:13px;margin-bottom:5px}
+.msgItem p{margin:0;font-size:18px;font-weight:900}.msgItem.patient{border-color:rgba(38,255,154,.32)}.msgItem.family{border-color:rgba(69,214,255,.32)}.msgItem.family strong{color:var(--cyan)}.familyComposer{width:min(920px,96vw);margin:16px auto 0;display:grid;gap:10px}.familyComposer textarea{width:100%;min-height:90px;border-radius:18px;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.45);color:white;padding:14px;font:inherit;font-weight:800;resize:vertical}.familyComposer .row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}.inboxFeed{max-height:52vh;overflow:auto;margin:12px auto;display:grid;gap:10px}.inboxActions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+.threadFeed{width:100%;max-height:52vh;overflow:auto;display:flex;flex-direction:column;gap:8px;padding:8px}.bubble{max-width:78%;border-radius:18px;padding:9px 11px;text-align:left;border:1px solid rgba(255,255,255,.12);box-shadow:0 10px 28px rgba(0,0,0,.22)}.bubble.patient{align-self:flex-end;background:rgba(38,255,154,.16);border-color:rgba(38,255,154,.38)}.bubble.family{align-self:flex-start;background:rgba(69,214,255,.16);border-color:rgba(69,214,255,.38)}.bubble .meta{display:block;font-size:10px;font-weight:900;opacity:.82;margin-bottom:3px;color:var(--muted)}.bubble.patient .meta{color:var(--green)}.bubble.family .meta{color:var(--cyan)}.bubble .txt{font-size:13px!important;line-height:1.22!important;font-weight:850!important;color:#eef6ff;overflow-wrap:anywhere;margin:0!important}.threadFeed:after{content:"";min-height:2px}.emptyThread{border-radius:18px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);padding:14px;color:var(--muted);font-weight:900;text-align:center}@media(max-width:780px){.threadFeed{max-height:46vh;gap:6px;padding:5px}.bubble{max-width:88%;padding:7px 9px;border-radius:15px}.bubble .txt{font-size:11.5px!important}.bubble .meta{font-size:8.5px}.inboxFeed{max-height:44vh}.inner h2{font-size:26px}.picon{font-size:58px}}
+.alertPanel{border-radius:28px;padding:22px;border:1px solid rgba(255,59,95,.5);background:rgba(255,59,95,.12)}
+.alertPanel.flash{animation:alertFlash .65s infinite alternate}
+@keyframes alertFlash{from{box-shadow:0 0 0 rgba(255,59,95,0);background:rgba(255,59,95,.12)}to{box-shadow:0 0 80px rgba(255,59,95,.65);background:rgba(255,59,95,.34)}}
+@media(max-width:780px){.homeLinks{grid-template-columns:1fr}.phraseGrid{grid-template-columns:repeat(2,1fr)}.icon.comm{top:24%;left:50%}.icon.inbox{right:0;left:auto;top:72%;transform:translateY(-50%)}.icon.inbox.target{transform:translateY(-50%) scale(1.07)}}
+
+.versionTag{position:absolute;left:12px;top:54px;z-index:25;padding:5px 9px;border-radius:999px;background:rgba(0,0,0,.48);border:1px solid rgba(255,255,255,.14);color:rgba(255,255,255,.72);font-size:11px;font-weight:900;letter-spacing:.08em;pointer-events:none}.mainIcon.hidden{display:none}.commLive{display:none;position:absolute;inset:0;z-index:15;pointer-events:none}.commLive.active{display:block}.commChoice{display:none}.commLive.active .commChoice{display:flex}.commComposerLive{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);z-index:19;width:min(760px,94vw);border-radius:24px;border:1px solid rgba(38,255,154,.25);background:rgba(0,0,0,.64);backdrop-filter:blur(16px);box-shadow:0 18px 60px rgba(0,0,0,.45);padding:12px;pointer-events:none}.commComposerLive h3{margin:0 0 8px;color:var(--green);font-size:14px;letter-spacing:.04em}.liveMessage{min-height:54px;max-height:78px;overflow:hidden;border-radius:16px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);padding:10px 12px;font-size:20px;font-weight:900;line-height:1.3;color:white}.commHint{margin-top:7px;color:var(--muted);font-size:12px;font-weight:800}.commChoice.send{background:rgba(255,59,95,.72);border-color:rgba(255,255,255,.35);box-shadow:0 0 34px rgba(255,59,95,.45)}.commChoice.clear{background:rgba(255,176,32,.54)}.commChoice.cancelComm{background:rgba(0,0,0,.72)}.commChoice strong{font-size:12px}.commChoice small{font-size:9px}.commChoice .emo{font-size:28px}
+/* V12.3 : communication visible en caméra, sans grande fenêtre modale */
+#commModal{display:none!important}.commLive{z-index:16}.commLive.active .commChoice{display:flex!important;opacity:1;visibility:visible}.commLive.active .commChoice.phraseLeft{left:2%!important;right:auto!important;transform:translateY(-50%)!important}.commLive.active .commChoice.phraseRight{right:2%!important;left:auto!important;transform:translateY(-50%)!important}.commLive.active .commChoice.phraseLeft.target{transform:translateY(-50%) scale(1.07)!important}.commLive.active .commChoice.phraseRight.target{transform:translateY(-50%) scale(1.07)!important}.commLive.active .commChoice.send{left:50%!important;bottom:96px!important;top:auto!important;transform:translateX(-50%)!important;width:168px;min-height:78px}.commLive.active .commChoice.send.target{transform:translateX(-50%) scale(1.07)!important}.commLive.active .commChoice.clear{left:8px!important;bottom:96px!important;top:auto!important}.commLive.active .commChoice.cancelComm{right:8px!important;bottom:96px!important;top:auto!important}.commComposerLive{bottom:6px!important}.liveMessage{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}.commChoice[data-action^="phrase:"]{width:132px;min-height:56px;border-radius:18px}.commChoice[data-action^="phrase:"] strong{font-size:10.5px;line-height:1.08}.commChoice[data-action^="phrase:"] .emo{font-size:20px}.commChoice[data-action^="phrase:"] small{display:none}
+@media(max-width:780px){.versionTag{top:48px;left:8px;font-size:10px}.commComposerLive{bottom:6px;padding:8px;width:96vw}.liveMessage{font-size:15px;min-height:42px;max-height:48px}.commHint{display:none}.commChoice strong{font-size:9px}.commChoice .emo{font-size:22px}.commChoice[data-action^="phrase:"]{width:92px;min-height:50px;padding:4px 3px}.commChoice[data-action^="phrase:"] strong{font-size:7.8px}.commLive.active .commChoice.phraseLeft{left:1%!important}.commLive.active .commChoice.phraseRight{right:1%!important}.commLive.active .commChoice.send{bottom:62px!important;width:132px;min-height:58px}.commLive.active .commChoice.clear{bottom:72px!important;left:2px!important}.commLive.active .commChoice.cancelComm{bottom:72px!important;right:2px!important}}
+
+/* --- AURA LINK V15.3 : Bluetooth BT05 + Programme Arduino Aura V1 --- */
+.btPanel{position:absolute;right:14px;top:58px;z-index:26;display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.btBtn{pointer-events:auto;border-radius:999px;padding:10px 14px;background:rgba(69,214,255,.16);border:1px solid rgba(69,214,255,.55);color:white;font-weight:900;backdrop-filter:blur(14px);box-shadow:0 0 28px rgba(69,214,255,.18)}
+.btBtn.connected{background:rgba(38,255,154,.18);border-color:rgba(38,255,154,.7);box-shadow:0 0 28px rgba(38,255,154,.28)}
+.btStatus{max-width:260px;border-radius:999px;padding:6px 10px;background:rgba(0,0,0,.48);border:1px solid rgba(255,255,255,.12);color:var(--muted);font-size:11px;font-weight:900;text-align:right;backdrop-filter:blur(12px)}
+.homeBt{margin-top:16px;display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+@media(max-width:780px){.btPanel{top:46px;right:8px}.btBtn{font-size:11px;padding:8px 10px}.btStatus{font-size:9px;max-width:190px}.homeBt{margin-top:12px}}
+
+
+/* --- AURA LINK V15.4 : Télécommande TV IR pilotée par la tête --- */
+.icon.tvRemoteChoice{display:none}
+.tvRemoteLive{display:none;position:absolute;inset:0;z-index:17;pointer-events:none}
+.tvRemoteLive.active{display:block}
+.tvRemoteLive.active .tvRemoteChoice{display:flex!important;opacity:1;visibility:visible}
+.tvCenterPanel{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:16;width:min(310px,54vw);min-height:185px;border-radius:34px;border:1px solid rgba(69,214,255,.45);background:rgba(0,0,0,.45);backdrop-filter:blur(16px);box-shadow:0 0 44px rgba(69,214,255,.32),inset 0 0 38px rgba(38,255,154,.12);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:18px;pointer-events:none}
+.tvCenterPanel .tvTitle{font-size:24px;font-weight:1000;color:var(--green);letter-spacing:.03em}.tvCenterPanel .tvHelp{margin-top:8px;color:var(--muted);font-size:13px;font-weight:850;line-height:1.25}.tvCenterPanel .tvPower{margin-top:10px;color:var(--orange);font-size:12px;font-weight:1000}.tvRemoteChoice.powerOn{left:7%;top:15%;transform:translate(-50%,-50%)}.tvRemoteChoice.powerOff{right:7%;top:15%;transform:translate(50%,-50%)}.tvRemoteChoice.channelPlus{left:7%;top:41%;transform:translate(-50%,-50%)}.tvRemoteChoice.channelMinus{left:7%;top:67%;transform:translate(-50%,-50%)}.tvRemoteChoice.volumePlus{right:7%;top:41%;transform:translate(50%,-50%)}.tvRemoteChoice.volumeMinus{right:7%;top:67%;transform:translate(50%,-50%)}.tvRemoteChoice.tvBack{left:50%;bottom:5%;transform:translateX(-50%)}
+.tvRemoteChoice.powerOn.target,.tvRemoteChoice.channelPlus.target,.tvRemoteChoice.channelMinus.target{transform:translate(-50%,-50%) scale(1.07)}.tvRemoteChoice.powerOff.target,.tvRemoteChoice.volumePlus.target,.tvRemoteChoice.volumeMinus.target{transform:translate(50%,-50%) scale(1.07)}.tvRemoteChoice.tvBack.target{transform:translateX(-50%) scale(1.07)}
+@media(max-width:780px){.tvCenterPanel{width:42vw;min-height:135px;border-radius:24px;padding:12px}.tvCenterPanel .tvTitle{font-size:16px}.tvCenterPanel .tvHelp{font-size:10px}.tvRemoteChoice.powerOn{left:9%;top:17%}.tvRemoteChoice.powerOff{right:9%;top:17%}.tvRemoteChoice.channelPlus{left:7%;top:41%}.tvRemoteChoice.channelMinus{left:7%;top:64%}.tvRemoteChoice.volumePlus{right:7%;top:41%}.tvRemoteChoice.volumeMinus{right:7%;top:64%}.tvRemoteChoice.tvBack{bottom:4%}}
+
 </style>
 </head>
-
 <body>
-<div id="app">
-  <video id="video" autoplay playsinline muted></video>
-  <canvas id="canvas"></canvas>
-
-  <div class="topbar">
-    <div class="badge">AURA LINK V15.1 — TV IR</div>
-    <button id="connect" onclick="connectBluetooth()">Connexion Bluetooth</button>
-  </div>
-
-  <section id="home" class="screen active">
-    <div class="menuGrid">
-      <div class="tile" data-action="tv">📺<br>Regarder<br>la télévision</div>
-      <div class="tile">💡<br>Lumière</div>
-      <div class="tile">🥤<br>Boire</div>
-      <div class="tile">🌬️<br>J’ai chaud</div>
-    </div>
-  </section>
-
-  <section id="tv" class="screen">
-    <div class="remote">
-      <div class="remoteBtn on" data-cmd="p">ON</div>
-      <div class="remoteBtn off" data-cmd="p">OFF</div>
-
-      <div class="remoteBtn chp" data-cmd="C">CHAÎNE +</div>
-      <div class="remoteBtn chm" data-cmd="c">CHAÎNE -</div>
-
-      <div class="remoteBtn volp" data-cmd="V">VOLUME +</div>
-      <div class="remoteBtn volm" data-cmd="v">VOLUME -</div>
-
-      <div class="remoteBtn back" data-back="home">RETOUR</div>
-
-      <div class="centerLabel">VISAGE<br>RADAR<br>LASER</div>
-    </div>
-  </section>
-
-  <div class="progress"><div id="bar"></div></div>
+<section id="home" class="screen active"><div class="glass"><div class="brand"><h1>AURA LINK</h1><p>Le pouvoir d'agir par le regard</p><div style="margin-top:10px;color:rgba(255,255,255,.65);font-weight:900;font-size:14px;letter-spacing:.08em">Version 15.4 - TV IR ENI</div><div class="homeBt"><button class="btBtn" id="homeBluetoothButton" type="button">🔵 Connexion Bluetooth BT05</button><div class="btStatus" id="homeBluetoothStatus">Bluetooth : non connecté</div></div></div><div class="grid"><button class="card" id="faceButton" type="button" onclick="openModeScreen(); return false;"><span class="big">🙂</span><strong>Contrôle par visage</strong></button><button class="card disabled"><span class="big">✋</span><strong>Contrôle par main</strong></button></div><div class="homeLinks"><button class="card" id="familyButton" type="button"><span class="big">👨‍👩‍👧‍👦</span><strong>Famille</strong><small>Voir les messages du patient</small></button><button class="card" id="nurseButton" type="button"><span class="big">🩺</span><strong>Infirmier</strong><small>Recevoir les alertes en direct</small></button></div></div></section>
+<section id="modeScreen" class="screen"><div class="glass"><div class="brand"><h1 style="font-size:clamp(36px,6vw,70px)">Mode de validation</h1><p>Choisissez comment AURA LINK valide une action ciblée</p></div><div class="modegrid"><button class="card mode" data-mode="mouth"><span class="big">👄</span><strong>Bouche</strong><small>Viser puis ouvrir la bouche</small></button><button class="card mode" data-mode="auto"><span class="big">⏳</span><strong>Auto 3 s</strong><small>La vignette se remplit et valide automatiquement</small></button><button class="card mode" data-mode="assistant"><span class="big">🎙️</span><strong>Assistant</strong><small>Question vocale puis bouche = oui</small></button></div></div></section>
+<section id="app" class="screen"><div class="versionTag">AURA LINK V15.4 · TV IR ENI</div><video id="video" playsinline autoplay muted></video><canvas id="overlay"></canvas><div class="topbar"><div class="pill"><span id="stateDot" class="dot"></span><span id="stateText">Chargement...</span></div><button class="back" id="backButton">Accueil</button></div><div class="btPanel"><button class="btBtn" id="appBluetoothButton" type="button">🔵 Bluetooth BT05</button><div class="btStatus" id="appBluetoothStatus">Bluetooth : non connecté</div></div><div class="badge" id="modeBadge">Mode : Auto 3 s</div><div class="ring"></div><div class="reticle"></div><div id="laser" class="laser"></div>
+<div class="icon mainIcon top" data-action="radio"><div class="fill"></div><div class="emo">📻</div><strong>Radio Live</strong><small>NRJ / Chérie / Europe 2</small></div>
+<div class="icon mainIcon topright" data-action="tv"><div class="fill"></div><div class="emo">📺</div><strong>Télévision</strong><small>Télécommande IR</small></div>
+<div class="icon mainIcon comm" data-action="communicate"><div class="fill"></div><div class="emo">💬</div><strong>Communiquer</strong><small>Message famille</small></div>
+<div class="icon mainIcon inbox" data-action="inbox"><div class="fill"></div><div class="emo">📩</div><strong>Messagerie</strong><small>Messages reçus</small></div>
+<div class="icon mainIcon right" data-action="music"><div class="fill"></div><div class="emo">🎵</div><strong>Musique</strong><small>Playlist locale</small></div>
+<div class="icon mainIcon bottomright" data-action="drink"><div class="fill"></div><div class="emo">🥤</div><strong>J’ai soif</strong><small>Servo paille 3 s</small></div>
+<div class="icon mainIcon bottom" data-action="lightOn"><div class="fill"></div><div class="emo">💡</div><strong>Allumer</strong><small>Lumière</small></div>
+<div class="icon mainIcon bottomleft" data-action="lightOff"><div class="fill"></div><div class="emo">🌙</div><strong>Éteindre</strong><small>Lumière</small></div>
+<div class="icon mainIcon left" data-action="comfort"><div class="fill"></div><div class="emo">🌬️</div><strong>J’ai chaud</strong><small>Ventilateur</small></div>
+<div class="icon mainIcon topleft" data-action="pain"><div class="fill"></div><div class="emo">🚑</div><strong>J’ai mal</strong><small>Alerte</small></div>
+<div id="commLive" class="commLive">
+  <div class="icon commChoice phraseLeft" style="top:10%" data-action="phrase:0"><div class="fill"></div><div class="emo">👋</div><strong>Bonjour</strong><small>Ajouter</small></div>
+  <div class="icon commChoice phraseRight" style="top:10%" data-action="phrase:1"><div class="fill"></div><div class="emo">🙂</div><strong>Je vais très bien</strong><small>Ajouter</small></div>
+  <div class="icon commChoice phraseLeft" style="top:19%" data-action="phrase:2"><div class="fill"></div><div class="emo">❤️</div><strong>Je pense à vous</strong><small>Ajouter</small></div>
+  <div class="icon commChoice phraseRight" style="top:19%" data-action="phrase:3"><div class="fill"></div><div class="emo">❓</div><strong>Comment ça va ?</strong><small>Ajouter</small></div>
+  <div class="icon commChoice phraseLeft" style="top:28%" data-action="phrase:4"><div class="fill"></div><div class="emo">🍽️</div><strong>J’ai bien mangé</strong><small>Ajouter</small></div>
+  <div class="icon commChoice phraseRight" style="top:28%" data-action="phrase:5"><div class="fill"></div><div class="emo">😴</div><strong>J’ai bien dormi</strong><small>Ajouter</small></div>
+  <div class="icon commChoice phraseLeft" style="top:37%" data-action="phrase:6"><div class="fill"></div><div class="emo">🥱</div><strong>Je suis fatigué</strong><small>Ajouter</small></div>
+  <div class="icon commChoice phraseRight" style="top:37%" data-action="phrase:7"><div class="fill"></div><div class="emo">😊</div><strong>Je suis content</strong><small>Ajouter</small></div>
+  <div class="icon commChoice phraseLeft" style="top:46%" data-action="phrase:8"><div class="fill"></div><div class="emo">🤝</div><strong>J’ai besoin de vous</strong><small>Ajouter</small></div>
+  <div class="icon commChoice phraseRight" style="top:46%" data-action="phrase:9"><div class="fill"></div><div class="emo">🗞️</div><strong>Donnez-moi des nouvelles</strong><small>Ajouter</small></div>
+  <div class="icon commChoice phraseLeft" style="top:55%" data-action="phrase:10"><div class="fill"></div><div class="emo">🙏</div><strong>Merci</strong><small>Ajouter</small></div>
+  <div class="icon commChoice phraseRight" style="top:55%" data-action="phrase:11"><div class="fill"></div><div class="emo">💞</div><strong>Je vous aime</strong><small>Ajouter</small></div>
+  <div class="icon commChoice phraseLeft" style="top:64%" data-action="phrase:12"><div class="fill"></div><div class="emo">📞</div><strong>Pouvez-vous m’appeler ?</strong><small>Ajouter</small></div>
+  <div class="icon commChoice phraseRight" style="top:64%" data-action="phrase:13"><div class="fill"></div><div class="emo">🌙</div><strong>Bonne nuit</strong><small>Ajouter</small></div>
+  <div class="icon commChoice send" data-action="send"><div class="fill"></div><div class="emo">📨</div><strong>ENVOYER</strong><small>Bouche pour valider</small></div>
+  <div class="icon commChoice clear" style="left:8px;bottom:110px" data-action="clear"><div class="fill"></div><div class="emo">↩️</div><strong>EFFACER</strong><small>Dernier mot</small></div>
+  <div class="icon commChoice cancelComm" style="right:8px;bottom:110px" data-action="cancelComm"><div class="fill"></div><div class="emo">↩️</div><strong>RETOUR</strong><small>Actions</small></div>
+  <div class="commComposerLive"><h3>MESSAGE À LA FAMILLE</h3><div id="liveMessage" class="liveMessage">Visez une phrase puis ouvrez la bouche.</div><div class="commHint">Laser sur une vignette + bouche = ajouter · Laser sur ENVOYER + bouche = envoyer à la famille</div></div>
 </div>
+<div id="tvRemoteLive" class="tvRemoteLive">
+  <div class="icon tvRemoteChoice powerOn" data-action="tvPowerOn"><div class="fill"></div><div class="emo">🟢</div><strong>ON</strong><small>POWER IR</small></div>
+  <div class="icon tvRemoteChoice powerOff" data-action="tvPowerOff"><div class="fill"></div><div class="emo">🔴</div><strong>OFF</strong><small>POWER IR</small></div>
+  <div class="icon tvRemoteChoice channelPlus" data-action="tvChannelPlus"><div class="fill"></div><div class="emo">📺</div><strong>CHAÎNE +</strong><small>code à ajouter</small></div>
+  <div class="icon tvRemoteChoice channelMinus" data-action="tvChannelMinus"><div class="fill"></div><div class="emo">📺</div><strong>CHAÎNE -</strong><small>code à ajouter</small></div>
+  <div class="icon tvRemoteChoice volumePlus" data-action="tvVolumePlus"><div class="fill"></div><div class="emo">🔊</div><strong>VOLUME +</strong><small>code à ajouter</small></div>
+  <div class="icon tvRemoteChoice volumeMinus" data-action="tvVolumeMinus"><div class="fill"></div><div class="emo">🔉</div><strong>VOLUME -</strong><small>code à ajouter</small></div>
+  <div class="icon tvRemoteChoice tvBack" data-action="tvBack"><div class="fill"></div><div class="emo">↩️</div><strong>RETOUR</strong><small>menu principal</small></div>
+  <div class="tvCenterPanel"><div class="tvTitle">TÉLÉCOMMANDE TV</div><div class="tvHelp">Gardez le visage au centre. Le radar et le laser restent actifs.</div><div class="tvPower">ON/OFF envoie actuellement POWER : commande Bluetooth p</div></div>
+</div>
+<div class="status"><h2 id="actionTitle">Interface néon prête</h2><p id="actionText">Visez une icône avec le regard / orientation du visage. Le rayon laser indique la cible.</p></div>
+<div id="radioModal" class="modal"><div class="player"><div class="head"><div><strong>📻 Radio Live AURA LINK</strong><br><span>Tête droite = station suivante · tête gauche = station précédente</span></div><button class="back close">Annuler</button></div><div class="body"><div class="inner"><div class="picon">📻</div><h2 id="radioTitle">NRJ</h2><p id="radioHint">Lecture radio en direct</p><audio id="radioAudio" preload="auto" playsinline controls></audio><div id="radioWarn" class="warn">Si la radio ne démarre pas, touchez une fois le lecteur.</div><div id="stationList" class="stationlist"></div></div></div></div></div>
+<div id="musicModal" class="modal"><div class="player"><div class="head"><div><strong>🎵 Musique AURA LINK</strong><br><span>Tête droite = morceau suivant</span></div><button class="back close">Annuler</button></div><div class="body"><div class="inner"><div class="picon">🎵</div><h2 id="musicTitle">Murray Head</h2><p id="musicHint">Lecture audio intégrée</p><audio id="musicAudio" preload="auto" playsinline controls></audio><div id="musicWarn" class="warn" style="display:none"></div></div></div></div></div>
+<div id="tvModal" class="modal"><div class="player"><div class="head"><div><strong>📺 Télévision AURA LINK — CNEWS</strong><br><span>Lecteur intégré Dailymotion</span></div><button class="back close">Annuler</button></div><div class="body"><div class="inner" style="width:min(900px,94vw)"><div class="picon">📺</div><h2>CNEWS Direct</h2><p>Chargement automatique demandé.</p><iframe id="tvFrame" class="tvframe" src="" allow="autoplay; fullscreen; picture-in-picture; encrypted-media" allowfullscreen></iframe><div class="tvwarn">CNEWS est chargé via Dailymotion avec autoplay demandé. Si le son reste bloqué, c’est une limitation du navigateur mobile.</div></div></div></div></div>
+<div id="drinkModal" class="modal"><div class="player" style="max-width:680px"><div class="head"><div><strong>🥤 J’ai soif</strong><br><span>Servo paille : sortie 3 secondes</span></div></div><div class="body"><div class="inner"><div class="picon">🥤</div><h2>Distribution en cours</h2><p>Commande envoyée : servo D4 vers 90°, pause 3 s, retour 0°.</p><div class="drinkanim"><div class="armx"></div><div class="servox"></div><div class="strawx"></div><div class="glasscup"><div class="waterlevel"></div></div></div><h2 id="drinkCountdown">10 s</h2></div></div></div></div><div id="simpleModal" class="modal"><div class="player" style="max-width:620px"><div class="head"><div><strong>💡 Lumière</strong><br><span>Simulation AURA LINK</span></div><button class="back close">Fermer</button></div><div class="body"><div class="inner"><div class="picon">💡</div><h2>Lumière activée</h2><p>Commande simulée dans l’environnement connecté.</p></div></div></div></div>
+<div id="inboxModal" class="modal"><div class="player"><div class="head"><div><strong>📩 Messagerie personnelle</strong><br><span>Historique patient ↔ famille · bouche 2 fois = communiquer</span></div><button class="back close">Fermer</button></div><div class="body"><div class="inner" style="width:min(900px,94vw)"><div class="picon">📩</div><h2>Messages avec la famille</h2><div id="patientFeed" class="inboxFeed threadFeed"><div class="emptyThread">Chargement des messages...</div></div><div class="inboxActions"><button class="back sendBtn" id="patientCommunicate" type="button">COMMUNIQUER</button></div><div class="commHint" style="margin-top:8px">Accessibilité : ouvrez la bouche deux fois pour passer à Communiquer.</div></div></div></div></div>
+<div id="commModal" class="modal"><div class="player"><div class="head"><div><strong>💬 Communiquer avec la famille</strong><br><span>Composez un message simple, puis envoyez-le sur Firebase</span></div><button class="back close">Annuler</button></div><div class="body"><div class="inner" style="width:min(860px,94vw)"><div class="picon">💬</div><h2>Message famille</h2><div id="messagePreview">Touchez les phrases pour composer le message...</div><div class="phraseGrid" id="phraseGrid"></div><div class="commComposer"><button class="back clearBtn" id="clearMessage" type="button">Effacer</button><button class="back sendBtn" id="sendFamilyMessage" type="button">ENVOYER À LA FAMILLE</button></div><p id="commStatus">Messages enregistrés dans Firebase.</p></div></div></div></div>
+</section>
+<section id="familyScreen" class="screen"><div class="glass"><div class="brand"><h1 style="font-size:clamp(36px,6vw,70px)">Famille</h1><p>Messagerie personnelle avec le patient</p></div><button class="back" id="familyBack">Accueil</button> <button class="back clearBtn" id="resetFamily" type="button">Reset conversation</button><div class="familyComposer"><textarea id="familyReplyText" placeholder="Écrire un message au patient..."></textarea><div class="row"><button class="back sendBtn" id="sendPatientMessage" type="button">ENVOYER AU PATIENT</button></div></div><div class="feed threadFeed" id="familyFeed"><div class="emptyThread">Chargement de la conversation...</div></div></div></section>
+<section id="nurseScreen" class="screen"><div class="glass"><div class="brand"><h1 style="font-size:clamp(36px,6vw,70px)">Infirmier</h1><p>Alertes AURA LINK en temps réel</p></div><button class="back" id="nurseBack">Accueil</button> <button class="back sendBtn" id="enableSound" type="button">Activer sonnerie</button> <button class="back clearBtn" id="resetNurse" type="button">Reset alertes</button><div class="feed" id="nurseFeed"></div></div></section>
 
 <script>
-const VERSION = "V15.1 TV IR";
+  function openModeScreen(){
+    var home = document.getElementById('home');
+    var modeScreen = document.getElementById('modeScreen');
+    var app = document.getElementById('app');
 
-const video = document.getElementById("video");
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
-const bar = document.getElementById("bar");
+    if(home) home.classList.remove('active');
+    if(app) app.classList.remove('active');
+    if(modeScreen) modeScreen.classList.add('active');
+  }
 
-let bleCharacteristic = null;
-let laserX = window.innerWidth / 2;
-let laserY = window.innerHeight / 2;
-let currentTarget = null;
-let targetStart = 0;
-let currentScreen = "home";
+  window.openModeScreen = openModeScreen;
 
-const HOLD_TIME = 3000;
+  document.addEventListener('DOMContentLoaded', function(){
+    var faceButton = document.getElementById('faceButton');
+    if(faceButton){
+      faceButton.onclick = function(e){
+        e.preventDefault();
+        openModeScreen();
+        return false;
+      };
+    }
+  });
+</script>
 
-// Commandes Bluetooth vers Arduino
-const COMMANDS = {
-  POWER: "p",      // validé écran ENI : protocole NEC adresse 0x20 commande 0x52 côté Arduino
-  CH_PLUS: "C",   // à coder plus tard
-  CH_MINUS: "c",  // à coder plus tard
-  VOL_PLUS: "V",  // à coder plus tard
-  VOL_MINUS: "v"  // à coder plus tard
-};
+<script type="module">
+import{FaceLandmarker,FilesetResolver,DrawingUtils}from"https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14";
+import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import{getDatabase,ref,push,onValue,serverTimestamp,query,limitToLast,remove,set,get}from"https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+const home=document.getElementById('home'),modeScreen=document.getElementById('modeScreen'),app=document.getElementById('app'),familyScreen=document.getElementById('familyScreen'),nurseScreen=document.getElementById('nurseScreen'),faceButton=document.getElementById('faceButton'),familyButton=document.getElementById('familyButton'),nurseButton=document.getElementById('nurseButton'),backButton=document.getElementById('backButton'),video=document.getElementById('video'),canvas=document.getElementById('overlay'),ctx=canvas.getContext('2d'),stateDot=document.getElementById('stateDot'),stateText=document.getElementById('stateText'),modeBadge=document.getElementById('modeBadge'),actionTitle=document.getElementById('actionTitle'),actionText=document.getElementById('actionText'),laser=document.getElementById('laser'),icons=[...document.querySelectorAll('.icon')],mainIcons=[...document.querySelectorAll('.mainIcon')],commChoices=[...document.querySelectorAll('.commChoice')],tvChoices=[...document.querySelectorAll('.tvRemoteChoice')],commLive=document.getElementById('commLive'),tvRemoteLive=document.getElementById('tvRemoteLive'),liveMessage=document.getElementById('liveMessage'),inboxModal=document.getElementById('inboxModal'),patientFeed=document.getElementById('patientFeed'),patientCommunicate=document.getElementById('patientCommunicate');
+const radioModal=document.getElementById('radioModal'),radioAudio=document.getElementById('radioAudio'),radioWarn=document.getElementById('radioWarn'),radioTitle=document.getElementById('radioTitle'),radioHint=document.getElementById('radioHint'),stationList=document.getElementById('stationList'),musicModal=document.getElementById('musicModal'),musicAudio=document.getElementById('musicAudio'),musicWarn=document.getElementById('musicWarn'),musicTitle=document.getElementById('musicTitle'),musicHint=document.getElementById('musicHint'),tvModal=document.getElementById('tvModal'),tvFrame=document.getElementById('tvFrame'),simpleModal=document.getElementById('simpleModal'),drinkModal=document.getElementById('drinkModal'),drinkCountdown=document.getElementById('drinkCountdown'),commModal=document.getElementById('commModal'),phraseGrid=document.getElementById('phraseGrid'),messagePreview=document.getElementById('messagePreview'),sendFamilyMessage=document.getElementById('sendFamilyMessage'),clearMessage=document.getElementById('clearMessage'),commStatus=document.getElementById('commStatus'),familyFeed=document.getElementById('familyFeed'),familyReplyText=document.getElementById('familyReplyText'),sendPatientMessage=document.getElementById('sendPatientMessage'),nurseFeed=document.getElementById('nurseFeed'),familyBack=document.getElementById('familyBack'),nurseBack=document.getElementById('nurseBack'),enableSound=document.getElementById('enableSound'),resetFamily=document.getElementById('resetFamily'),resetNurse=document.getElementById('resetNurse');
+const RADIOS=[{title:'NRJ',file:'https://streaming.nrjaudio.fm/oumvmk8fnozc?origine=fluxurlradio'},{title:'Chérie FM',file:'https://streaming.nrjaudio.fm/ouuku85n3nje?origine=fluxurlradio'},{title:'Europe 2',file:'http://europe2.lmn.fm/europe2.aac'}],MUSICS=[{title:'Murray Head',file:'Murray Head.mp3'},{title:'Take On Me',file:'TAKE ON ME.mp3'},{title:'Wonderful Life',file:'wonderful life.mp3'}],TV='https://geo.dailymotion.com/player.html?video=x3b68jn&autoplay=1&mute=0&queue-enable=false';
 
-function resize(){
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+const firebaseConfig={apiKey:"AIzaSyCDk_jOHDS0L22SjrPoQ4PDii3fcBpzqao",authDomain:"aura-link-fe3b4.firebaseapp.com",databaseURL:"https://aura-link-fe3b4-default-rtdb.europe-west1.firebasedatabase.app",projectId:"aura-link-fe3b4",storageBucket:"aura-link-fe3b4.firebasestorage.app",messagingSenderId:"770701688827",appId:"1:770701688827:web:d7f959640fe795cf23955e"};
+const fbApp=initializeApp(firebaseConfig),db=getDatabase(fbApp),DB_BASE='auraLink';
+const PHRASES=['Bonjour','Je vais très bien','Je pense à vous','Comment ça va ?','J’ai bien mangé','J’ai bien dormi','Je suis fatigué','Je suis content','J’ai besoin de vous','Donnez-moi des nouvelles','Merci','Je vous aime','Pouvez-vous m’appeler ?','Bonne nuit'];
+
+let bluetoothDevice=null, bluetoothServer=null, bluetoothCharacteristic=null;
+const HM10_SERVICE_UUID='0000ffe0-0000-1000-8000-00805f9b34fb';
+const HM10_CHARACTERISTIC_UUID='0000ffe1-0000-1000-8000-00805f9b34fb';
+const homeBluetoothButton=document.getElementById('homeBluetoothButton');
+const homeBluetoothStatus=document.getElementById('homeBluetoothStatus');
+const appBluetoothButton=document.getElementById('appBluetoothButton');
+const appBluetoothStatus=document.getElementById('appBluetoothStatus');
+
+function updateBluetoothStatus(txt,ok=false){
+  if(homeBluetoothStatus)homeBluetoothStatus.textContent=txt;
+  if(appBluetoothStatus)appBluetoothStatus.textContent=txt;
+  [homeBluetoothButton,appBluetoothButton].forEach(b=>{
+    if(!b)return;
+    b.classList.toggle('connected',ok);
+    b.textContent=ok?'✅ BT05 connecté':'🔵 Connexion Bluetooth BT05';
+  });
 }
-window.addEventListener("resize", resize);
-resize();
-
 async function connectBluetooth(){
+  if(!navigator.bluetooth){
+    updateBluetoothStatus('Bluetooth Web indisponible : ouvrir avec Bluefy/Bluefire',false);
+    alert('Bluetooth Web indisponible ici. Sur iPhone, ouvre AURA LINK avec Bluefy/Bluefire, pas Safari.');
+    return;
+  }
+
   try{
-    const device = await navigator.bluetooth.requestDevice({
+    updateBluetoothStatus('Bluetooth : sélection du module...',false);
+
+    // V15.2 : méthode large, comme le test LED qui fonctionnait.
+    // Certains AT-09/HM-10 n'annoncent pas correctement le service FFE0 avant connexion.
+    bluetoothDevice=await navigator.bluetooth.requestDevice({
       acceptAllDevices:true,
       optionalServices:[
-        "0000ffe0-0000-1000-8000-00805f9b34fb",
-        "6e400001-b5a3-f393-e0a9-e50e24dcca9e"
+        '0000ffe0-0000-1000-8000-00805f9b34fb',
+        '0000fff0-0000-1000-8000-00805f9b34fb'
       ]
     });
 
-    const server = await device.gatt.connect();
-    let service, characteristic;
+    bluetoothDevice.addEventListener('gattserverdisconnected',()=>{
+      bluetoothCharacteristic=null;
+      updateBluetoothStatus('Bluetooth : déconnecté',false);
+    });
 
+    updateBluetoothStatus('Bluetooth : connexion...',false);
+    bluetoothServer=await bluetoothDevice.gatt.connect();
+
+    const servicesToTry=[
+      '0000ffe0-0000-1000-8000-00805f9b34fb',
+      '0000fff0-0000-1000-8000-00805f9b34fb'
+    ];
+    const charsToTry=[
+      '0000ffe1-0000-1000-8000-00805f9b34fb',
+      '0000fff1-0000-1000-8000-00805f9b34fb',
+      '0000ffe2-0000-1000-8000-00805f9b34fb'
+    ];
+
+    let lastError=null;
+    for(const serviceUuid of servicesToTry){
+      try{
+        const service=await bluetoothServer.getPrimaryService(serviceUuid);
+
+        // V15.2 : on essaie d'abord les caractéristiques classiques HM-10,
+        // puis on parcourt toutes les caractéristiques pour choisir une vraie sortie WRITE.
+        for(const charUuid of charsToTry){
+          try{
+            const ch=await service.getCharacteristic(charUuid);
+            if(ch.properties.write || ch.properties.writeWithoutResponse){
+              bluetoothCharacteristic=ch;
+              updateBluetoothStatus('Bluetooth : connecté à '+(bluetoothDevice.name||'BT05'),true);
+              setState('Bluetooth BT05 connecté','ready');
+              return;
+            }
+          }catch(errChar){lastError=errChar;}
+        }
+
+        try{
+          const allChars=await service.getCharacteristics();
+          for(const ch of allChars){
+            if(ch.properties.write || ch.properties.writeWithoutResponse){
+              bluetoothCharacteristic=ch;
+              updateBluetoothStatus('Bluetooth : connecté à '+(bluetoothDevice.name||'BT05'),true);
+              setState('Bluetooth BT05 connecté','ready');
+              return;
+            }
+          }
+        }catch(errAll){lastError=errAll;}
+      }catch(errService){lastError=errService;}
+    }
+
+    throw lastError || new Error('Service HM-10 introuvable ou caractéristique WRITE absente');
+
+  }catch(e){
+    console.error('Erreur Bluetooth BT05',e);
+    updateBluetoothStatus('Bluetooth : erreur connexion',false);
+    alert('Erreur Bluetooth BT05 : '+(e.message||e)+'\n\nAstuce : clique sur le module qui clignote, souvent nommé AT-09, BT05, HMSoft, HM-10 ou sans nom.');
+  }
+}
+async function sendBluetoothCommand(cmd){
+  if(!bluetoothCharacteristic){
+    updateBluetoothStatus('Bluetooth : non connecté',false);
+    setState('Bluetooth non connecté','alert');
+    return false;
+  }
+  try{
+    const data=new TextEncoder().encode(cmd+'\n');
+
+    // V15.2 : AT-09 / HM-10 accepte souvent mieux l'écriture SANS réponse.
+    // C'est le point qui évite l'erreur Bluetooth 2 au moment de l'action.
+    if(bluetoothCharacteristic.properties.writeWithoutResponse && bluetoothCharacteristic.writeValueWithoutResponse){
+      await bluetoothCharacteristic.writeValueWithoutResponse(data);
+    }else if(bluetoothCharacteristic.writeValueWithResponse){
+      await bluetoothCharacteristic.writeValueWithResponse(data);
+    }else{
+      await bluetoothCharacteristic.writeValue(data);
+    }
+
+    console.log('Commande Bluetooth envoyée :',cmd);
+    updateBluetoothStatus('Bluetooth : envoyé '+cmd,true);
+    return true;
+  }catch(e){
+    console.error('Erreur envoi Bluetooth',e);
+    updateBluetoothStatus('Bluetooth : erreur envoi '+cmd,false);
+    setState('Erreur Bluetooth sur '+cmd,'alert');
+    return false;
+  }
+}
+window.connectBluetooth=connectBluetooth;
+window.sendBluetoothCommand=sendBluetoothCommand;
+if(homeBluetoothButton)homeBluetoothButton.onclick=connectBluetooth;
+if(appBluetoothButton)appBluetoothButton.onclick=connectBluetooth;
+
+let builtMessage=[],commBuilt=[],soundEnabled=false,lastAlertKey=null;
+
+let selectedMode='auto',faceLandmarker,drawingUtils,running=false,lastVideoTime=-1,currentTarget=null,targetStart=null,lastConfirmedAt=0,assistantAskedFor=null,baseX=null,baseY=null,radioIndex=0,musicIndex=0,lastSwitch=0,nextArmed=true,mode='select',inboxMouthCount=0,lastInboxMouth=0,inboxMouthOpen=false;
+const SELECT_THRESHOLD=.052,AUTO_HOLD_MS=3000,MOUTH_THRESHOLD=.062,SHAKE_THRESHOLD=.035;
+function show(s){home.classList.remove('active');modeScreen.classList.remove('active');app.classList.remove('active');familyScreen.classList.remove('active');nurseScreen.classList.remove('active');s.classList.add('active')}function setState(t,type='loading'){stateText.textContent=t;stateDot.className='dot';if(type==='ready')stateDot.classList.add('ready');if(type==='alert')stateDot.classList.add('alert')}function modeLabel(){return{mouth:'Bouche : viser + ouvrir la bouche',auto:'Auto : viser 3 secondes',assistant:'Assistant : question vocale + bouche = oui'}[selectedMode]||'Auto'}function actionLabel(a){return{radio:'Radio Live',tv:'Télévision',music:'Musique',drink:'J’ai soif',lightOn:'Allumer la lumière',lightOff:'Éteindre la lumière',comfort:'J’ai chaud',pain:'J’ai mal',communicate:'Communiquer',inbox:'Messagerie',send:'Envoyer',clear:'Effacer',cancelComm:'Retour',tvPowerOn:'TV ON',tvPowerOff:'TV OFF',tvChannelPlus:'Chaîne +',tvChannelMinus:'Chaîne -',tvVolumePlus:'Volume +',tvVolumeMinus:'Volume -',tvBack:'Retour TV'}[a]||(a&&a.startsWith('phrase:')?PHRASES[Number(a.split(':')[1])]||'Phrase':a)}function speak(t){try{speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(t);u.lang='fr-FR';speechSynthesis.speak(u)}catch(e){}}
+function dist(a,b){let dx=a.x-b.x,dy=a.y-b.y;return Math.sqrt(dx*dx+dy*dy)}function mouthRatio(l){let o=dist(l[13],l[14]),w=dist(l[61],l[291]);return w?o/w:0}function resize(){let d=window.devicePixelRatio||1;canvas.width=Math.round(innerWidth*d);canvas.height=Math.round(innerHeight*d);canvas.style.width=innerWidth+'px';canvas.style.height=innerHeight+'px';ctx.setTransform(d,0,0,d,0,0)}
+async function init(){if(faceLandmarker)return;setState('Chargement IA visage...');const fs=await FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm');faceLandmarker=await FaceLandmarker.createFromOptions(fs,{baseOptions:{modelAssetPath:'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/latest/face_landmarker.task',delegate:'GPU'},outputFaceBlendshapes:true,runningMode:'VIDEO',numFaces:1});drawingUtils=new DrawingUtils(ctx)}
+async function startCam(){await init();const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:1280},height:{ideal:720}},audio:false});video.srcObject=stream;await video.play();running=true;setState('Système prêt','ready');requestAnimationFrame(loop)}function stopCam(){running=false;if(video.srcObject){for(const t of video.srcObject.getTracks())t.stop();video.srcObject=null}ctx.clearRect(0,0,innerWidth,innerHeight)}
+function drawFace(l){ctx.clearRect(0,0,innerWidth,innerHeight);for(let i=0;i<l.length;i+=7){let p=l[i];ctx.beginPath();ctx.arc(p.x*innerWidth,p.y*innerHeight,1.55,0,Math.PI*2);ctx.fillStyle='rgba(38,255,154,.9)';ctx.fill()}drawingUtils.drawConnectors(l,FaceLandmarker.FACE_LANDMARKS_RIGHT_EYE,{color:'rgba(38,255,154,.95)',lineWidth:2});drawingUtils.drawConnectors(l,FaceLandmarker.FACE_LANDMARKS_LEFT_EYE,{color:'rgba(38,255,154,.95)',lineWidth:2});drawingUtils.drawConnectors(l,FaceLandmarker.FACE_LANDMARKS_LIPS,{color:'rgba(255,59,95,.92)',lineWidth:2});drawingUtils.drawConnectors(l,FaceLandmarker.FACE_LANDMARKS_FACE_OVAL,{color:'rgba(255,255,255,.72)',lineWidth:1.5})}
+function inferFrom(l,list){let nose=l[1],left=l[234],right=l[454],top=l[10],chin=l[152],cx=(left.x+right.x)/2,cy=(top.y+chin.y)/2;if(baseX===null){baseX=cx;baseY=cy}let dx=nose.x-baseX,dy=nose.y-baseY;if(Math.abs(dx)<SELECT_THRESHOLD*.55&&Math.abs(dy)<SELECT_THRESHOLD*.55){baseX=baseX*.94+cx*.06;baseY=baseY*.94+cy*.06}let mag=Math.sqrt(dx*dx+dy*dy);if(mag<SELECT_THRESHOLD)return null;let screenX=innerWidth/2-(dx*innerWidth*5.5),screenY=innerHeight/2+(dy*innerHeight*5.5);let best=null,bestD=Infinity;for(const ic of list){if(ic.offsetParent===null)continue;let r=ic.getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2,d=Math.hypot(screenX-x,screenY-y);if(d<bestD){bestD=d;best=ic.dataset.action}}return best}
+function activeTargetIcons(){if(mode==='communicate')return commChoices;if(mode==='tvRemote')return tvChoices;return mainIcons}
+function infer(l){return inferFrom(l, activeTargetIcons())}
+function target(a,prog=0){currentTarget=a;for(const ic of activeTargetIcons()){let ok=ic.dataset.action===a;ic.classList.toggle('target',ok);ic.querySelector('.fill').style.height=ok?Math.min(100,prog*100)+'%':'0%'}let ic=activeTargetIcons().find(i=>i.dataset.action===a);if(ic)laserTo(ic);actionTitle.textContent='Cible : '+actionLabel(a);actionText.textContent=selectedMode==='auto'?'Restez sur la cible : validation automatique après 3 secondes.':selectedMode==='mouth'?'Ouvrez la bouche pour valider.':'Assistant : AURA LINK demande confirmation.'}
+function clearTarget(){currentTarget=null;targetStart=null;assistantAskedFor=null;laser.classList.remove('show');for(const ic of icons){ic.classList.remove('target');let f=ic.querySelector('.fill');if(f)f.style.height='0%'}actionTitle.textContent='Interface néon prête';actionText.textContent='Visez une icône avec le regard / orientation du visage.'}
+function laserTo(el){let x1=innerWidth/2,y1=innerHeight/2,r=el.getBoundingClientRect(),x2=r.left+r.width/2,y2=r.top+r.height/2,dx=x2-x1,dy=y2-y1,len=Math.sqrt(dx*dx+dy*dy),ang=Math.atan2(dy,dx)*180/Math.PI;laser.style.left=x1+'px';laser.style.top=y1+'px';laser.style.width=len+'px';laser.style.transform='rotate('+ang+'deg)';laser.classList.add('show')}
+function select(l,now){let a=infer(l),m=mouthRatio(l);if(!a){clearTarget();return}if(a!==currentTarget){targetStart=now;assistantAskedFor=null}let elapsed=now-(targetStart||now),prog=selectedMode==='auto'?elapsed/AUTO_HOLD_MS:0;target(a,prog);if(now-lastConfirmedAt<1600)return;if(selectedMode==='auto'&&elapsed>=AUTO_HOLD_MS)return confirm(a);if(selectedMode==='mouth'&&m>MOUTH_THRESHOLD&&elapsed>300)return confirm(a);if(selectedMode==='assistant'){if(assistantAskedFor!==a&&elapsed>450){assistantAskedFor=a;speak('Voulez-vous lancer '+actionLabel(a)+' ?')}if(m>MOUTH_THRESHOLD&&elapsed>900)return confirm(a)}}
+
+function startCommunication(){mode='communicate';commBuilt=[];updateLiveMessage();commLive.classList.add('active');mainIcons.forEach(i=>i.classList.add('hidden'));baseX=null;baseY=null;clearTarget();modeBadge.textContent='Mode : Communication — viser une phrase + ouvrir la bouche';actionTitle.textContent='Communication famille';actionText.textContent='Visez une phrase avec le laser, ouvrez la bouche pour l’ajouter, puis visez ENVOYER.';setState('Communication famille','ready')}
+function stopCommunication(){commLive.classList.remove('active');mainIcons.forEach(i=>i.classList.remove('hidden'));commBuilt=[];updateLiveMessage();baseX=null;baseY=null;mode='select';clearTarget();modeBadge.textContent='Mode : '+modeLabel();setState('Système prêt','ready')}
+function updateLiveMessage(){if(!liveMessage)return;liveMessage.textContent=commBuilt.length?commBuilt.join(' · '):'Visez une phrase puis ouvrez la bouche.'}
+function commSelect(l,now){let a=inferFrom(l,commChoices),m=mouthRatio(l);if(!a){clearTarget();return}if(a!==currentTarget){targetStart=now}let elapsed=now-(targetStart||now);target(a,0);actionTitle.textContent='Communication : '+actionLabel(a);actionText.textContent='Ouvrez la bouche pour valider cette vignette.';if(now-lastConfirmedAt<1300)return;if(m>MOUTH_THRESHOLD&&elapsed>300){lastConfirmedAt=now;commConfirm(a)}}
+async function commConfirm(a){if(a&&a.startsWith('phrase:')){let i=Number(a.split(':')[1]);if(PHRASES[i]){if(commBuilt[commBuilt.length-1]!==PHRASES[i]) commBuilt.push(PHRASES[i]);if(commBuilt.length>8)commBuilt=commBuilt.slice(-8);updateLiveMessage();speak(PHRASES[i])}}else if(a==='clear'){commBuilt.pop();updateLiveMessage()}else if(a==='cancelComm'){stopCommunication()}else if(a==='send'){let msg=commBuilt.join(' · ').trim();if(!msg){liveMessage.textContent='Message vide : choisissez au moins une phrase.';return}try{await addConversationMessage('patient',msg,'Patient AURA LINK');liveMessage.textContent='Message envoyé à la famille ✅';commBuilt=[];setTimeout(updateLiveMessage,1800);setState('Message famille envoyé','ready');speak('Message envoyé à la famille')}catch(e){liveMessage.textContent='Erreur Firebase : message non envoyé';setState('Erreur Firebase','alert')}}clearTarget()}
+async function confirm(a){
+  lastConfirmedAt=performance.now();
+
+  if(a==='radio')startRadio();
+  if(a==='tv')startTVRemote();
+  if(a==='music')startMusic();
+
+  // AURA LINK V15.3 + Programme Arduino Aura V1
+  // Commandes validées : 1=LED ON, 2=LED OFF, 3=ventilateur D2 5s, 4=servo paille D4
+  if(a==='drink'){
+    const ok=await sendBluetoothCommand('4');
+    if(ok)startDrink();
+    else startSimple('⚠️','Bluetooth non envoyé','Commande 4 non transmise au BT05 / Arduino.');
+  }
+
+  if(a==='lightOn'){
+    const ok=await sendBluetoothCommand('1');
+    if(ok)startSimple('💡','LED allumée','Commande Bluetooth envoyée : 1 → D3 ON');
+    else startSimple('⚠️','Bluetooth non envoyé','Commande 1 non transmise au BT05 / Arduino.');
+  }
+
+  if(a==='lightOff'){
+    const ok=await sendBluetoothCommand('2');
+    if(ok)startSimple('🌙','LED éteinte','Commande Bluetooth envoyée : 2 → D3 OFF');
+    else startSimple('⚠️','Bluetooth non envoyé','Commande 2 non transmise au BT05 / Arduino.');
+  }
+
+  if(a==='comfort'){
+    const ok=await sendBluetoothCommand('3');
+    if(ok)startSimple('🌬️','Ventilateur activé 5 s','Commande Bluetooth envoyée : 3 → D2 5 secondes');
+    else startSimple('⚠️','Bluetooth non envoyé','Commande 3 non transmise au BT05 / Arduino.');
+  }
+
+  if(a==='pain')sendNurseAlert('🚑 Alerte douleur','Le patient indique : J’ai mal.');
+  if(a==='communicate'){startCommunication();return}
+  if(a==='inbox'){startInbox();clearTarget();return}
+  clearTarget();
+}
+
+
+function startTVRemote(){
+  mode='tvRemote';
+  tvRemoteLive.classList.add('active');
+  mainIcons.forEach(i=>i.classList.add('hidden'));
+  baseX=null;baseY=null;clearTarget();
+  modeBadge.textContent='Mode : Télécommande TV IR — viser 3 secondes';
+  actionTitle.textContent='Télécommande TV IR';
+  actionText.textContent='ON et OFF envoient la commande Bluetooth p vers Arduino. Les autres codes seront ajoutés après décodage IR.';
+  setState('Télécommande TV IR','ready');
+}
+function stopTVRemote(){
+  if(tvRemoteLive)tvRemoteLive.classList.remove('active');
+  mainIcons.forEach(i=>i.classList.remove('hidden'));
+  if(mode==='tvRemote')mode='select';
+  baseX=null;baseY=null;clearTarget();
+  modeBadge.textContent='Mode : '+modeLabel();
+  setState('Système prêt','ready');
+}
+async function tvRemoteConfirm(a){
+  if(a==='tvBack'){stopTVRemote();return;}
+  if(a==='tvPowerOn' || a==='tvPowerOff'){
+    const ok=await sendBluetoothCommand('p');
+    if(ok)setState(actionLabel(a)+' : POWER envoyé','ready');
+    else setState('Bluetooth non connecté : POWER non envoyé','alert');
+    return;
+  }
+  const labels={tvChannelPlus:'Chaîne +',tvChannelMinus:'Chaîne -',tvVolumePlus:'Volume +',tvVolumeMinus:'Volume -'};
+  startSimple('📺',labels[a]||'TV','Code IR non encore enregistré. Donne-moi le code de cette touche et je l’ajouterai.');
+}
+function tvRemoteSelect(l,now){
+  let a=inferFrom(l,tvChoices);
+  if(!a){clearTarget();return}
+  if(a!==currentTarget){targetStart=now}
+  let elapsed=now-(targetStart||now),prog=elapsed/AUTO_HOLD_MS;
+  target(a,prog);
+  actionTitle.textContent='Télécommande : '+actionLabel(a);
+  actionText.textContent='Gardez le laser sur la touche 3 secondes pour envoyer la commande.';
+  if(now-lastConfirmedAt<1600)return;
+  if(elapsed>=AUTO_HOLD_MS){lastConfirmedAt=now;tvRemoteConfirm(a);clearTarget();}
+}
+function renderPhrases(){phraseGrid.innerHTML=PHRASES.map(p=>'<button type="button" data-p="'+p.replaceAll('"','&quot;')+'">'+p+'</button>').join('');phraseGrid.querySelectorAll('button').forEach(b=>b.onclick=()=>{builtMessage.push(b.dataset.p);refreshMessage()})}
+function refreshMessage(){messagePreview.textContent=builtMessage.length?builtMessage.join(' '):'Touchez les phrases pour composer le message...'}
+function startCommunicate(){mode='comm';commModal.classList.add('show');builtMessage=[];refreshMessage();renderPhrases();setState('Communication famille','ready')}
+async function sendMessageFamily(){let text=builtMessage.join(' ').trim();if(!text){commStatus.textContent='Composez d’abord un message.';return}try{await addConversationMessage('patient',text,'Patient AURA LINK');commStatus.textContent='Message envoyé à la famille ✅';builtMessage=[];refreshMessage();setTimeout(()=>{commModal.classList.remove('show');mode='select';},900)}catch(e){commStatus.textContent='Erreur Firebase : '+e.message}}
+function stampValue(v){
+  if(typeof v==='number')return v;
+  if(typeof v==='string'){
+    let t=Date.parse(v);
+    return isNaN(t)?0:t;
+  }
+  if(v && typeof v==='object' && typeof v.seconds==='number')return v.seconds*1000;
+  return 0;
+}
+function normaliseMessage(m,key,source){
+  let msg=m.message||m.text||m.body||'';
+  let from=(m.from||m.sender||m.role||'').toString().toLowerCase();
+  if(from==='family'||from==='famille'||from==='parent')from='famille';
+  else if(from==='patient'||from==='user'||from==='malade')from='patient';
+  else from='patient';
+  let created=stampValue(m.createdAt||m.timestamp||m.time||m.localTime||m.serverTime);
+  return {key:(source||'db')+':'+key,sortKey:key||'',uid:m.uid||m.id||key||'',createdAt:created,from,message:msg,name:m.name||from};
+}
+function renderConversation(arr){
+  if(!arr.length)return '<div class="emptyThread">Aucun message pour le moment.</div>';
+  return arr.map(m=>{
+    let isFam=m.from==='famille';
+    let who=isFam?'Famille':'Patient';
+    let cls=isFam?'family':'patient';
+    return '<div class="bubble '+cls+'"><span class="meta">'+who+' · '+fmtDate(m.createdAt)+'</span><p class="txt">'+escapeHtml(m.message||'')+'</p></div>';
+  }).join('');
+}
+
+// V14.0 : UNE discussion Firebase dédiée et unique sur la nouvelle base AURA LINK.
+// Chemin réel : auraLink/conversation
+// Patient et famille lisent et écrivent STRICTEMENT au même endroit.
+// Double sécurité : SDK Firebase + lecture REST + affichage local immédiat.
+const DISCUSSION_MAIN='conversation';
+const DB_URL=(firebaseConfig.databaseURL||'').replace(/\/$/,'');
+let conversationStarted=false;
+let conversationPollTimer=null;
+let lastConversationHtml='';
+let lastConversationArr=[];
+let sdkUnsubscribe=null;
+function conversationRef(){return ref(db,DB_BASE+'/'+DISCUSSION_MAIN)}
+function conversationItemRef(id){return ref(db,DB_BASE+'/'+DISCUSSION_MAIN+'/'+id)}
+function conversationRestUrl(){return DB_URL+'/'+DB_BASE+'/'+DISCUSSION_MAIN+'.json'}
+function conversationRestItemUrl(id){return DB_URL+'/'+DB_BASE+'/'+DISCUSSION_MAIN+'/'+id+'.json'}
+function sortMessages(arr){
+  const seen=new Map();
+  for(const m of arr){
+    const id=m.uid||m.key||String(m.createdAt)+'_'+m.from+'_'+m.message;
+    seen.set(id,m);
+  }
+  return [...seen.values()].sort((a,b)=>(a.createdAt||0)-(b.createdAt||0)||String(a.uid||a.key||'').localeCompare(String(b.uid||b.key||''))).slice(-80);
+}
+function renderConversationArray(arr){
+  const sorted=sortMessages(arr);
+  const html=renderConversation(sorted);
+  // V14.0 : anti-clignotement. On ne reconstruit l'historique que si le contenu a vraiment changé.
+  // Avant, le refresh toutes les secondes remettait innerHTML en boucle, ce qui provoquait le flash visuel.
+  if(html===lastConversationHtml)return;
+  lastConversationArr=sorted;
+  lastConversationHtml=html;
+  [familyFeed,patientFeed].forEach(target=>{
+    if(target){
+      const wasNearBottom=(target.scrollHeight-target.scrollTop-target.clientHeight)<80;
+      target.innerHTML=html;
+      requestAnimationFrame(()=>{if(wasNearBottom||target.scrollTop===0)target.scrollTop=target.scrollHeight;});
+    }
+  });
+}
+function mergeAndRender(newArr){
+  renderConversationArray([...(lastConversationArr||[]),...(newArr||[])]);
+}
+function startConversationSync(){
+  if(!conversationStarted){
+    conversationStarted=true;
     try{
-      service = await server.getPrimaryService("0000ffe0-0000-1000-8000-00805f9b34fb");
-      characteristic = await service.getCharacteristic("0000ffe1-0000-1000-8000-00805f9b34fb");
-    }catch(e){
-      service = await server.getPrimaryService("6e400001-b5a3-f393-e0a9-e50e24dcca9e");
-      characteristic = await service.getCharacteristic("6e400002-b5a3-f393-e0a9-e50e24dcca9e");
+      sdkUnsubscribe=onValue(query(conversationRef(),limitToLast(80)),snap=>{
+        let arr=[];
+        snap.forEach(c=>arr.push(normaliseMessage(c.val()||{},c.key,DISCUSSION_MAIN)));
+        renderConversationArray(arr);
+      },err=>{
+        console.error('Erreur Firebase SDK discussion',err);
+        forceRefreshConversation();
+      });
+    }catch(e){console.error('Écoute SDK impossible',e)}
+  }
+  if(!conversationPollTimer){
+    conversationPollTimer=setInterval(forceRefreshConversation,30000);
+  }
+  forceRefreshConversation();
+}
+async function forceRefreshConversation(){
+  let got=false;
+  try{
+    const snap=await get(query(conversationRef(),limitToLast(80)));
+    let arr=[];
+    snap.forEach(c=>arr.push(normaliseMessage(c.val()||{},c.key,DISCUSSION_MAIN)));
+    if(arr.length || lastConversationArr.length){renderConversationArray(arr);got=true;}
+  }catch(e){console.error('Rafraîchissement SDK conversation impossible',e);}
+  try{
+    const r=await fetch(conversationRestUrl()+'?t='+Date.now(),{cache:'no-store'});
+    if(r.ok){
+      const data=await r.json();
+      let arr=[];
+      if(data){Object.entries(data).forEach(([k,v])=>arr.push(normaliseMessage(v||{},k,DISCUSSION_MAIN)));}
+      renderConversationArray(arr);
+      got=true;
     }
-
-    bleCharacteristic = characteristic;
-    document.getElementById("connect").textContent = "Bluetooth OK";
-  }catch(err){
-    alert("Erreur Bluetooth : " + err);
-  }
-}
-
-async function sendBT(cmd){
-  if(!bleCharacteristic){
-    alert("Bluetooth non connecté");
-    return;
-  }
-  const data = new TextEncoder().encode(cmd);
-  await bleCharacteristic.writeValue(data);
-  pulseLabel("Commande envoyée : " + cmd);
-}
-
-function pulseLabel(txt){
-  console.log(txt);
-}
-
-function showScreen(id){
-  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
-  currentScreen = id;
-  resetTarget();
-}
-
-function resetTarget(){
-  if(currentTarget) currentTarget.classList.remove("activeTarget");
-  currentTarget = null;
-  targetStart = 0;
-  bar.style.width = "0%";
-}
-
-function getTargets(){
-  if(currentScreen === "home"){
-    return [...document.querySelectorAll("#home .tile")];
-  }
-  if(currentScreen === "tv"){
-    return [...document.querySelectorAll("#tv .remoteBtn")];
-  }
-  return [];
-}
-
-function detectTarget(){
-  const targets = getTargets();
-  let found = null;
-
-  for(const el of targets){
-    const r = el.getBoundingClientRect();
-    if(laserX >= r.left && laserX <= r.right && laserY >= r.top && laserY <= r.bottom){
-      found = el;
-      break;
-    }
-  }
-
-  if(found !== currentTarget){
-    resetTarget();
-    currentTarget = found;
-    if(currentTarget){
-      currentTarget.classList.add("activeTarget");
-      targetStart = performance.now();
-    }
-  }
-
-  if(currentTarget){
-    const elapsed = performance.now() - targetStart;
-    const pct = Math.min(100, elapsed / HOLD_TIME * 100);
-    bar.style.width = pct + "%";
-
-    if(elapsed >= HOLD_TIME){
-      activate(currentTarget);
-      resetTarget();
+  }catch(e){console.error('Rafraîchissement REST conversation impossible',e);}
+  if(!got && !lastConversationArr.length){
+    const html='<div class="emptyThread">Aucun message pour le moment.</div>';
+    if(html!==lastConversationHtml){
+      lastConversationHtml=html;
+      if(familyFeed)familyFeed.innerHTML=html;
+      if(patientFeed)patientFeed.innerHTML=html;
     }
   }
 }
+function listenFamily(){startConversationSync();forceRefreshConversation()}
+function listenPatientInbox(){startConversationSync();forceRefreshConversation()}
+function startInbox(){mode='inbox';inboxMouthCount=0;lastInboxMouth=0;inboxMouthOpen=false;inboxModal.classList.add('show');listenPatientInbox();setState('Messagerie famille','ready');actionTitle.textContent='Messagerie';actionText.textContent='Secouez la tête pour quitter, ou ouvrez la bouche deux fois pour Communiquer.'}
+function stopInbox(){inboxModal.classList.remove('show');if(mode==='inbox')mode='select'}
+async function addConversationMessage(from,text,name){
+  let clean=String(text||'').trim();
+  if(!clean)throw new Error('Message vide');
+  let now=Date.now();
+  let id='m_'+now+'_'+Math.random().toString(36).slice(2,8);
+  let payload={uid:id,message:clean,text:clean,createdAt:now,timestamp:now,time:now,localTime:now,from:from,name:name||from};
+  const localMsg=normaliseMessage(payload,id,DISCUSSION_MAIN);
+  mergeAndRender([localMsg]);
+  let sdkOk=false, restOk=false, errors=[];
+  try{await set(conversationItemRef(id),payload); sdkOk=true;}catch(e){errors.push('SDK: '+e.message); console.error(e);}
+  try{
+    const r=await fetch(conversationRestItemUrl(id),{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    restOk=r.ok;
+    if(!r.ok)errors.push('REST HTTP '+r.status);
+  }catch(e){errors.push('REST: '+e.message); console.error(e);}
+  if(!sdkOk && !restOk)throw new Error(errors.join(' / ')||'écriture impossible');
+  await forceRefreshConversation();
+  return id;
+}
+async function sendMessageToPatient(ev){
+  if(ev&&ev.preventDefault)ev.preventDefault();
+  let text=(familyReplyText.value||'').trim();
+  if(!text){alert('Écris un message avant d’envoyer.');return}
+  if(sendPatientMessage && sendPatientMessage.dataset.sending==='1')return;
+  if(sendPatientMessage){sendPatientMessage.dataset.sending='1';sendPatientMessage.disabled=true;sendPatientMessage.textContent='ENVOI...';}
+  try{
+    await addConversationMessage('famille',text,'Famille');
+    familyReplyText.value='';
+    if(sendPatientMessage)sendPatientMessage.textContent='MESSAGE ENVOYÉ ✅';
+    setTimeout(()=>{if(sendPatientMessage)sendPatientMessage.textContent='ENVOYER AU PATIENT';},1000);
+  }catch(e){alert('Erreur Firebase famille : '+e.message); if(sendPatientMessage)sendPatientMessage.textContent='ERREUR FIREBASE';}
+  finally{setTimeout(()=>{if(sendPatientMessage){sendPatientMessage.disabled=false;sendPatientMessage.dataset.sending='0';}},500);}
+}
+async function resetFamilyMessages(){
+  if(!confirm('Effacer toute la discussion patient/famille ?'))return;
+  try{
+    await remove(conversationRef()).catch(()=>{});
+    try{await fetch(conversationRestUrl(),{method:'DELETE'});}catch(e){}
+    lastConversationHtml='';lastConversationArr=[];
+    if(familyFeed)familyFeed.innerHTML='<div class="emptyThread">Conversation effacée.</div>';
+    if(patientFeed)patientFeed.innerHTML='<div class="emptyThread">Conversation effacée.</div>';
+  }catch(e){alert('Erreur reset conversation : '+e.message)}
+}
+async function sendNurseAlert(title,message){try{await push(ref(db,DB_BASE+'/alertesInfirmier'),{title,message,createdAt:serverTimestamp(),level:'urgent'});startSimple('🚑','Alerte envoyée','Message transmis à l’infirmier sur Firebase.');setState('Alerte infirmier envoyée','alert')}catch(e){startSimple('⚠️','Erreur Firebase',e.message);setState('Erreur Firebase','alert')}}
+function fmtDate(ts){try{return ts?new Date(ts).toLocaleString('fr-FR'):'Date en cours...'}catch(e){return ''}}
+function listenNurse(){onValue(query(ref(db,DB_BASE+'/alertesInfirmier'),limitToLast(30)),snap=>{let arr=[];snap.forEach(c=>arr.push({key:c.key,...c.val()}));arr.reverse();nurseFeed.innerHTML=arr.length?arr.map((m,i)=>'<div class="msgItem alertPanel '+(i===0?'flash':'')+'"><strong>'+fmtDate(m.createdAt)+'</strong><p>'+(m.title||'Alerte')+'</p><p style="font-size:15px;color:#f7b7c2;margin-top:8px">'+escapeHtml(m.message||'')+'</p></div>').join(''):'<div class="msgItem"><p>Aucune alerte pour le moment.</p></div>';if(arr[0]&&arr[0].key!==lastAlertKey){lastAlertKey=arr[0].key;if(soundEnabled)beepAlert()}})}
+function escapeHtml(x){return String(x).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
 
-function activate(el){
-  if(el.dataset.action === "tv"){
-    showScreen("tv");
-    return;
-  }
+async function resetNurseAlerts(){if(!confirm('Effacer toutes les alertes infirmier ?'))return;try{await remove(ref(db,DB_BASE+'/alertesInfirmier'));lastAlertKey=null;nurseFeed.innerHTML='<div class="msgItem"><p>Alertes infirmier effacées.</p></div>'}catch(e){alert('Erreur reset infirmier : '+e.message)}}
+function beepAlert(){try{let ac=new (window.AudioContext||window.webkitAudioContext)();let o=ac.createOscillator(),g=ac.createGain();o.frequency.value=880;o.connect(g);g.connect(ac.destination);g.gain.setValueAtTime(.001,ac.currentTime);g.gain.exponentialRampToValueAtTime(.25,ac.currentTime+.02);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+.55);o.start();o.stop(ac.currentTime+.6)}catch(e){}}
+async function startRadio(){mode='radio';radioModal.classList.add('show');updateRadio();try{radioAudio.muted=false;radioAudio.volume=1;await radioAudio.play();radioWarn.classList.remove('show')}catch(e){try{radioAudio.muted=true;await radioAudio.play();setTimeout(async()=>{radioAudio.muted=false;try{await radioAudio.play()}catch(x){}},350)}catch(x){radioWarn.classList.add('show')}}setState('Radio : '+RADIOS[radioIndex].title,'ready')}function updateRadio(){let s=RADIOS[radioIndex];radioAudio.src=s.file;radioAudio.load();radioTitle.textContent=s.title;radioHint.textContent='Lecture : '+s.title+' — station '+(radioIndex+1)+' / '+RADIOS.length;stationList.innerHTML=RADIOS.map((s,i)=>'<div class="station '+(i===radioIndex?'active':'')+'">▶ '+s.title+'</div>').join('')}async function nextRadio(){radioIndex=(radioIndex+1)%RADIOS.length;updateRadio();try{await radioAudio.play()}catch(e){}setState('Radio : '+RADIOS[radioIndex].title,'ready')}async function prevRadio(){radioIndex=(radioIndex-1+RADIOS.length)%RADIOS.length;updateRadio();try{await radioAudio.play()}catch(e){}setState('Radio : '+RADIOS[radioIndex].title,'ready')}function stopRadio(){radioAudio.pause();radioAudio.currentTime=0;radioModal.classList.remove('show')}
+async function startMusic(){mode='music';musicModal.classList.add('show');updateMusic();try{musicAudio.muted=false;musicAudio.defaultMuted=false;musicAudio.volume=1;await musicAudio.play();}catch(e){console.warn('Lecture musique bloquée ou impossible',e);}setState('Musique : '+MUSICS[musicIndex].title,'ready')}function updateMusic(){let t=MUSICS[musicIndex];musicAudio.pause();musicAudio.muted=false;musicAudio.defaultMuted=false;musicAudio.volume=1;musicAudio.src=t.file;musicAudio.load();musicTitle.textContent=t.title;musicHint.textContent='Lecture : '+t.file}async function nextMusic(){musicIndex=(musicIndex+1)%MUSICS.length;updateMusic();try{musicAudio.muted=false;musicAudio.defaultMuted=false;musicAudio.volume=1;await musicAudio.play()}catch(e){console.warn('Changement musique impossible',e)}setState('Musique : '+MUSICS[musicIndex].title,'ready')}async function prevMusic(){musicIndex=(musicIndex-1+MUSICS.length)%MUSICS.length;updateMusic();try{musicAudio.muted=false;musicAudio.defaultMuted=false;musicAudio.volume=1;await musicAudio.play()}catch(e){console.warn('Changement musique impossible',e)}setState('Musique : '+MUSICS[musicIndex].title,'ready')}function stopMusic(){musicAudio.pause();musicAudio.currentTime=0;musicAudio.muted=false;musicModal.classList.remove('show')}
+function startTV(){mode='tv';tvFrame.src=TV;tvModal.classList.add('show');setState('Télévision : CNEWS','ready')}function stopTV(){tvFrame.src='';tvModal.classList.remove('show')}function startSimple(icon,title,text){mode='simple';simpleModal.querySelector('.picon').textContent=icon;simpleModal.querySelector('h2').textContent=title;simpleModal.querySelector('p').textContent=text;simpleModal.classList.add('show');setState(title,'ready')}function stopSimple(){simpleModal.classList.remove('show');if(mode==='simple'){mode='select';baseX=null;baseY=null;clearTarget();setState('Système prêt','ready')}}function startDrink(){mode='locked';drinkModal.classList.add('show');setState('Servo paille en cours','ready');let left=3;drinkCountdown.textContent=left+' s';let timer=setInterval(()=>{left--;drinkCountdown.textContent=left+' s';if(left<=0){clearInterval(timer);drinkModal.classList.remove('show');mode='select';baseX=null;baseY=null;clearTarget();setState('Système prêt','ready')}},1000)}function stopDrink(force=false){if(force){drinkModal.classList.remove('show');mode='select'}}function cancel(){stopRadio();stopMusic();stopTV();stopTVRemote();stopSimple();stopDrink(true);if(mode==='communicate')stopCommunication();commModal.classList.remove('show');stopInbox();mode='select';baseX=null;baseY=null;clearTarget();setState('Système prêt','ready')}
 
-  if(el.dataset.back === "home"){
-    showScreen("home");
-    return;
+function inboxMouthControl(l,now){
+  let m=mouthRatio(l);
+  if(m>MOUTH_THRESHOLD && !inboxMouthOpen && now-lastInboxMouth>450){
+    inboxMouthOpen=true;
+    lastInboxMouth=now;
+    inboxMouthCount++;
+    setState('Messagerie : bouche '+inboxMouthCount+'/2','ready');
+    if(inboxMouthCount>=2){
+      inboxMouthCount=0;
+      stopInbox();
+      startCommunication();
+    }
   }
-
-  if(el.dataset.cmd){
-    sendBT(el.dataset.cmd);
-  }
+  if(m<MOUTH_THRESHOLD*.55){inboxMouthOpen=false;}
+  if(now-lastInboxMouth>3500 && inboxMouthCount>0){inboxMouthCount=0;setState('Messagerie famille','ready');}
 }
 
-function drawRadar(){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-
-  const cx = canvas.width/2;
-  const cy = canvas.height/2;
-  const r = 115;
-
-  ctx.strokeStyle = "rgba(0,255,255,.75)";
-  ctx.lineWidth = 2;
-
-  ctx.beginPath();
-  ctx.arc(cx,cy,r,0,Math.PI*2);
-  ctx.stroke();
-
-  ctx.beginPath();
-  ctx.arc(cx,cy,r*0.65,0,Math.PI*2);
-  ctx.stroke();
-
-  ctx.beginPath();
-  ctx.moveTo(cx-r,cy);
-  ctx.lineTo(cx+r,cy);
-  ctx.moveTo(cx,cy-r);
-  ctx.lineTo(cx,cy+r);
-  ctx.stroke();
-
-  ctx.strokeStyle = "rgba(0,255,255,.9)";
-  ctx.lineWidth = 3;
-  ctx.beginPath();
-  ctx.moveTo(cx,cy);
-  ctx.lineTo(laserX,laserY);
-  ctx.stroke();
-
-  ctx.fillStyle = "#ff9900";
-  ctx.shadowColor = "#ff9900";
-  ctx.shadowBlur = 18;
-  ctx.beginPath();
-  ctx.arc(laserX,laserY,10,0,Math.PI*2);
-  ctx.fill();
-  ctx.shadowBlur = 0;
-}
-
-function animate(){
-  drawRadar();
-  detectTarget();
-  requestAnimationFrame(animate);
-}
-
-const faceMesh = new FaceMesh({
-  locateFile: file => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
-});
-
-faceMesh.setOptions({
-  maxNumFaces:1,
-  refineLandmarks:true,
-  minDetectionConfidence:0.5,
-  minTrackingConfidence:0.5
-});
-
-faceMesh.onResults(results=>{
-  if(results.multiFaceLandmarks && results.multiFaceLandmarks.length){
-    const lm = results.multiFaceLandmarks[0];
-
-    // nez : point 1
-    const nose = lm[1];
-
-    // vidéo miroir : on inverse X pour garder gauche = gauche réel écran
-    const nx = 1 - nose.x;
-    const ny = nose.y;
-
-    const gainX = 2.3;
-    const gainY = 2.0;
-
-    laserX = window.innerWidth/2 + (nx - 0.5) * window.innerWidth * gainX;
-    laserY = window.innerHeight/2 + (ny - 0.5) * window.innerHeight * gainY;
-
-    laserX = Math.max(0, Math.min(window.innerWidth, laserX));
-    laserY = Math.max(0, Math.min(window.innerHeight, laserY));
+function detectExitShake(l,now){
+  let nose=l[1];
+  if(!window.exitBaseX){window.exitBaseX=nose.x;window.exitShakeLast=0;window.exitShakeSign=0;window.exitShakeCount=0;}
+  let dx=nose.x-window.exitBaseX;
+  if(Math.abs(dx)<SHAKE_THRESHOLD*.55){window.exitBaseX=window.exitBaseX*.94+nose.x*.06;return false;}
+  let sign=dx>0?1:-1;
+  if(now-(window.exitShakeLast||0)>1700){window.exitShakeCount=0;window.exitShakeSign=0;}
+  if(sign!==window.exitShakeSign && now-(window.exitShakeLast||0)>160){
+    if(window.exitShakeSign!==0)window.exitShakeCount++;
+    window.exitShakeSign=sign;
+    window.exitShakeLast=now;
+    if(window.exitShakeCount>=2){
+      window.exitShakeCount=0;window.exitShakeSign=0;window.exitBaseX=nose.x;
+      cancel();
+      return true;
+    }
   }
-});
-
-const camera = new Camera(video,{
-  onFrame: async()=>{ await faceMesh.send({image:video}); },
-  width:640,
-  height:480
-});
-
-camera.start();
-animate();
+  return false;
+}
+function playerGestures(l,now){let nose=l[1];if(baseX===null){baseX=nose.x;return}let dx=baseX-nose.x;if(Math.abs(dx)<SHAKE_THRESHOLD*.55){baseX=baseX*.92+nose.x*.08;nextArmed=true;return}
+if(!window.cancelPhase)window.cancelPhase='right';if(!window.cancelCount)window.cancelCount=0;if(!window.lastCancel)window.lastCancel=0;
+if(now-window.lastCancel>1600){window.cancelCount=0;window.cancelPhase='right'}
+if(now-window.lastCancel>180){if(window.cancelPhase==='right'&&dx>SHAKE_THRESHOLD*1.9){window.cancelPhase='left';window.lastCancel=now}else if(window.cancelPhase==='left'&&dx<-SHAKE_THRESHOLD*1.9){window.cancelPhase='right';window.cancelCount++;window.lastCancel=now;if(window.cancelCount>=2){window.cancelCount=0;cancel();return}}}
+if(!nextArmed||now-lastSwitch<1200)return;if(dx<-SHAKE_THRESHOLD*1.45){if(mode==='radio')nextRadio();if(mode==='music')nextMusic();lastSwitch=now;nextArmed=false}else if(dx>SHAKE_THRESHOLD*1.45){if(mode==='radio')prevRadio();if(mode==='music')prevMusic();lastSwitch=now;nextArmed=false}}
+async function loop(){if(!running)return;resize();if(video.currentTime!==lastVideoTime&&faceLandmarker){lastVideoTime=video.currentTime;let res=faceLandmarker.detectForVideo(video,performance.now());if(res.faceLandmarks&&res.faceLandmarks.length){let l=res.faceLandmarks[0];drawFace(l);let now=performance.now();if(mode==='select')select(l,now);else if(mode!=='locked'&&detectExitShake(l,now)){}else if(mode==='communicate')commSelect(l,now);else if(mode==='tvRemote')tvRemoteSelect(l,now);else if(mode==='inbox')inboxMouthControl(l,now);else playerGestures(l,now)}else{ctx.clearRect(0,0,innerWidth,innerHeight);setState('Visage non détecté','alert')}}requestAnimationFrame(loop)}
+faceButton.onclick=()=>show(modeScreen);document.querySelectorAll('.mode').forEach(c=>c.onclick=async()=>{selectedMode=c.dataset.mode;modeBadge.textContent='Mode : '+modeLabel();show(app);resize();try{await startCam()}catch(e){console.error(e);setState('Caméra bloquée','alert');actionText.textContent='Impossible d’activer la caméra. Vérifiez l’autorisation caméra.'}});backButton.onclick=()=>{cancel();stopCam();show(home)};
+familyButton.onclick=()=>{let c=prompt('Code famille');if(c==='famille'){show(familyScreen);listenFamily()}};
+nurseButton.onclick=()=>{let c=prompt('Code infirmier');if(c==='infirmier'){show(nurseScreen);listenNurse()}};
+familyBack.onclick=()=>show(home);nurseBack.onclick=()=>show(home);
+enableSound.onclick=()=>{soundEnabled=true;beepAlert();enableSound.textContent='Sonnerie activée ✅'};
+resetFamily.onclick=resetFamilyMessages;resetNurse.onclick=resetNurseAlerts;sendPatientMessage.onclick=sendMessageToPatient;sendPatientMessage.addEventListener('click',sendMessageToPatient);familyReplyText.addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.ctrlKey||e.metaKey)){sendMessageToPatient(e)}});patientCommunicate.onclick=()=>{stopInbox();startCommunication()};
+sendFamilyMessage.onclick=sendMessageFamily;clearMessage.onclick=()=>{builtMessage=[];refreshMessage()};
+document.querySelectorAll('.close').forEach(b=>b.onclick=cancel);musicAudio.addEventListener('ended',()=>{if(mode==='music')nextMusic()});addEventListener('resize',resize);
 </script>
 </body>
 </html>
